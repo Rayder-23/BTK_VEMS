@@ -20,6 +20,20 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Area routes — /StudentPortal, /TeacherPortal, /ManagementPortal → Each area's Home/Index
+app.MapAreaControllerRoute(
+    name: "StudentPortal",
+    areaName: "StudentPortal",
+    pattern: "StudentPortal/{controller=Home}/{action=Index}/{id?}");
+app.MapAreaControllerRoute(
+    name: "TeacherPortal",
+    areaName: "TeacherPortal",
+    pattern: "TeacherPortal/{controller=Home}/{action=Index}/{id?}");
+app.MapAreaControllerRoute(
+    name: "ManagementPortal",
+    areaName: "ManagementPortal",
+    pattern: "ManagementPortal/{controller=Home}/{action=Index}/{id?}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
