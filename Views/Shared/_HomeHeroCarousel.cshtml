@@ -1,0 +1,52 @@
+@* Bootstrap carousel hero with overlays and CTAs *@
+<section id="home" class="hero-carousel carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5500">
+    @* #home anchors the carousel for both scroll position and carousel API (data-bs-target) *@
+    <div class="carousel-indicators mb-4">
+        <button type="button" data-bs-target="#home" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#home" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#home" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+        @* Slide 1 — online education *@
+        <div class="carousel-item active">
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1920&q=85');"></div>
+            <div class="carousel-caption">
+                <h1 class="display-5 fw-bold text-white mb-3 hero-caption-title">Welcome to Virtual Education Management System</h1>
+                <p class="lead mx-auto hero-caption-lead mb-4">
+                    Learn anywhere with structured programs, guided faculty, and secure digital campuses built for tomorrow.
+                </p>
+                <a href="#courses" class="btn btn-primary btn-lg rounded-pill px-5 hero-cta shadow">Explore Courses</a>
+            </div>
+        </div>
+        @* Slide 2 — virtual classes *@
+        <div class="carousel-item">
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1920&q=85');"></div>
+            <div class="carousel-caption">
+                <h2 class="display-5 fw-bold text-white mb-3 hero-caption-title">Collaborative Virtual Classrooms</h2>
+                <p class="lead mx-auto hero-caption-lead mb-4">
+                    Attend sessions, submit work, and get feedback—all in sync with peers and mentors.
+                </p>
+                <a href="#admissions" class="btn btn-primary btn-lg rounded-pill px-5 hero-cta shadow">View Admissions</a>
+            </div>
+        </div>
+        @* Slide 3 — students learning *@
+        <div class="carousel-item">
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=85');"></div>
+            <div class="carousel-caption">
+                <h2 class="display-5 fw-bold text-white mb-3 hero-caption-title">Students Learning Without Limits</h2>
+                <p class="lead mx-auto hero-caption-lead mb-4">
+                    Track outcomes, badges, and progress with dashboards designed for lifelong growth.
+                </p>
+                <a href="#about" class="btn btn-primary btn-lg rounded-pill px-5 hero-cta shadow">Discover More</a>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#home" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon rounded-circle hero-control shadow" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#home" data-bs-slide="next">
+        <span class="carousel-control-next-icon rounded-circle hero-control shadow" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</section>

@@ -1,0 +1,57 @@
+@* Dark footer with columns and secondary social links *@
+<footer id="contact" class="public-footer text-white mt-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <h5 class="fw-semibold mb-3 border-start border-primary border-4 ps-3">About System</h5>
+                <p class="small text-white-50 mb-0 lh-lg">
+                    Virtual Education Management System connects learners, educators, and leadership on one secure platform
+                    for scheduling, coursework, assessments, and academic insight.
+                </p>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <h6 class="fw-semibold mb-3">Quick Links</h6>
+                <ul class="list-unstyled small footer-links">
+                    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#courses">Courses</a></li>
+                    <li><a href="#admissions">Admissions</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md-3 col-lg-3">
+                <h6 class="fw-semibold mb-3">&nbsp;</h6>
+                <ul class="list-unstyled small footer-links">
+                    <li><a href="#teachers">Teachers</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3">
+                <h6 class="fw-semibold mb-3">Contact Information</h6>
+                <p class="small text-white-50 mb-2">
+                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                    100 Learning Plaza, Edu City
+                </p>
+                <p class="small text-white-50 mb-2">
+                    <i class="bi bi-envelope-fill text-primary me-2"></i>
+                    info@vems.edu
+                </p>
+                <p class="small text-white-50 mb-3">
+                    <i class="bi bi-telephone-fill text-primary me-2"></i>
+                    +1 (555) 123-4567
+                </p>
+                <div>
+                    <a href="#" class="footer-social me-2" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="footer-social me-2" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="footer-social me-2" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="footer-social" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom py-3 text-center small text-white-50 border-top border-secondary border-opacity-25">
+        <div class="container">
+            &copy; @DateTime.UtcNow.Year Virtual Education Management System. All rights reserved.
+        </div>
+    </div>
+</footer>

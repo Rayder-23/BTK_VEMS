@@ -1,4 +1,16 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿// Virtual Education Management System — lightweight client helpers
 
-// Write your JavaScript code.
+(function () {
+  'use strict';
+
+  // Close the mobile navbar after clicking an in-page anchor for smoother UX
+  document.querySelectorAll('.public-main-nav .nav-link[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      var nav = document.getElementById('publicNavbar');
+      if (nav && nav.classList.contains('show') && window.bootstrap) {
+        var collapse = window.bootstrap.Collapse.getOrCreateInstance(nav);
+        collapse.hide();
+      }
+    });
+  });
+})();

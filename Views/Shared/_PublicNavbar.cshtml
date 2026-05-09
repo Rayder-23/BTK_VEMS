@@ -1,0 +1,44 @@
+@* Main sticky navigation: brand, links, and portal entry points *@
+<nav class="navbar navbar-expand-lg navbar-light bg-white public-main-nav shadow-sm sticky-top">
+    <div class="container-fluid px-3 px-lg-4">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold brand-link" asp-controller="Home" asp-action="Index">
+            <span class="brand-logo d-inline-flex align-items-center justify-content-center rounded-3 bg-primary bg-gradient text-white shadow-sm">
+                <i class="bi bi-mortarboard-fill fs-5" aria-hidden="true"></i>
+            </span>
+            <span class="brand-text d-none d-md-inline">Virtual Education Management System</span>
+            <span class="brand-text-short d-inline d-md-none">VEMS</span>
+        </a>
+        <button class="navbar-toggler rounded-3 border-0 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#publicNavbar"
+                aria-controls="publicNavbar" aria-expanded="false" aria-label="Toggle navigation menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse mt-3 mt-lg-0" id="publicNavbar">
+            <ul class="navbar-nav mx-lg-auto mb-3 mb-lg-0 align-items-lg-center gap-lg-1">
+                <li class="nav-item">
+                    <a class="nav-link nav-pill px-3" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-pill px-3" href="#about">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-pill px-3" href="#courses">Courses</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-pill px-3" href="#admissions">Admissions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-pill px-3" href="#teachers">Teachers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-pill px-3" href="#contact">Contact Us</a>
+                </li>
+            </ul>
+            <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-2 portal-btn-group align-items-stretch align-items-lg-center">
+                @* Portal routes can be wired to areas/controllers when portals are implemented *@
+                <a href="#" class="btn btn-outline-primary rounded-pill btn-portal fw-medium shadow-sm px-4">Student Portal</a>
+                <a href="#" class="btn btn-outline-primary rounded-pill btn-portal fw-medium shadow-sm px-4">Teacher Portal</a>
+                <a href="#" class="btn btn-primary rounded-pill btn-portal fw-medium shadow-sm px-4 text-white">Management Portal</a>
+            </div>
+        </div>
+    </div>
+</nav>

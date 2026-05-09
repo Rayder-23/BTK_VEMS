@@ -1,5 +1,31 @@
+/* =============================================================================
+   Virtual Education Management System — public microsite stylesheet
+   Complements Bootstrap 5 utilities + components; typography via Google Poppins.
+   ============================================================================= */
+
+/* --- Base tokens ------------------------------------------------------------ */
+:root {
+  --vems-blue: #0d6efd;
+  --vems-blue-dark: #0a58ca;
+  --vems-ink: #0f172a;
+  --vems-muted: #64748b;
+  --vems-soft-shadow: 0 0.65rem 1.75rem rgba(15, 23, 42, 0.08);
+  --vems-radius: 1rem;
+}
+
 html {
-  font-size: 14px;
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+/* Offset in-page anchors for sticky navbar height */
+[id="home"],
+[id="about"],
+[id="courses"],
+[id="admissions"],
+[id="teachers"],
+[id="contact"] {
+  scroll-margin-top: 88px;
 }
 
 @media (min-width: 768px) {
@@ -8,15 +34,289 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+body.public-site {
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--vems-ink);
+  background-color: #fff;
+  margin-bottom: 0;
+  line-height: 1.6;
 }
 
-html {
+.section-title {
+  color: var(--vems-ink);
+  letter-spacing: -0.02em;
+}
+
+/* --- First top bar ---------------------------------------------------------- */
+.public-top-bar {
+  background: linear-gradient(90deg, #0d6efd 0%, #0b5ed7 50%, #0a58ca 100%);
+}
+
+.public-top-bar .top-bar-item a {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.public-top-bar .top-bar-item a:hover {
+  opacity: 0.92;
+}
+
+.public-top-bar .social-icon {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-left: 0.125rem;
+  transition: transform 0.22s ease, background-color 0.22s ease, color 0.22s ease;
+}
+
+.public-top-bar .social-icon:hover {
+  transform: translateY(-3px);
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* --- Main navbar ------------------------------------------------------------ */
+.public-main-nav {
+  z-index: 1040;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.public-main-nav .brand-logo {
+  width: 42px;
+  height: 42px;
+}
+
+.public-main-nav .brand-text {
+  font-size: 0.92rem;
+  line-height: 1.22;
+  color: var(--vems-ink);
+  max-width: 260px;
+}
+
+.public-main-nav .brand-text-short {
+  font-weight: 600;
+  color: var(--vems-blue);
+}
+
+.brand-link:hover .brand-text {
+  color: var(--vems-blue);
+}
+
+.public-main-nav .nav-pill {
+  border-radius: 999px;
+  font-weight: 500;
+  color: var(--vems-muted) !important;
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.public-main-nav .nav-pill:hover,
+.public-main-nav .nav-pill:focus {
+  color: var(--vems-blue) !important;
+  background-color: rgba(13, 110, 253, 0.08);
+  box-shadow: var(--vems-soft-shadow);
+}
+
+.public-main-nav .btn-portal {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.public-main-nav .btn-portal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1.25rem rgba(13, 110, 253, 0.25);
+}
+
+.public-main-nav .btn-primary.btn-portal:hover {
+  background-color: var(--vems-blue-dark);
+  border-color: var(--vems-blue-dark);
+}
+
+.public-main-nav .portal-btn-group .btn {
+  white-space: nowrap;
+}
+
+/* --- Hero carousel ---------------------------------------------------------- */
+.hero-carousel {
+  margin-top: 0;
+}
+
+.hero-slide {
   position: relative;
-  min-height: 100%;
+  overflow: hidden;
+  min-height: 500px;
+  height: min(72vh, 560px);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.03);
 }
 
-body {
-  margin-bottom: 60px;
+.hero-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.55) 0%, rgba(15, 23, 42, 0.75) 100%);
+}
+
+.hero-carousel .carousel-item {
+  position: relative;
+}
+
+.hero-carousel .carousel-caption {
+  z-index: 2;
+  bottom: 28%;
+}
+
+@media (max-width: 991.98px) {
+  .hero-carousel .carousel-caption {
+    bottom: 22%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+.hero-caption-title {
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.hero-caption-lead {
+  max-width: 640px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.hero-control {
+  width: 3rem !important;
+  height: 3rem !important;
+  background-size: 50% 50% !important;
+  backdrop-filter: blur(4px);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(13, 110, 253, 0.4) !important;
+}
+
+.hero-carousel .carousel-indicators button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* --- Feature cards ---------------------------------------------------------- */
+.feature-card {
+  transition: transform 0.26s ease, box-shadow 0.26s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 1.35rem 2.5rem rgba(15, 23, 42, 0.12) !important;
+}
+
+.feature-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: rgba(13, 110, 253, 0.1);
+  color: var(--vems-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+/* --- About ------------------------------------------------------------------ */
+.section-about .about-image-wrap {
+  box-shadow: var(--vems-soft-shadow);
+}
+
+.section-about .about-image {
+  object-fit: cover;
+  min-height: 280px;
+}
+
+.btn-read-more:hover {
+  transform: translateY(-2px);
+}
+
+/* --- Teachers --------------------------------------------------------------- */
+.teacher-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.teacher-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 1.15rem 2.15rem rgba(15, 23, 42, 0.12) !important;
+}
+
+.teacher-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+/* --- Courses ---------------------------------------------------------------- */
+.course-thumb {
+  height: 182px;
+  object-fit: cover;
+}
+
+.course-card {
+  transition: transform 0.26s ease, box-shadow 0.26s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 1.35rem 2.5rem rgba(15, 23, 42, 0.12) !important;
+}
+
+.btn-course:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.3);
+}
+
+/* --- Admissions ribbon ------------------------------------------------------- */
+.admissions-banner {
+  border-block: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Footer ----------------------------------------------------------------- */
+.public-footer {
+  background: linear-gradient(180deg, #0b1220 0%, #070b13 100%);
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  transition: color 0.2s ease, padding-left 0.2s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: #fff;
+  padding-left: 4px;
+}
+
+.footer-social {
+  display: inline-flex;
+  width: 2.35rem;
+  height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff !important;
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.footer-social:hover {
+  transform: translateY(-3px);
+  background-color: var(--vems-blue);
+}
+
+/* --- Focus states (accessibility) ------------------------------------------ */
+.btn:focus-visible,
+.nav-link:focus-visible,
+.form-control:focus-visible,
+.navbar-toggler:focus-visible {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.35);
 }

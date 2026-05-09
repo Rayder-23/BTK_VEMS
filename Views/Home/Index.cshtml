@@ -1,8 +1,12 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@* Modular home sections assembled from partial views for readability *@
+<partial name="_HomeHeroCarousel" />
+<partial name="_HomeFeatures" />
+<partial name="_HomeAbout" />
+@* Navbar anchors Admissions & Teachers resolve to these belts *@
+<partial name="_HomeAdmissions" />
+<partial name="_HomeTeachers" />
+<partial name="_HomeCourses" />
