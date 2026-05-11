@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<section class="portal-hero rounded-4 p-4 p-lg-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="text-uppercase fw-semibold small mb-2">Student Portal</p>
+            <h1 class="display-6 fw-bold mb-3">Welcome to your student dashboard</h1>
+            <p class="lead mb-0">
+                Track your courses, attendance, results, and academic updates from a single responsive workspace.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a class="btn btn-light btn-lg rounded-pill px-4" href="#">
+                <i class="bi bi-journal-text me-2"></i>View Courses
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-book"></i></span>
+            <p class="text-muted mb-1">Enrolled Courses</p>
+            <h2 class="fw-bold mb-0">6</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-calendar-check"></i></span>
+            <p class="text-muted mb-1">Attendance</p>
+            <h2 class="fw-bold mb-0">92%</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-award"></i></span>
+            <p class="text-muted mb-1">Current GPA</p>
+            <h2 class="fw-bold mb-0">3.7</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-envelope"></i></span>
+            <p class="text-muted mb-1">Messages</p>
+            <h2 class="fw-bold mb-0">4</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="portal-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">Upcoming Classes</h2>
+                    <p class="text-muted mb-0">Your next scheduled academic activities.</p>
+                </div>
+                <i class="bi bi-calendar3 fs-4 text-primary"></i>
+            </div>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <span>Mathematics - Linear Algebra</span>
+                    <span class="badge text-bg-primary rounded-pill">09:00 AM</span>
+                </div>
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <span>Computer Science - Web Development</span>
+                    <span class="badge text-bg-primary rounded-pill">11:30 AM</span>
+                </div>
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <span>English Communication Lab</span>
+                    <span class="badge text-bg-primary rounded-pill">02:00 PM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="portal-card h-100">
+            <h2 class="h5 fw-bold mb-3">Quick Actions</h2>
+            <div class="d-grid gap-2">
+                <a class="btn btn-outline-primary" href="#"><i class="bi bi-download me-2"></i>Download Result</a>
+                <a class="btn btn-outline-primary" href="#"><i class="bi bi-check2-square me-2"></i>View Attendance</a>
+                <a class="btn btn-outline-primary" href="#"><i class="bi bi-chat-left-text me-2"></i>Contact Teacher</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,143 @@
+:root {
+    --login-accent: #2563eb;
+    --login-accent-dark: #1d4ed8;
+    --login-bg: #eef4ff;
+    --login-text: #172033;
+}
+
+body.student-login-page {
+    background: var(--login-bg);
+    color: var(--login-text);
+    min-height: 100vh;
+}
+
+.login-shell {
+    display: grid;
+    min-height: 100vh;
+}
+
+@media (min-width: 992px) {
+    .login-shell {
+        grid-template-columns: minmax(0, 1.05fr) minmax(460px, .95fr);
+    }
+}
+
+.login-hero {
+    align-items: center;
+    background:
+        linear-gradient(135deg, rgba(37, 99, 235, .92), rgba(15, 23, 42, .94)),
+        radial-gradient(circle at top left, rgba(255, 255, 255, .35), transparent 34%);
+    color: #fff;
+    padding: 4rem;
+}
+
+.login-hero-content {
+    max-width: 620px;
+}
+
+.login-badge {
+    align-items: center;
+    background: rgba(255, 255, 255, .16);
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 999px;
+    display: inline-flex;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding: .6rem 1rem;
+}
+
+.login-hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4.6rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+}
+
+.login-hero p {
+    color: rgba(255, 255, 255, .82);
+    font-size: 1.15rem;
+    max-width: 540px;
+}
+
+.login-feature-list {
+    display: grid;
+    gap: .85rem;
+    margin-top: 2rem;
+}
+
+.login-feature-list span {
+    align-items: center;
+    display: flex;
+    gap: .65rem;
+}
+
+.login-card-wrap {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(148, 163, 184, .25);
+    border-radius: 1.5rem;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, .14);
+    max-width: 480px;
+    padding: 2rem;
+    width: 100%;
+}
+
+@media (min-width: 576px) {
+    .login-card {
+        padding: 2.5rem;
+    }
+}
+
+.login-logo {
+    align-items: center;
+    background: linear-gradient(135deg, var(--login-accent), var(--login-accent-dark));
+    border-radius: 1.15rem;
+    color: #fff;
+    display: flex;
+    font-size: 1.7rem;
+    height: 58px;
+    justify-content: center;
+    width: 58px;
+}
+
+.input-group-text {
+    background: #f8fafc;
+    border-color: #dbe4f0;
+    color: var(--login-accent);
+}
+
+.form-control,
+.form-check-input {
+    border-color: #dbe4f0;
+}
+
+.form-control:focus,
+.form-check-input:focus {
+    border-color: var(--login-accent);
+    box-shadow: 0 0 0 .25rem rgba(37, 99, 235, .16);
+}
+
+.form-check-input:checked {
+    background-color: var(--login-accent);
+    border-color: var(--login-accent);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--login-accent);
+    --bs-btn-border-color: var(--login-accent);
+    --bs-btn-hover-bg: var(--login-accent-dark);
+    --bs-btn-hover-border-color: var(--login-accent-dark);
+    border-radius: .95rem;
+    font-weight: 700;
+}
+
+.validation-summary-valid {
+    display: none;
+}

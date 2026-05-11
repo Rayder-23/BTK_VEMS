@@ -1,0 +1,29 @@
+Virtual Education Management System - Database Schema
+Generated: 2026-05-11 11:29:30
+
+This file lists database tables and columns only. It does not include data rows or connection credentials.
+
+Table: dbo.Configuration
+  - UID: int NOT NULL
+  - ConfigKey: nvarchar(50) NULL
+  - ConfigValue: nvarchar(max) NULL
+
+Table: dbo.EmployeeLogin
+  - uid: int NOT NULL PK
+  - EmployeeId: varchar(50) NULL
+  - Username: nvarchar(100) NOT NULL
+  - PasswordHash: nvarchar(255) NOT NULL
+  - Role: nvarchar(max) NULL
+  - CreatedBy: varchar(max) NULL
+  - CreatedOn: varchar(max) NULL
+  - History: varchar(max) NULL
+
+Table: dbo.StudentsLogin
+  - uid: int NOT NULL PK
+  - StudentId: varchar(50) NULL
+  - Username: nvarchar(100) NOT NULL
+  - PasswordHash: nvarchar(255) NOT NULL
+  - Role: nvarchar(max) NULL
+  - CreatedBy: varchar(max) NULL
+  - CreatedOn: varchar(max) NULL
+  - History: varchar(max) NULL

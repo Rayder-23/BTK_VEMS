@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+}
+
+<section class="portal-hero rounded-4 p-4 p-lg-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="text-uppercase fw-semibold small mb-2">Teacher Portal</p>
+            <h1 class="display-6 fw-bold mb-3">Welcome to your teacher dashboard</h1>
+            <p class="lead mb-0">
+                Manage classes, attendance, course content, and student outcomes from one professional workspace.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a class="btn btn-light btn-lg rounded-pill px-4" href="#">
+                <i class="bi bi-plus-circle me-2"></i>Create Lesson
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-easel"></i></span>
+            <p class="text-muted mb-1">Active Classes</p>
+            <h2 class="fw-bold mb-0">5</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-people"></i></span>
+            <p class="text-muted mb-1">Students</p>
+            <h2 class="fw-bold mb-0">148</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-calendar-check"></i></span>
+            <p class="text-muted mb-1">Attendance Due</p>
+            <h2 class="fw-bold mb-0">3</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="metric-card">
+            <span class="metric-icon"><i class="bi bi-clipboard-data"></i></span>
+            <p class="text-muted mb-1">Results Pending</p>
+            <h2 class="fw-bold mb-0">12</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="portal-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">Today&apos;s Teaching Schedule</h2>
+                    <p class="text-muted mb-0">Classes and academic tasks planned for today.</p>
+                </div>
+                <i class="bi bi-clock-history fs-4 text-primary"></i>
+            </div>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <span>Web Development - Semester 4</span>
+                    <span class="badge text-bg-primary rounded-pill">10:00 AM</span>
+                </div>
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <span>Database Systems - Semester 3</span>
+                    <span class="badge text-bg-primary rounded-pill">12:00 PM</span>
+                </div>
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                    <span>Project Review Meeting</span>
+                    <span class="badge text-bg-primary rounded-pill">03:30 PM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="portal-card h-100">
+            <h2 class="h5 fw-bold mb-3">Quick Actions</h2>
+            <div class="d-grid gap-2">
+                <a class="btn btn-outline-primary" href="#"><i class="bi bi-calendar-plus me-2"></i>Mark Attendance</a>
+                <a class="btn btn-outline-primary" href="#"><i class="bi bi-upload me-2"></i>Upload Result</a>
+                <a class="btn btn-outline-primary" href="#"><i class="bi bi-megaphone me-2"></i>Post Announcement</a>
+            </div>
+        </div>
+    </div>
+</div>

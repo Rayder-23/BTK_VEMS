@@ -1,7 +1,29 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using VEMS.Areas.StudentPortal.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = "VEMS.AdminPortal.Session";
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "VEMS.StudentPortal.Auth";
+        options.LoginPath = "/studentportal/login";
+        options.AccessDeniedPath = "/studentportal/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
 
 var app = builder.Build();
 
@@ -18,19 +40,27 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Area routes — /StudentPortal, /TeacherPortal, /ManagementPortal → Each area's Home/Index
+// Portal area routes. Keep these before the default public route.
 app.MapAreaControllerRoute(
-    name: "StudentPortal",
+    name: "student-portal",
     areaName: "StudentPortal",
-    pattern: "StudentPortal/{controller=Home}/{action=Index}/{id?}");
+    pattern: "studentportal/{controller=Dashboard}/{action=Index}/{id?}");
 app.MapAreaControllerRoute(
-    name: "TeacherPortal",
+    name: "teacher-portal",
     areaName: "TeacherPortal",
-    pattern: "TeacherPortal/{controller=Home}/{action=Index}/{id?}");
+    pattern: "teacherportal/{controller=Dashboard}/{action=Index}/{id?}");
 app.MapAreaControllerRoute(
-    name: "ManagementPortal",
+    name: "admin-portal",
+    areaName: "AdminPortal",
+    pattern: "adminportal/{controller=Dashboard}/{action=Index}/{id?}");
+
+// Preserve the previously added management portal route so existing links keep working.
+app.MapAreaControllerRoute(
+    name: "management-portal",
     areaName: "ManagementPortal",
     pattern: "ManagementPortal/{controller=Home}/{action=Index}/{id?}");
 

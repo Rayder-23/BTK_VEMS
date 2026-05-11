@@ -1,0 +1,117 @@
+@model VEMS.Areas.AdminPortal.Models.LoginViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Admin Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Virtual Education Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/portals/admin-login.css" asp-append-version="true" />
+</head>
+<body class="admin-login-page">
+    <main class="admin-login-shell">
+        <section class="admin-login-visual">
+            <div class="admin-login-overlay"></div>
+            <div class="admin-login-visual-content">
+                <span class="admin-login-kicker">
+                    <i class="bi bi-shield-lock-fill me-2"></i>Admin Portal Access
+                </span>
+                <h1>Virtual Education Management System</h1>
+                <p>
+                    Secure management portal for academic operations, students, courses, attendance, results, and institutional settings.
+                </p>
+            </div>
+        </section>
+
+        <section class="admin-login-panel">
+            <div class="admin-login-card">
+                <div class="text-center mb-4">
+                    <div class="admin-login-logo mx-auto mb-3">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    <h2 class="fw-bold mb-1">Welcome Back</h2>
+                    <p class="text-muted mb-0">Login to continue to the admin dashboard.</p>
+                </div>
+
+                <form asp-area="AdminPortal" asp-controller="Login" asp-action="Index" method="post" id="adminLoginForm" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-semibold"></label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="Username" class="form-control" autocomplete="username" placeholder="Enter username" autofocus />
+                        </div>
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control" id="adminPassword" autocomplete="current-password" placeholder="Enter password" />
+                            <button class="btn btn-outline-secondary password-toggle" type="button" id="toggleAdminPassword" aria-label="Show password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label"></label>
+                        </div>
+                        <a href="#" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-admin-login btn-lg w-100" id="adminLoginButton">
+                        <span class="button-text"><i class="bi bi-box-arrow-in-right me-2"></i>Login</span>
+                        <span class="button-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Signing in...
+                        </span>
+                    </button>
+
+                    <p class="small text-muted text-center mt-4 mb-0">Temporary credentials: admin / admin</p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <script>
+        const passwordInput = document.getElementById('adminPassword');
+        const togglePassword = document.getElementById('toggleAdminPassword');
+        const loginForm = document.getElementById('adminLoginForm');
+        const loginButton = document.getElementById('adminLoginButton');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            togglePassword.innerHTML = isPassword ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+            togglePassword.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        });
+
+        loginForm.addEventListener('submit', () => {
+            loginButton.disabled = true;
+            loginButton.querySelector('.button-text').classList.add('d-none');
+            loginButton.querySelector('.button-loading').classList.remove('d-none');
+        });
+    </script>
+</body>
+</html>

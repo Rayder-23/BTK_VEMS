@@ -1,0 +1,66 @@
+@model AdminDashboardViewModel
+
+@{
+    Layout = "/Areas/AdminPortal/Views/Shared/_AdminHomeLayout.cshtml";
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<section class="portal-hero dashboard-hero rounded-4 p-3 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold mb-0">Welcome Admin</h1>
+        </div>
+    </div>
+</section>
+
+<section class="portal-card">
+    <div class="d-flex justify-content-end mb-4">
+        <div class="module-search-wrap">
+            <i class="bi bi-search"></i>
+            <input class="form-control" id="moduleSearchInput" type="search" placeholder="Search modules" aria-label="Search modules" />
+        </div>
+    </div>
+
+    <div class="row g-4" id="moduleGrid">
+        @foreach (var module in Model.Modules)
+        {
+            <div class="col-12 col-md-6 col-xl-3 module-grid-item" data-module-name="@module.Name" data-module-description="@module.Description">
+                <a class="module-card @module.AccentClass" href="/adminportal/@module.Controller.ToLowerInvariant()">
+                    <span class="module-icon"><i class="bi @module.IconClass"></i></span>
+                    <span class="module-title">@module.Name</span>
+                    <span class="module-description">@module.Description</span>
+                    <span class="module-arrow"><i class="bi bi-arrow-right"></i></span>
+                </a>
+            </div>
+        }
+    </div>
+    <div class="module-empty-state d-none" id="moduleEmptyState">
+        <i class="bi bi-search"></i>
+        <p class="mb-0">No modules found.</p>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const moduleSearchInput = document.getElementById('moduleSearchInput');
+        const moduleItems = Array.from(document.querySelectorAll('.module-grid-item'));
+        const moduleEmptyState = document.getElementById('moduleEmptyState');
+
+        moduleSearchInput?.addEventListener('input', () => {
+            const query = moduleSearchInput.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            moduleItems.forEach((item) => {
+                const searchableText = `${item.dataset.moduleName} ${item.dataset.moduleDescription}`.toLowerCase();
+                const isVisible = searchableText.includes(query);
+                item.classList.toggle('d-none', !isVisible);
+
+                if (isVisible) {
+                    visibleCount += 1;
+                }
+            });
+
+            moduleEmptyState?.classList.toggle('d-none', visibleCount > 0);
+        });
+    </script>
+}

@@ -1,0 +1,35 @@
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Dashboard";
+    var modules = AdminModuleCatalog.Modules;
+}
+
+<div class="sidebar-inner">
+    <a class="portal-brand" href="/adminportal">
+        <span class="brand-icon"><i class="bi bi-shield-lock-fill"></i></span>
+        <span class="brand-copy">
+            <span class="brand-title">Admin Portal</span>
+            <small>Operations center</small>
+        </span>
+    </a>
+
+    <nav class="portal-menu" aria-label="Admin portal navigation">
+        <a class="portal-menu-link @(currentController == "Dashboard" ? "active" : "")" href="/adminportal">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+
+        @foreach (var module in modules)
+        {
+            <a class="portal-menu-link @(currentController == module.Controller ? "active" : "")" href="/adminportal/@module.Controller.ToLowerInvariant()">
+                <i class="bi @module.IconClass"></i>
+                <span>@module.Name</span>
+            </a>
+        }
+    </nav>
+
+    <div class="sidebar-card">
+        <p class="mb-1 fw-semibold">System status</p>
+        <small>All administration modules are ready for setup.</small>
+    </div>
+</div>
