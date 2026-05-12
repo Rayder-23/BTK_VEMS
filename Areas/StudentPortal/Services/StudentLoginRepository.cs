@@ -14,13 +14,13 @@ public sealed class StudentLoginRepository : IStudentLoginRepository
 
     public async Task<StudentLoginUser?> ValidateCredentialsAsync(string username, string password)
     {
+        // 1. Updated SQL: Changed uid to Uid, removed Role column
         const string sql = """
             SELECT TOP (1)
-                uid,
+                Uid,
                 StudentId,
                 Username,
-                PasswordHash,
-                Role
+                PasswordHash
             FROM dbo.StudentsLogin
             WHERE Username = @username OR StudentId = @username;
             """;
@@ -43,12 +43,13 @@ public sealed class StudentLoginRepository : IStudentLoginRepository
             return null;
         }
 
+        // 2. Updated Mapping: Matches new CamelCase Uid and hardcodes "Student"
         return new StudentLoginUser
         {
-            Uid = Convert.ToInt32(reader["uid"]),
+            Uid = Convert.ToInt32(reader["Uid"]), // Use CamelCase
             StudentId = reader["StudentId"] as string,
             Username = reader["Username"] as string ?? username,
-            Role = reader["Role"] as string ?? "Student"
+            Role = "Student" // Hardcoded since we know this is the Student portal
         };
     }
 }
