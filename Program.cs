@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Scalar.AspNetCore;    // <-- Scalar UI -->
 using VEMS.Areas.StudentPortal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,15 +26,45 @@ builder.Services
     });
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
 
+// <-- Scalar UI -->
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// NOT DEVELOPMENT: Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
+// DEVELOPMENT: Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    // <-- Scalar UI -->
+    // 1. Generate the Swagger JSON file
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "openapi/{documentName}.json";
+    });
+
+    // 2. Map the Scalar UI endpoint
+    app.MapScalarApiReference(options => 
+    {
+        options.Authentication = new ScalarAuthenticationOptions
+        {
+            // Use the plural property with a new list
+            PreferredSecuritySchemes = new List<string> { "Cookie" }
+        };
+        // This allows Scalar to send your "VEMS.StudentPortal.Auth" cookie 
+        // when you click "Test Request"
+    });
+}
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -67,5 +98,7 @@ app.MapAreaControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllers();   // <-- Scalar UI -->
 
 app.Run();
