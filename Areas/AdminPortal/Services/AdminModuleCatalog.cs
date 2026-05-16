@@ -6,17 +6,30 @@ public static class AdminModuleCatalog
 {
     public static IReadOnlyList<AdminModuleCard> Modules { get; } =
     [
-        new() { Name = "Students", Controller = "Students", IconClass = "bi-people-fill", Description = "Manage student records", AccentClass = "accent-blue" },
-        new() { Name = "Courses", Controller = "Courses", IconClass = "bi-journal-bookmark-fill", Description = "Manage courses and programs", AccentClass = "accent-green" },
-        new() { Name = "Attendance", Controller = "Attendance", IconClass = "bi-calendar-check-fill", Description = "Track daily attendance", AccentClass = "accent-purple" },
-        new() { Name = "Results", Controller = "Results", IconClass = "bi-clipboard-data-fill", Description = "Manage exams and results", AccentClass = "accent-orange" },
-        new() { Name = "Fee", Controller = "Fee", IconClass = "bi-cash-coin", Description = "Manage fee structures", AccentClass = "accent-red" },
-        new() { Name = "Challans", Controller = "Challans", IconClass = "bi-receipt-cutoff", Description = "Generate and track challans", AccentClass = "accent-blue" },
-        new() { Name = "Settings", Controller = "Settings", IconClass = "bi-gear-fill", Description = "Configure system options", AccentClass = "accent-purple" },
-        new() { Name = "Employees", Controller = "Employees", IconClass = "bi-person-badge-fill", Description = "Manage employee records", AccentClass = "accent-green" },
-        new() { Name = "Accounts", Controller = "Accounts", IconClass = "bi-bank2", Description = "Manage finance accounts", AccentClass = "accent-orange" },
-        new() { Name = "HR", Controller = "HR", IconClass = "bi-diagram-3-fill", Description = "Manage HR operations", AccentClass = "accent-red" }
+        new() { Name = "Students", Controller = "Students", IconClass = "bi-people-fill", Description = "Manage student records and profiles", AccentClass = "accent-blue", IsAvailable = true },
+        new() { Name = "Courses", Controller = "Courses", IconClass = "bi-journal-bookmark-fill", Description = "Manage courses and academic programs", AccentClass = "accent-green", IsAvailable = true },
+        new() { Name = "Attendance", Controller = "Attendance", IconClass = "bi-calendar-check-fill", Description = "Track daily attendance records", AccentClass = "accent-purple", IsAvailable = true },
+        new() { Name = "Results", Controller = "Results", IconClass = "bi-clipboard-data-fill", Description = "Manage exams and student results", AccentClass = "accent-orange", IsAvailable = true },
+        new() { Name = "Fee", Controller = "Fee", IconClass = "bi-cash-coin", Description = "Configure fee structures and billing", AccentClass = "accent-red", IsAvailable = true },
+        new() { Name = "Challan", Controller = "Challans", IconClass = "bi-receipt-cutoff", Description = "Generate and track fee challans", AccentClass = "accent-teal", IsAvailable = true },
+        new() { Name = "Settings", Controller = "Settings", IconClass = "bi-gear-fill", Description = "Configure system-wide options", AccentClass = "accent-indigo", IsAvailable = true },
+        new() { Name = "Employees", Controller = "Employees", IconClass = "bi-person-badge-fill", Description = "Manage employee records", AccentClass = "accent-cyan", IsAvailable = true },
+        new() { Name = "Accounts", Controller = "Accounts", IconClass = "bi-bank2", Description = "Manage finance and ledger accounts", AccentClass = "accent-pink", IsAvailable = true },
+        new() { Name = "HR", Controller = "HR", IconClass = "bi-diagram-3-fill", Description = "Human resources operations", AccentClass = "accent-blue", IsAvailable = true },
+        new() { Name = "Examination", Controller = "Examination", IconClass = "bi-pencil-square", Description = "Exam scheduling and assessment", AccentClass = "accent-green", IsAvailable = false },
+        new() { Name = "Library", Controller = "Library", IconClass = "bi-book-fill", Description = "Library catalog and circulation", AccentClass = "accent-purple", IsAvailable = false },
+        new() { Name = "Transport", Controller = "Transport", IconClass = "bi-bus-front-fill", Description = "Routes, vehicles, and transport fees", AccentClass = "accent-orange", IsAvailable = false },
+        new() { Name = "Hostel", Controller = "Hostel", IconClass = "bi-house-door-fill", Description = "Hostel allocation and facilities", AccentClass = "accent-red", IsAvailable = false },
+        new() { Name = "Notifications", Controller = "Notifications", IconClass = "bi-bell-fill", Description = "Alerts and announcements", AccentClass = "accent-teal", IsAvailable = false },
+        new() { Name = "Reports", Controller = "Reports", IconClass = "bi-pie-chart-fill", Description = "Analytics and operational reports", AccentClass = "accent-indigo", IsAvailable = false },
+        new() { Name = "Admissions", Controller = "Admissions", IconClass = "bi-door-open-fill", Description = "Admission inquiries and enrollment", AccentClass = "accent-cyan", IsAvailable = false },
+        new() { Name = "Timetable", Controller = "Timetable", IconClass = "bi-clock-fill", Description = "Class schedules and room planning", AccentClass = "accent-pink", IsAvailable = false },
+        new() { Name = "Payroll", Controller = "Payroll", IconClass = "bi-wallet2", Description = "Salary processing and payslips", AccentClass = "accent-blue", IsAvailable = false },
+        new() { Name = "Leave Management", Controller = "LeaveManagement", IconClass = "bi-airplane-fill", Description = "Employee leave requests and balances", AccentClass = "accent-green", IsAvailable = false }
     ];
+
+    public static IReadOnlyList<AdminModuleCard> NavigableModules { get; } =
+        Modules.Where(module => module.IsAvailable).ToList();
 
     public static IReadOnlyList<AdminStatisticCard> Statistics { get; } =
     [

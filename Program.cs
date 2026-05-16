@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Scalar.AspNetCore;    // <-- Scalar UI -->
+using VEMS.Areas.AdminPortal.Services;
 using VEMS.Areas.StudentPortal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,9 @@ builder.Services
         options.SlidingExpiration = true;
     });
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IConfigurationsRepository, ConfigurationsRepository>();
 
 // <-- Scalar UI -->
 builder.Services.AddControllers();

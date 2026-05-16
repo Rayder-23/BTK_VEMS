@@ -14,7 +14,9 @@ public sealed class StudentLoginRepository : IStudentLoginRepository
 
     public async Task<StudentLoginUser?> ValidateCredentialsAsync(string username, string password)
     {
-        // 1. Updated SQL: Changed uid to Uid, removed Role column
+        var trimmedUsername = username.Trim();
+        int? studentId = int.TryParse(trimmedUsername, out var parsedStudentId) ? parsedStudentId : null;
+
         const string sql = """
             SELECT TOP (1)
                 Uid,
@@ -22,12 +24,14 @@ public sealed class StudentLoginRepository : IStudentLoginRepository
                 Username,
                 PasswordHash
             FROM dbo.StudentsLogin
-            WHERE Username = @username OR StudentId = @username;
+            WHERE Username = @username
+               OR (@studentId IS NOT NULL AND StudentId = @studentId);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@username", username.Trim());
+        command.Parameters.AddWithValue("@username", trimmedUsername);
+        command.Parameters.AddWithValue("@studentId", (object?)studentId ?? DBNull.Value);
 
         await connection.OpenAsync();
         await using var reader = await command.ExecuteReaderAsync();
@@ -47,8 +51,8 @@ public sealed class StudentLoginRepository : IStudentLoginRepository
         return new StudentLoginUser
         {
             Uid = Convert.ToInt32(reader["Uid"]), // Use CamelCase
-            StudentId = reader["StudentId"] as string,
-            Username = reader["Username"] as string ?? username,
+            StudentId = reader["StudentId"] is DBNull ? null : reader["StudentId"].ToString(),
+            Username = reader["Username"] as string ?? trimmedUsername,
             Role = "Student" // Hardcoded since we know this is the Student portal
         };
     }

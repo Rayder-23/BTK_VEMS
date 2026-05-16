@@ -1,0 +1,33 @@
+@model EmployeeFormModel
+@{
+    ViewData["Title"] = "Edit employee";
+}
+
+<section class="module-page-header accent-green">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Employees</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+    </nav>
+    <h1 class="h3 fw-bold mb-0">Edit employee</h1>
+    <p class="text-muted mb-0 mt-2">Internal id: <strong>@Model.Uid</strong></p>
+</section>
+
+<section class="portal-card mt-4">
+    <form asp-action="Edit" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Uid" />
+        <partial name="_EmployeeForm" model="Model" />
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

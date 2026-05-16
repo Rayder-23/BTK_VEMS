@@ -29,4 +29,7 @@ public sealed class AdminModuleCard
     public string Description { get; init; } = string.Empty;
 
     public string AccentClass { get; init; } = string.Empty;
+
+    /// <summary>When false, the module appears on the dashboard but is not linked in navigation yet.</summary>
+    public bool IsAvailable { get; init; } = true;
 }

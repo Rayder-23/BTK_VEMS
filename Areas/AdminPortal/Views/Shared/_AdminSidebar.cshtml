@@ -1,7 +1,7 @@
 @using VEMS.Areas.AdminPortal.Services
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Dashboard";
-    var modules = AdminModuleCatalog.Modules;
+    var modules = AdminModuleCatalog.NavigableModules;
 }
 
 <div class="sidebar-inner">
@@ -22,7 +22,7 @@
         @foreach (var module in modules)
         {
             <a class="portal-menu-link @(currentController == module.Controller ? "active" : "")" href="/adminportal/@module.Controller.ToLowerInvariant()">
-                <i class="bi @module.IconClass"></i>
+                <i class="bi @module.IconClass" aria-hidden="true"></i>
                 <span>@module.Name</span>
             </a>
         }

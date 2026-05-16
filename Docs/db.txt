@@ -1,18 +1,82 @@
 Virtual Education Management System - Database Schema
-Generated: 2026-05-11 11:29:30
-
-NOTE: This file is now OUTDATED as of '2026-05-12 10:40', refer to 'Database.md' [VEMS\Docs\Database.md]
+Generated: 2026-05-14 (from live database using ConnectionStrings:DefaultConnection in appsettings.json)
 
 This file lists database tables and columns only. It does not include data rows or connection credentials.
 
 
-Table: dbo.Configuration
-  - UID: int NOT NULL
-  - ConfigKey: nvarchar(50) NULL
-  - ConfigValue: nvarchar(max) NULL
+Table: dbo.Admins
+  - Uid: int NOT NULL PK
+  - FullName: nvarchar(100) NOT NULL
+  - Email: nvarchar(150) NOT NULL
+  - AdminRole: nvarchar(50) NOT NULL
+  - Status: nvarchar(50) NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.ChallanItems
+  - Uid: int NOT NULL PK
+  - ChallanId: int NOT NULL
+  - FeeStructureId: int NULL
+  - FeeName: nvarchar(100) NOT NULL
+  - Amount: decimal(10,2) NOT NULL
+  - Discount: decimal(10,2) NOT NULL
+  - NetAmount: decimal(10,2) NOT NULL
+
+Table: dbo.Challans
+  - Uid: int NOT NULL PK
+  - StudentId: int NOT NULL
+  - ChallanNo: nvarchar(30) NOT NULL
+  - AcademicYear: nvarchar(9) NOT NULL
+  - MonthYear: nvarchar(7) NULL
+  - TotalAmount: decimal(10,2) NOT NULL
+  - PaidAmount: decimal(10,2) NOT NULL
+  - Balance: decimal(11,2) NULL
+  - Status: nvarchar(10) NOT NULL
+  - IssueDate: date NOT NULL
+  - DueDate: date NOT NULL
+  - PaidDate: date NULL
+  - PaymentMode: nvarchar(10) NULL
+  - BankRefNo: nvarchar(100) NULL
+  - Remarks: nvarchar(max) NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.Configurations
+  - Uid: int NOT NULL PK
+  - ConfigKey: nvarchar(100) NOT NULL
+  - ConfigValues: nvarchar(max) NOT NULL
+  - Description: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedAt: datetime2 NOT NULL
+
+Table: dbo.Employee
+  - uid: int NOT NULL PK
+  - EmployeeID: varchar(250) NOT NULL
+  - EmployeeName: varchar(250) NULL
+  - CNIC: varchar(250) NULL
+  - FatherName: varchar(250) NULL
+  - DOB: varchar(250) NULL
+  - MobileNo: varchar(250) NULL
+  - Department: varchar(250) NULL
+  - Designation: varchar(250) NULL
+  - DateOfJoining: date NULL
+  - EmployeeStatus: varchar(250) NULL
+  - ModifiedBy: varchar(max) NULL
+  - ModifiedOn: nvarchar(max) NULL
+  - Details: nvarchar(max) NULL
+  - Project: nvarchar(50) NULL
+  - CarryForwardLeaves: float NULL
+  - Year2022: float NULL
+  - Year2023: float NULL
+  - AdjustedAjusted: int NULL
+  - Year2024: int NULL
+  - CarryForwardLeaves1: float NULL
+  - Year2023New: decimal(18,2) NULL
+  - BasicSalary: decimal(18,2) NULL
+  - ApplyTax: nvarchar(10) NULL
+  - GenStatus: nvarchar(50) NULL
 
 Table: dbo.EmployeeLogin
-  - uid: int NOT NULL PK
+  - Uid: int NOT NULL PK
   - EmployeeId: varchar(50) NULL
   - Username: nvarchar(100) NOT NULL
   - PasswordHash: nvarchar(255) NOT NULL
@@ -20,13 +84,107 @@ Table: dbo.EmployeeLogin
   - CreatedBy: varchar(max) NULL
   - CreatedOn: varchar(max) NULL
   - History: varchar(max) NULL
+  - Status: nvarchar(50) NULL
+
+Table: dbo.FeeDiscounts
+  - Uid: int NOT NULL PK
+  - DiscountName: nvarchar(100) NOT NULL
+  - DiscountType: nvarchar(10) NOT NULL
+  - DiscountValue: decimal(10,2) NOT NULL
+  - IsActive: bit NOT NULL
+  - Criteria: nvarchar(max) NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.FeePayments
+  - Uid: int NOT NULL PK
+  - ChallanId: int NOT NULL
+  - CollectedBy: int NOT NULL
+  - AmountPaid: decimal(10,2) NOT NULL
+  - PaymentMode: nvarchar(10) NOT NULL
+  - TransactionRef: nvarchar(100) NULL
+  - PaymentDate: date NOT NULL
+  - ReceiptNo: nvarchar(30) NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.Fees
+  - Uid: int NOT NULL PK
+  - ProgramId: int NOT NULL
+  - Amount: decimal(15,2) NOT NULL
+  - Currency: char(3) NOT NULL
+  - EffectiveDate: date NOT NULL
+  - Notes: nvarchar(500) NULL
+  - FeeType: nvarchar(50) NOT NULL
+  - Status: nvarchar(50) NOT NULL
+
+Table: dbo.FeeStructures
+  - Uid: int NOT NULL PK
+  - FeeTypeId: int NOT NULL
+  - ClassId: int NOT NULL
+  - Amount: decimal(10,2) NOT NULL
+  - AcademicYear: nvarchar(9) NOT NULL
+  - DueDate: date NULL
+  - IsActive: bit NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.FeeTypes
+  - Uid: int NOT NULL PK
+  - FeeName: nvarchar(100) NOT NULL
+  - Category: nvarchar(20) NOT NULL
+  - Frequency: nvarchar(20) NOT NULL
+  - IsActive: bit NOT NULL
+  - Description: nvarchar(max) NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.Programs
+  - Uid: int NOT NULL PK
+  - ProgramCode: varchar(20) NOT NULL
+  - Name: varchar(100) NOT NULL
+  - ProgramLevel: varchar(50) NOT NULL
+  - ProgramType: varchar(50) NOT NULL
+  - Description: nvarchar(max) NULL
+  - CreatedAt: datetime2 NULL
+  - UpdatedAt: datetime2 NULL
+  - Status: nvarchar(50) NOT NULL
+
+Table: dbo.StudentFeeAllocations
+  - Uid: int NOT NULL PK
+  - StudentId: int NOT NULL
+  - FeeStructureId: int NOT NULL
+  - DiscountId: int NULL
+  - FinalAmount: decimal(10,2) NOT NULL
+  - Status: nvarchar(10) NOT NULL
+  - AllocatedAt: datetime2 NOT NULL
+
+Table: dbo.Students
+  - Uid: int NOT NULL PK
+  - FullName: nvarchar(100) NOT NULL
+  - Email: nvarchar(150) NULL
+  - Phone: nvarchar(20) NULL
+  - GuardianName: nvarchar(100) NOT NULL
+  - GuardianPhone: nvarchar(20) NOT NULL
+  - GradeLevel: nvarchar(20) NOT NULL
+  - City: nvarchar(100) NULL
+  - Status: nvarchar(50) NOT NULL
+  - EnrolledDate: date NOT NULL
 
 Table: dbo.StudentsLogin
-  - uid: int NOT NULL PK
+  - Uid: int NOT NULL PK
   - StudentId: varchar(50) NULL
   - Username: nvarchar(100) NOT NULL
   - PasswordHash: nvarchar(255) NOT NULL
-  - Role: nvarchar(max) NULL
   - CreatedBy: varchar(max) NULL
   - CreatedOn: varchar(max) NULL
   - History: varchar(max) NULL
+  - Status: nvarchar(50) NULL
+
+Table: dbo.Teachers
+  - Uid: int NOT NULL PK
+  - FullName: nvarchar(100) NOT NULL
+  - Email: nvarchar(150) NOT NULL
+  - Phone: nvarchar(20) NULL
+  - CNIC: nvarchar(15) NOT NULL
+  - TeacherType: nvarchar(50) NOT NULL
+  - Specialization: nvarchar(150) NULL
+  - Qualification: nvarchar(150) NULL
+  - Status: nvarchar(50) NOT NULL
+  - JoinedDate: date NOT NULL
