@@ -1,0 +1,55 @@
+---
+description: Apply when modifying database schemas, writing raw SQL, or updating C# models, repositories, and controllers handling data persistence.
+globs: ["**/*.cs", "**/*.sql", "**/Repositories/**", "**/Models/**", "**/Data/**"]
+---
+# VEMS Database Architecture & Integrity Rules
+
+You are assisting with the Virtual Education Management System (VEMS), an ASP.NET Core MVC/WebAPI platform backed by SQL Server Express. Whenever generating code, modifying schemas, or writing database queries, you **must** adhere strictly to the rules below.
+
+## ⚠️ Mandatory Pre-Flight Action
+
+Before writing any code or analyzing errors in this domain, you must read and align with the core system specs located at:
+- `Docs/Database.md`
+- `Docs/DBworkflows.md`
+
+## 1. Global Naming & Data Type Standards
+
+- **The Uid Mandate:** The primary key of *every* table is strictly named `Uid` (CamelCase, integer identity). Never use `id`, `uid`, or snake_case prefixes like `student_id` for primary keys.
+- **Casing:** All database headers, table names, and column fields must use **CamelCase** (e.g., `StudentId`, `GrossAmount`, `PaymentMethod`, `TransactionId`).
+- **String Statuses/Types:** All lookups, dropdown options, and status strings must use **Proper Case** (e.g., `'Active'`, `'Pending'`, `'Partial'`, `'Unpaid'`). Never output lowercase alternatives (e.g., `'active'`, `'unpaid'`). All valid values for any status or type field are sourced exclusively from the `Configurations` table — never hardcode them.
+- **Financial Precision:** Floating-point numbers (`FLOAT`, `REAL`) are strictly prohibited for monetary data. Always use `DECIMAL(18,2)` or `DECIMAL(15,2)` to guarantee zero rounding errors.
+
+## 2. Structural Architecture Guidelines
+
+### Configurations as Source of Truth
+
+- The `Configurations` table is the single source of truth for all status values, role names, fee categories, payment modes, and any other enumerable string list in the system.
+- Values are stored as plain CSV strings (e.g., `'Active,Inactive,Suspended'`). Parse by splitting on commas.
+- Never hardcode status or type values in C# models, controllers, or SQL CHECK constraints. Always validate against the relevant `ConfigKey` row at the application layer.
+
+### User Management Architecture
+
+- There are two distinct user types: **Students** and **Employees**. Each has a separated profile table and login table.
+- **Profile tables:** `Students`, `Employee` — store PII and profile data only.
+- **Login tables:** `StudentsLogin`, `EmployeeLogin` — store authentication data only.
+- **`StudentsLogin` Isolation:** Contains no `Role` column. The application tier hardcodes the identity as `"Student"`.
+- **`EmployeeLogin` Permissioning:** The `Role` column is `NVARCHAR(50)` sourced from the `EmployeeRoles` key in `Configurations` (e.g., `'Teacher'`, `'Admin'`, `'HR'`). Never use an integer bitmask for roles.
+- `CreatedBy` on all profile and login tables references `EmployeeLogin.Uid` — the staff member who created the record.
+
+### Fee & Billing Flow
+
+- Challan generation always begins by querying `StudentEnrollments` to determine which `Programs` a student is active in.
+- The billing table chain is: `StudentEnrollments` → `Programs` → `FeeStructures` → `FeeTypes` → `ChallanItems` → `Challans` → `FeePayments`.
+- **`Challans`** is the parent invoice record. `Balance` is a computed column (`TotalAmount - PaidAmount`) — never recalculate it manually or store it independently.
+- **`ChallanItems`** are the itemized line items per challan. `FeeName` is a snapshot taken at generation time and must not be updated retroactively. `FK_ChallanItems_Challan` is configured `ON DELETE CASCADE`.
+- **`FeePayments`** is the payments ledger. Multiple `FeePayments` rows per `ChallanId` are valid (partial payments). The application must update `Challans.PaidAmount` on every `FeePayments` insert — there is no trigger enforcing this.
+- **`StudentFeeAllocations`** stores per-student discount allocations. Always check this table during challan generation before writing `ChallanItems.Discount`.
+- **Late fees** are stored on `FeeStructures` (`LateFeeAmount`, `LateFeeDays`). Calculate at voucher generation time if `GETDATE() > Challans.DueDate` by more than `LateFeeDays`.
+- **No Arrays/Lists in Columns:** Never store collections of IDs inside a single column. Always use explicit linking tables with foreign key relationships.
+
+## 3. C# Data Access Patterns (ADO.NET / Microsoft.Data.SqlClient)
+
+- All property mappings must align to CamelCase column names. Always crosscheck `reader["Uid"]` style extractions to prevent casing exceptions or mapping failures.
+- Always use parameterized queries (`SqlParameter`) to prevent SQL injection.
+- When reading `Configurations` values, split on `','` and trim whitespace before comparison or populating dropdowns.
+- `Challans.Balance` is a computed column — never attempt to INSERT or UPDATE it directly. Read it as a normal column.

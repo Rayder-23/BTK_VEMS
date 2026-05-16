@@ -1,11 +1,11 @@
 # Database Schema Documentation: Virtual Education Management System
 
 - *VERSION: 1.7*
-- *UPDATED AT: 2026-05-16 11:05am*
+- *UPDATED AT: 2026-05-16 12:23pm*
 
 ### Project-Wide Rules:-
-1.  **Uid Mandate:** The primary key of every table is `Uid`.
-2. READ [DBworkflows](DBworkflows.md) before implementing and workflows involving Database tables.
+1. **Uid Mandate:** The primary key of every table is `Uid`.
+2. READ [DBworkflows](DBworkflows.md) before implementing any workflows involving Database tables.
 
 
 ## 1. Core Configuration Registry
@@ -30,7 +30,7 @@ Centralized store for all system dropdowns, statuses, and types using JSON array
 
 These tables handle login credentials and system access roles. Audit trails (`CreatedBy`) are stored here to keep profile tables lean.
 
-### EmployeeLogin (Admins & Teachers)
+### EmployeeLogin
 
 | Header       | Type          | Constraints / Role                                              |
 | :----------- | :------------ | :-------------------------------------------------------------- |
@@ -127,54 +127,123 @@ Represents the primary educational tracks (e.g., "Matriculation", "O-Levels").
 | UpdatedAt    | DATETIME2(7)  | DEFAULT GETDATE()                                |
 | Status       | NVARCHAR(50)  | DEFAULT 'Active' (Validated vs Configs)          |
 
-### Fees
+### FeeTypes
 
-Manages the pricing structure for specific programs.
+| Header      | Type          | Constraints / Role                                      |
+| :---------- | :------------ | :------------------------------------------------------ |
+| **Uid**     | INT           | **PK**, Identity(1,1)                                   |
+| FeeName     | NVARCHAR(100) | NOT NULL — e.g. `'Tuition'`, `'Admission'`, `'Exam'`    |
+| Category    | NVARCHAR(20)  | NOT NULL — From Configurations `FeeCategories`          |
+| Frequency   | NVARCHAR(20)  | NOT NULL — From Configurations `FeeFrequencies`         |
+| IsActive    | BIT           | DEFAULT 1 — Soft delete flag                            |
+| Description | NVARCHAR(MAX) | Nullable                                                |
+| CreatedAt   | DATETIME2(7)  | DEFAULT sysdatetime()                                   |
 
-| Header        | Type          | Constraints / Role                            |
-| :------------ | :------------ | :-------------------------------------------- |
-| **Uid**       | INT           | **PK**, Identity(1,1)                         |
-| **ProgramId** | INT           | **FK** (Ref: Programs.id)                     |
-| Amount        | DECIMAL(15,2) | **CHECK (amount >= 0)**                       |
-| Currency      | CHAR(3)       | DEFAULT 'PKR'                                 |
-| Effectivedate | DATE          | NOT NULL (When the price point begins)        |
-| Notes         | NVARCHAR(500) | Nullable, billing details                     |
-| FeeType       | NVARCHAR(50)  | DEFAULT 'Monthly' (e.g., 'Admission', 'Exam') |
-| Status        | NVARCHAR(50)  | DEFAULT 'Active'                              |
+### FeeStructures
+
+| Header        | Type          | Constraints / Role                                           |
+| :------------ | :------------ | :----------------------------------------------------------- |
+| **Uid**       | INT           | **PK**, Identity(1,1)                                        |
+| FeeTypeId     | INT           | **FK** → FeeTypes.Uid, NOT NULL                              |
+| ProgramId     | INT           | **FK** → Programs.Uid, NOT NULL                              |
+| Amount        | DECIMAL(10,2) | NOT NULL — Base fee amount                                   |
+| LateFeeAmount | DECIMAL(10,2) | NOT NULL DEFAULT 0.00 — Surcharge applied after grace period |
+| LateFeeDays   | INT           | NOT NULL DEFAULT 0 — Grace period in days before late fee    |
+| AcademicYear  | NVARCHAR(9)   | NOT NULL — e.g. `'2025-2026'`                                |
+| DueDate       | DATE          | Nullable — Default due date for this fee structure           |
+| IsActive      | BIT           | DEFAULT 1 — Soft delete flag                                 |
+| CreatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()                                        |
+
+### FeeDiscounts
+
+| Header        | Type          | Constraints / Role                                      |
+| :------------ | :------------ | :------------------------------------------------------ |
+| **Uid**       | INT           | **PK**, Identity(1,1)                                   |
+| DiscountName  | NVARCHAR(100) | NOT NULL — e.g. `'Sibling Discount'`, `'Merit Award'`   |
+| DiscountType  | NVARCHAR(10)  | NOT NULL — From Configurations `DiscountTypes`          |
+| DiscountValue | DECIMAL(10,2) | NOT NULL — Amount or percentage value                   |
+| IsActive      | BIT           | DEFAULT 1 — Soft delete flag                            |
+| Criteria      | NVARCHAR(MAX) | Nullable — Human readable eligibility description       |
+| CreatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()                                   |
+
+### StudentFeeAllocations
+
+| Header          | Type          | Constraints / Role                                           |
+| :-------------- | :------------ | :----------------------------------------------------------- |
+| **Uid**         | INT           | **PK**, Identity(1,1)                                        |
+| StudentId       | INT           | **FK** → Students.Uid, NOT NULL                              |
+| FeeStructureId  | INT           | **FK** → FeeStructures.Uid, NOT NULL                         |
+| DiscountId      | INT           | **FK** → FeeDiscounts.Uid, Nullable                          |
+| FinalAmount     | DECIMAL(10,2) | NOT NULL — Amount after discount applied                     |
+| Status          | NVARCHAR(50)  | DEFAULT `'Active'` — From Configurations `AllocationStatus`  |
+| AllocatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()                                        |
+
+### StudentEnrollments
+
+| Header      | Type          | Constraints / Role                                          |
+| :---------- | :------------ | :---------------------------------------------------------- |
+| **Uid**     | INT           | **PK**, Identity(1,1)                                       |
+| StudentId   | INT           | **FK** → Students.Uid, NOT NULL                             |
+| ProgramId   | INT           | **FK** → Programs.Uid, NOT NULL                             |
+| Status      | NVARCHAR(50)  | DEFAULT `'Active'` — From Configurations `EnrollmentStatus` |
+| EnrolledAt  | DATETIME2(7)  | DEFAULT sysdatetime()                                       |
+| DroppedAt   | DATETIME2(7)  | Nullable — Populated when Status = `'Dropped'`              |
+| CreatedBy   | INT           | **FK** → EmployeeLogin.Uid                                  |
+| Notes       | NVARCHAR(500) | Nullable                                                    |
+
+Unique constraint on `(StudentId, ProgramId)` — a student cannot have duplicate active enrollments in the same program.
 
 ---
 
-### 5. Financial Transactions
+## 5. Financial Transactions
 
-#### Payments
+### Challans
 
-Tracks actual cash flow and transaction history for student fees.
+| Header          | Type           | Constraints / Role                                          |
+| :-------------- | :------------- | :---------------------------------------------------------- |
+| **Uid**         | INT            | **PK**, Identity(1,1)                                       |
+| StudentId       | INT            | **FK** → Students.Uid, NOT NULL                             |
+| ChallanNo       | NVARCHAR(30)   | **UNIQUE**, NOT NULL — System generated voucher number      |
+| AcademicYear    | NVARCHAR(9)    | NOT NULL — e.g. `'2025-2026'`                               |
+| MonthYear       | NVARCHAR(7)    | Nullable — e.g. `'2025-09'` for monthly fees                |
+| TotalAmount     | DECIMAL(10,2)  | NOT NULL                                                    |
+| PaidAmount      | DECIMAL(10,2)  | NOT NULL DEFAULT 0.00                                       |
+| Balance         | DECIMAL(10,2)  | **Computed** — `TotalAmount - PaidAmount`                   |
+| Status          | NVARCHAR(50)   | DEFAULT `'Unpaid'` — From Configurations `ChallanStatus`    |
+| IssueDate       | DATE           | NOT NULL                                                    |
+| DueDate         | DATE           | NOT NULL                                                    |
+| DueDateHistory  | NVARCHAR(MAX)  | Nullable — CSV of previous due dates, updated on extensions |
+| PaidDate        | DATE           | Nullable — Populated when fully paid                        |
+| PaymentMode     | NVARCHAR(50)   | Nullable — From Configurations `PaymentModes`               |
+| BankRefNo       | NVARCHAR(100)  | Nullable — Bank or online transaction reference             |
+| CreatedBy       | INT            | **FK** → EmployeeLogin.Uid                                  |
+| CreatedAt       | DATETIME2(7)   | DEFAULT sysdatetime()                                       |
+| Remarks         | NVARCHAR(MAX)  | Nullable                                                    |
 
-| Header        | Type          | Constraints / Role                              |
-| :------------ | :------------ | :---------------------------------------------- |
-| **Uid**       | INT           | **PK**, Identity(1,1)                           |
-| StudentId     | INT           | **FK** (Ref: Students.student_id)               |
-| FeeId         | INT           | **FK** (Ref: Fees.id)                           |
-| Amount        | DECIMAL(15,2) | NOT NULL (CHECK Amount >= 0)                    |
-| Currency      | CHAR(3)       | DEFAULT 'PKR'                                   |
-| PaymentMethod | NVARCHAR(50)  | e.g., 'Cash', 'Bank Transfer', 'EasyPaisa'      |
-| TransactionId | NVARCHAR(100) | Nullable (Reference for bank/online receipts)   |
-| PaidAt        | DATETIME2(7)  | DEFAULT sysdatetime()                           |
-| Status        | NVARCHAR(50)  | DEFAULT 'Pending' (e.g., 'Completed', 'Failed') |
-| Notes         | NVARCHAR(500) | Internal comments regarding the payment         |
+### ChallanItems
+
+| Header          | Type          | Constraints / Role                                      |
+| :-------------- | :------------ | :------------------------------------------------------ |
+| **Uid**         | INT           | **PK**, Identity(1,1)                                   |
+| ChallanId       | INT           | **FK** → Challans.Uid, NOT NULL — Cascades on delete    |
+| FeeStructureId  | INT           | **FK** → FeeStructures.Uid, Nullable                    |
+| FeeName         | NVARCHAR(100) | NOT NULL — Snapshot of fee name at time of challan      |
+| Amount          | DECIMAL(10,2) | NOT NULL — Base amount before discount                  |
+| Discount        | DECIMAL(10,2) | NOT NULL DEFAULT 0.00                                   |
+| NetAmount       | DECIMAL(10,2) | NOT NULL — Final line item amount after discount        |
+
+### FeePayments
+
+| Header         | Type          | Constraints / Role                                       |
+| :------------- | :------------ | :------------------------------------------------------- |
+| **Uid**        | INT           | **PK**, Identity(1,1)                                    |
+| ChallanId      | INT           | **FK** → Challans.Uid, NOT NULL                          |
+| CollectedBy    | INT           | **FK** → EmployeeLogin.Uid, NOT NULL                     |
+| AmountPaid     | DECIMAL(10,2) | NOT NULL                                                 |
+| PaymentMode    | NVARCHAR(50)  | NOT NULL — From Configurations `PaymentModes`            |
+| TransactionRef | NVARCHAR(100) | Nullable — Bank or online transaction reference          |
+| PaymentDate    | DATE          | NOT NULL                                                 |
+| ReceiptNo      | NVARCHAR(30)  | **UNIQUE**, NOT NULL — System generated receipt number   |
+| CreatedAt      | DATETIME2(7)  | DEFAULT sysdatetime()                                    |
 
 ---
-
-### Logic Summary for Backend Integration:
-
-1.  **Validation Handshake:** Before an `INSERT` or `UPDATE` on `Programs.status` or `Fees.fee_type`, the application layer must verify the value exists within the corresponding `Configurations.config_values` JSON array.
-2.  **Audit Control:** The `created_at` and `updated_at` timestamps in the `Programs` table provide record-level auditing separate from the `EmployeeLogin` creation history.
-3.  **Financial Precision:** The use of `DECIMAL(15,2)` ensures zero rounding errors for financial reporting within the management system.
-
-### Logic Summary for Payments:
-
-1.  **Direct Fee Linking:** By using `FeeId` instead of an `enrollment_id`, you can precisely track which specific fee (Admission, Monthly, Exam) this payment is covering.
-2.  **Payment Methods:** Values for `PaymentMethod` should be pulled from the `Configurations` table under a new `PaymentMethod` key.
-3.  **Transaction Tracking:** The addition of `TransactionId` allows the registrar to input digital receipt numbers for cross-referencing with bank statements.
-
-
