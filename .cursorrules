@@ -1,0 +1,4 @@
+# Documention
+Whenever dealing with work involving the Database or Database tables, always READ the database docs held in '/Docs'.
+- 'Database.md' is the source of truth for the Database. It can be outdated due to not being updated after recent changes, keep that in mind.
+- If you are told to update the documentation or 'db.txt', make sure the changes are added to 'Database.md' and follow the documentation patterns of each document respectively

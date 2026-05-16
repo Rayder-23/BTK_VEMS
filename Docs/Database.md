@@ -1,10 +1,11 @@
 # Database Schema Documentation: Virtual Education Management System
 
-- *VERSION: 1.6*
-- *UPDATED AT: 2026-05-12 01:20pm*
+- *VERSION: 1.7*
+- *UPDATED AT: 2026-05-16 11:05am*
 
 ### Project-Wide Rules:-
 1.  **Uid Mandate:** The primary key of every table is `Uid`.
+2. READ [DBworkflows](DBworkflows.md) before implementing and workflows involving Database tables.
 
 
 ## 1. Core Configuration Registry
@@ -13,15 +14,15 @@
 
 Centralized store for all system dropdowns, statuses, and types using JSON arrays.
 
-| Header       | Type          | Constraints / Role                                |
-| :----------- | :------------ | :------------------------------------------------ |
-| **Uid**      | INT           | **PK**, Identity(1,1)                             |
-| ConfigKey    | NVARCHAR(100) | **UNIQUE**, NOT NULL                              |
-| ConfigValues | NVARCHAR(MAX) | **ISJSON CHECK**, stores arrays like `["A", "B"]` |
-| Description  | NVARCHAR(300) | Context for the configuration key                 |
-| IsActive     | BIT           | DEFAULT 1 (Soft Delete)                           |
-| CreatedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                             |
-| UpdatedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                             |
+| Header       | Type          | Constraints / Role                                        |
+| :----------- | :------------ | :-------------------------------------------------------- |
+| **Uid**      | INT           | **PK**, Identity(1,1)                                     |
+| ConfigKey    | NVARCHAR(100) | **UNIQUE**, NOT NULL                                      |
+| ConfigValues | NVARCHAR(MAX) | Plain CSV string — e.g. `Active,Inactive,Pending`         |
+| Description  | NVARCHAR(300) | Nullable — Context for the configuration key              |
+| IsActive     | BIT           | DEFAULT 1 — Soft delete flag                              |
+| CreatedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                                     |
+| UpdatedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                                     |
 
 ---
 
@@ -31,30 +32,30 @@ These tables handle login credentials and system access roles. Audit trails (`Cr
 
 ### EmployeeLogin (Admins & Teachers)
 
-| Header       | Type          | Constraints / Role                            |
-| :----------- | :------------ | :-------------------------------------------- |
-| **Uid**      | INT           | **PK**, Identity(1,1)                         |
-| EmployeeId   | VARCHAR(20)   | **FK** (Points to `admin_id` or `teacher_id`) |
-| Username     | VARCHAR(50)   | **UNIQUE**, Indexed for Login                 |
-| PasswordHash | VARCHAR(MAX)  | Securely hashed credential                    |
-| Role         | INT           | Bitmask (1=Teacher, 2=Admin, 3=Both)          |
-| Status       | NVARCHAR(50)  | DEFAULT 'Active'                              |
-| CreatedBy    | INT           | ID of the Admin who created this account      |
-| CreatedOn    | DATETIME2     | DEFAULT GETDATE()                             |
-| History      | NVARCHAR(MAX) | Audit log (JSON/Text)                         |
+| Header       | Type          | Constraints / Role                                              |
+| :----------- | :------------ | :-------------------------------------------------------------- |
+| **Uid**      | INT           | **PK**, Identity(1,1)                                           |
+| EmployeeId   | INT           | **FK** → Employee.Uid, NOT NULL                                 |
+| Username     | VARCHAR(50)   | **UNIQUE**, NOT NULL — Indexed for login                        |
+| PasswordHash | VARCHAR(MAX)  | NOT NULL — Securely hashed credential                           |
+| Role         | NVARCHAR(50)  | NOT NULL — From Configurations e.g. `'Teacher'`, `'Admin'`      |
+| Status       | NVARCHAR(50)  | DEFAULT `'Active'` — From Configurations                        |
+| CreatedBy    | INT           | **FK** → EmployeeLogin.Uid (self-ref) — Who created this login  |
+| CreatedOn    | DATETIME2(7)  | DEFAULT sysdatetime()                                           |
+| History      | NVARCHAR(MAX) | Nullable — Audit trail                                          |
 
 ### StudentsLogin
 
-| Header       | Type          | Constraints / Role                       |
-| :----------- | :------------ | :--------------------------------------- |
-| **Uid**      | INT           | **PK**, Identity(1,1)                    |
-| StudentId    | INT           | **FK** (Ref: Students.student_id)        |
-| Username     | VARCHAR(50)   | **UNIQUE**, Indexed for Login            |
-| PasswordHash | VARCHAR(MAX)  | Securely hashed credential               |
-| Status       | NVARCHAR(50)  | DEFAULT 'Active'                         |
-| CreatedBy    | INT           | ID of the Admin who created this account |
-| CreatedOn    | DATETIME2     | DEFAULT GETDATE()                        |
-| History      | NVARCHAR(MAX) | Audit log (JSON/Text)                    |
+| Header       | Type          | Constraints / Role                                          |
+| :----------- | :------------ | :---------------------------------------------------------- |
+| **Uid**      | INT           | **PK**, Identity(1,1)                                       |
+| StudentId    | INT           | **FK** → Students.Uid, NOT NULL                             |
+| Username     | VARCHAR(50)   | **UNIQUE**, NOT NULL — Indexed for login                    |
+| PasswordHash | VARCHAR(MAX)  | NOT NULL — Securely hashed credential                       |
+| Status       | NVARCHAR(50)  | DEFAULT `'Active'` — From Configurations                    |
+| CreatedBy    | INT           | **FK** → EmployeeLogin.Uid — Staff who created this login   |
+| CreatedOn    | DATETIME2(7)  | DEFAULT sysdatetime()                                       |
+| History      | NVARCHAR(MAX) | Nullable — Audit trail                                      |
 
 ---
 
@@ -62,46 +63,49 @@ These tables handle login credentials and system access roles. Audit trails (`Cr
 
 Isolated from authentication data to protect PII and optimize search performance.
 
-### Admins
+### Employee
 
-| Header    | Type          | Constraints / Role                      |
-| :-------- | :------------ | :-------------------------------------- |
-| **Uid**   | INT           | **PK**, Identity(1,1)                   |
-| FullName  | NVARCHAR(100) | NOT NULL                                |
-| Email     | NVARCHAR(150) | **UNIQUE**, NOT NULL                    |
-| AdminRole | NVARCHAR(50)  | Job Title (e.g., 'SuperAdmin', 'Clerk') |
-| Status    | NVARCHAR(50)  | DEFAULT 'Active'                        |
-| CreatedAt | DATETIME2(7)  | DEFAULT sysdatetime()                   |
-
-### Teachers
-
-| Header         | Type          | Constraints / Role                 |
-| :------------- | :------------ | :--------------------------------- |
-| **Uid**        | INT           | **PK**, Identity(1,1)              |
-| Fullname       | NVARCHAR(100) | NOT NULL                           |
-| Email          | NVARCHAR(150) | **UNIQUE**, NOT NULL               |
-| Phone          | NVARCHAR(20)  | Nullable                           |
-| CNIC           | NVARCHAR(15)  | **UNIQUE**, NOT NULL (National ID) |
-| TeacherType    | NVARCHAR(50)  | e.g., 'Permanent', 'Visiting'      |
-| Specialization | NVARCHAR(150) | Academic focus                     |
-| Qualification  | NVARCHAR(150) | Degree status                      |
-| Status         | NVARCHAR(50)  | DEFAULT 'Active'                   |
-| JoinedDate     | DATE          | DEFAULT sysdatetime()              |
+| Header        | Type          | Constraints / Role                                          |
+| :------------ | :------------ | :---------------------------------------------------------- |
+| **Uid**       | INT           | **PK**, Identity(1,1)                                       |
+| EmployeeId    | VARCHAR(20)   | **UNIQUE**, NOT NULL — System-generated ID e.g. `EMP-001`   |
+| FullName      | NVARCHAR(100) | NOT NULL                                                    |
+| Email         | NVARCHAR(150) | **UNIQUE**, NOT NULL                                        |
+| Phone         | NVARCHAR(20)  | Nullable                                                    |
+| CNIC          | NVARCHAR(15)  | **UNIQUE**, NOT NULL — National ID                          |
+| FatherName    | NVARCHAR(100) | Nullable                                                    |
+| DOB           | DATE          | Nullable                                                    |
+| Department    | NVARCHAR(100) | Nullable — e.g. `'Sciences'`, `'Administration'`            |
+| Designation   | NVARCHAR(100) | Nullable — e.g. `'Head of Dept'`, `'HR Officer'`            |
+| Specialization| NVARCHAR(150) | Nullable — Primarily for teaching staff                     |
+| Qualification | NVARCHAR(150) | Nullable                                                    |
+| EmployeeType  | NVARCHAR(50)  | From Configurations — e.g. `'Permanent'`, `'Contract'`      |
+| Status        | NVARCHAR(50)  | DEFAULT `'Active'` — From Configurations                    |
+| JoinedDate    | DATE          | DEFAULT sysdatetime()                                       |
+| CreatedBy     | INT           | **FK** → EmployeeLogin.Uid — Who created this record        |
+| CreatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()                                       |
+| ModifiedBy    | INT           | **FK** → EmployeeLogin.Uid — Who last modified this record  |
+| ModifiedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                                       |
+| Notes         | NVARCHAR(MAX) | Nullable — General purpose remarks                          |
 
 ### Students
 
-| Header        | Type          | Constraints / Role                |
-| :------------ | :------------ | :-------------------------------- |
-| **Uid**       | INT           | **PK**, Identity(1,1)             |
-| FullName      | NVARCHAR(100) | NOT NULL                          |
-| Email         | NVARCHAR(150) | Nullable                          |
-| Phone         | NVARCHAR(20)  | Nullable                          |
-| GuardianName  | NVARCHAR(100) | NOT NULL                          |
-| GuardianPhone | NVARCHAR(20)  | NOT NULL                          |
-| GradeLevel    | NVARCHAR(20)  | Current academic level            |
-| City          | NVARCHAR(100) | Nullable                          |
-| Status        | NVARCHAR(50)  | **DF_Students_Status** ('Active') |
-| EnrolledDate  | DATE          | DEFAULT sysdatetime()             |
+| Header        | Type          | Constraints / Role                                         |
+| :------------ | :------------ | :--------------------------------------------------------- |
+| **Uid**       | INT           | **PK**, Identity(1,1)                                      |
+| FullName      | NVARCHAR(100) | NOT NULL                                                   |
+| Email         | NVARCHAR(150) | Nullable                                                   |
+| Phone         | NVARCHAR(20)  | Nullable                                                   |
+| GuardianName  | NVARCHAR(100) | NOT NULL                                                   |
+| GuardianPhone | NVARCHAR(20)  | NOT NULL                                                   |
+| GradeLevel    | NVARCHAR(20)  | Nullable — From Configurations                             |
+| City          | NVARCHAR(100) | Nullable                                                   |
+| Status        | NVARCHAR(50)  | DEFAULT `'Active'` — From Configurations                   |
+| EnrolledDate  | DATE          | DEFAULT sysdatetime()                                      |
+| CreatedBy     | INT           | **FK** → EmployeeLogin.Uid — Who created this record       |
+| CreatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()                                      |
+| ModifiedBy    | INT           | **FK** → EmployeeLogin.Uid — Who last modified this record |
+| ModifiedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                                      |
 
 ## 4. Academic & Financial Infrastructure
 
