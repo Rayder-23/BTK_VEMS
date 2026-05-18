@@ -1,7 +1,12 @@
 Virtual Education Management System - Database Schema
-Generated: 2026-05-18 (from live database using ConnectionStrings:DefaultConnection in appsettings.json)
 
-This file lists database tables and columns only. It does not include data rows or connection credentials.
+Version: 1.5  (Increment 'Version' by 0.1 at every change)
+UpdatedAt: 2026-05-18 03:30pm  (Update 'UpdatedAt' timestap at every change)
+
+READ @Database.md, @DBworkflows.md and @database-rules.mdc for implementation details.
+IF UPDATING this file, make sure to UPDATE @Database.md aswell while following it's formatting.
+
+This file lists database tables and columns only. It does not and should not include data rows or connection credentials.
 
 Table: dbo.ChallanItems
   - Uid: int NOT NULL PK
