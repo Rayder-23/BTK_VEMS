@@ -1,0 +1,33 @@
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "HR";
+    var navItems = HrModuleCatalog.NavItems;
+}
+
+<div class="sidebar-inner">
+    <a class="portal-brand" href="/adminportal/hr">
+        <span class="brand-icon"><i class="bi bi-diagram-3-fill"></i></span>
+        <span class="brand-copy">
+            <span class="brand-title">HR Management</span>
+            <small>Human resources</small>
+        </span>
+    </a>
+
+    <nav class="portal-menu" aria-label="HR navigation">
+        @foreach (var item in navItems)
+        {
+            var isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase);
+            <a class="portal-menu-link @(isActive ? "active" : "")" href="@item.Url">
+                <i class="bi @item.IconClass" aria-hidden="true"></i>
+                <span>@item.Name</span>
+            </a>
+        }
+    </nav>
+
+    <div class="sidebar-card">
+        <p class="mb-1 fw-semibold">Admin portal</p>
+        <a class="small text-decoration-none" href="/adminportal">
+            <i class="bi bi-arrow-left me-1"></i>Back to dashboard
+        </a>
+    </div>
+</div>

@@ -21,7 +21,8 @@
 
         @foreach (var module in modules)
         {
-            <a class="portal-menu-link @(currentController == module.Controller ? "active" : "")" href="/adminportal/@module.Controller.ToLowerInvariant()">
+            var moduleUrl = module.UrlOverride ?? $"/adminportal/{module.Controller.ToLowerInvariant()}";
+            <a class="portal-menu-link @(currentController == module.Controller ? "active" : "")" href="@moduleUrl">
                 <i class="bi @module.IconClass" aria-hidden="true"></i>
                 <span>@module.Name</span>
             </a>

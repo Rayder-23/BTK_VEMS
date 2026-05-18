@@ -7,83 +7,60 @@ public sealed class EmployeeFormModel
     public int Uid { get; set; }
 
     [Required(ErrorMessage = "Employee ID is required.")]
-    [StringLength(250)]
+    [StringLength(20)]
     [Display(Name = "Employee ID")]
-    public string EmployeeID { get; set; } = string.Empty;
+    public string EmployeeId { get; set; } = string.Empty;
 
-    [StringLength(250)]
-    [Display(Name = "Employee name")]
-    public string? EmployeeName { get; set; }
+    [Required(ErrorMessage = "Full name is required.")]
+    [StringLength(100)]
+    [Display(Name = "Full name")]
+    public string FullName { get; set; } = string.Empty;
 
-    [StringLength(250)]
-    public string? CNIC { get; set; }
+    [Required(ErrorMessage = "Email is required.")]
+    [EmailAddress]
+    [StringLength(150)]
+    public string Email { get; set; } = string.Empty;
 
-    [StringLength(250)]
+    [StringLength(20)]
+    public string? Phone { get; set; }
+
+    [Required(ErrorMessage = "CNIC is required.")]
+    [StringLength(15)]
+    public string CNIC { get; set; } = string.Empty;
+
+    [StringLength(100)]
     [Display(Name = "Father name")]
     public string? FatherName { get; set; }
 
-    [StringLength(250)]
-    [Display(Name = "Date of birth (text)")]
-    public string? DOB { get; set; }
+    [DataType(DataType.Date)]
+    [Display(Name = "Date of birth")]
+    public DateTime? DOB { get; set; }
 
-    [StringLength(250)]
-    [Display(Name = "Mobile")]
-    public string? MobileNo { get; set; }
-
-    [StringLength(250)]
+    [StringLength(100)]
     public string? Department { get; set; }
 
-    [StringLength(250)]
+    [StringLength(100)]
     public string? Designation { get; set; }
 
+    [StringLength(150)]
+    public string? Specialization { get; set; }
+
+    [StringLength(150)]
+    public string? Qualification { get; set; }
+
+    [StringLength(50)]
+    [Display(Name = "Employee type")]
+    public string? EmployeeType { get; set; }
+
+    [Required(ErrorMessage = "Status is required.")]
+    [StringLength(50)]
+    public string Status { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Joined date is required.")]
     [DataType(DataType.Date)]
-    [Display(Name = "Date of joining")]
-    public DateTime? DateOfJoining { get; set; }
+    [Display(Name = "Joined date")]
+    public DateTime? JoinedDate { get; set; }
 
-    [StringLength(250)]
-    [Display(Name = "Employee status")]
-    public string? EmployeeStatus { get; set; }
-
-    [Display(Name = "Modified by")]
-    public string? ModifiedBy { get; set; }
-
-    [Display(Name = "Modified on (text)")]
-    public string? ModifiedOn { get; set; }
-
-    public string? Details { get; set; }
-
-    [StringLength(50)]
-    public string? Project { get; set; }
-
-    [Display(Name = "Carry forward leaves")]
-    public double? CarryForwardLeaves { get; set; }
-
-    [Display(Name = "Year 2022")]
-    public double? Year2022 { get; set; }
-
-    [Display(Name = "Year 2023")]
-    public double? Year2023 { get; set; }
-
-    [Display(Name = "Adjusted / adjusted")]
-    public int? AdjustedAjusted { get; set; }
-
-    [Display(Name = "Year 2024")]
-    public int? Year2024 { get; set; }
-
-    [Display(Name = "Carry forward leaves 1")]
-    public double? CarryForwardLeaves1 { get; set; }
-
-    [Display(Name = "Year 2023 (decimal)")]
-    public decimal? Year2023New { get; set; }
-
-    [Display(Name = "Basic salary")]
-    public decimal? BasicSalary { get; set; }
-
-    [StringLength(10)]
-    [Display(Name = "Apply tax")]
-    public string? ApplyTax { get; set; }
-
-    [StringLength(50)]
-    [Display(Name = "Gen status")]
-    public string? GenStatus { get; set; }
+    [Display(Name = "Notes")]
+    public string? Notes { get; set; }
 }

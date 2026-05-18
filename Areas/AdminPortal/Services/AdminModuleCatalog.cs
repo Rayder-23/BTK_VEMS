@@ -13,9 +13,17 @@ public static class AdminModuleCatalog
         new() { Name = "Fee", Controller = "Fee", IconClass = "bi-cash-coin", Description = "Configure fee structures and billing", AccentClass = "accent-red", IsAvailable = true },
         new() { Name = "Challan", Controller = "Challans", IconClass = "bi-receipt-cutoff", Description = "Generate and track fee challans", AccentClass = "accent-teal", IsAvailable = true },
         new() { Name = "Settings", Controller = "Settings", IconClass = "bi-gear-fill", Description = "Configure system-wide options", AccentClass = "accent-indigo", IsAvailable = true },
-        new() { Name = "Employees", Controller = "Employees", IconClass = "bi-person-badge-fill", Description = "Manage employee records", AccentClass = "accent-cyan", IsAvailable = true },
         new() { Name = "Accounts", Controller = "Accounts", IconClass = "bi-bank2", Description = "Manage finance and ledger accounts", AccentClass = "accent-pink", IsAvailable = true },
-        new() { Name = "HR", Controller = "HR", IconClass = "bi-diagram-3-fill", Description = "Human resources operations", AccentClass = "accent-blue", IsAvailable = true },
+        new()
+        {
+            Name = "HR Management",
+            Controller = "HR",
+            IconClass = "bi-diagram-3-fill",
+            Description = "Employees, payroll, leaves, attendance, tax, and more",
+            AccentClass = "accent-teal",
+            IsAvailable = true,
+            UrlOverride = "/adminportal/hr"
+        },
         new() { Name = "Examination", Controller = "Examination", IconClass = "bi-pencil-square", Description = "Exam scheduling and assessment", AccentClass = "accent-green", IsAvailable = false },
         new() { Name = "Library", Controller = "Library", IconClass = "bi-book-fill", Description = "Library catalog and circulation", AccentClass = "accent-purple", IsAvailable = false },
         new() { Name = "Transport", Controller = "Transport", IconClass = "bi-bus-front-fill", Description = "Routes, vehicles, and transport fees", AccentClass = "accent-orange", IsAvailable = false },
@@ -23,9 +31,7 @@ public static class AdminModuleCatalog
         new() { Name = "Notifications", Controller = "Notifications", IconClass = "bi-bell-fill", Description = "Alerts and announcements", AccentClass = "accent-teal", IsAvailable = false },
         new() { Name = "Reports", Controller = "Reports", IconClass = "bi-pie-chart-fill", Description = "Analytics and operational reports", AccentClass = "accent-indigo", IsAvailable = false },
         new() { Name = "Admissions", Controller = "Admissions", IconClass = "bi-door-open-fill", Description = "Admission inquiries and enrollment", AccentClass = "accent-cyan", IsAvailable = false },
-        new() { Name = "Timetable", Controller = "Timetable", IconClass = "bi-clock-fill", Description = "Class schedules and room planning", AccentClass = "accent-pink", IsAvailable = false },
-        new() { Name = "Payroll", Controller = "Payroll", IconClass = "bi-wallet2", Description = "Salary processing and payslips", AccentClass = "accent-blue", IsAvailable = false },
-        new() { Name = "Leave Management", Controller = "LeaveManagement", IconClass = "bi-airplane-fill", Description = "Employee leave requests and balances", AccentClass = "accent-green", IsAvailable = false }
+        new() { Name = "Timetable", Controller = "Timetable", IconClass = "bi-clock-fill", Description = "Class schedules and room planning", AccentClass = "accent-pink", IsAvailable = false }
     ];
 
     public static IReadOnlyList<AdminModuleCard> NavigableModules { get; } =
@@ -87,23 +93,11 @@ public static class AdminModuleCatalog
                 ["Attendance Lock", "Enabled", "Portal", "Active"],
                 ["Result Approval", "Required", "Exam", "Active"]
             ]),
-            "Employees" => CreatePage(module, "Add Employee", ["Employee ID", "Name", "Department", "Status"],
-            [
-                ["EMP-2001", "Sara Ahmed", "Academics", "Active"],
-                ["EMP-2002", "Usman Raza", "Finance", "Active"],
-                ["EMP-2003", "Mariam Iqbal", "Administration", "On Leave"]
-            ]),
             "Accounts" => CreatePage(module, "Add Account", ["Account", "Category", "Balance", "Status"],
             [
                 ["Main Cash", "Asset", "250,000", "Active"],
                 ["Tuition Revenue", "Income", "1,250,000", "Active"],
                 ["Scholarship Fund", "Reserve", "300,000", "Active"]
-            ]),
-            "HR" => CreatePage(module, "Add HR Record", ["Record ID", "Employee", "Type", "Status"],
-            [
-                ["HR-001", "Sara Ahmed", "Contract", "Approved"],
-                ["HR-002", "Usman Raza", "Leave Request", "Pending"],
-                ["HR-003", "Mariam Iqbal", "Performance", "Review"]
             ]),
             _ => throw new ArgumentOutOfRangeException(nameof(controller), controller, "Unknown admin module.")
         };

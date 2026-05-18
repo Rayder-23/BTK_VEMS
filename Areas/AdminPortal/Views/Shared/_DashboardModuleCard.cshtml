@@ -2,7 +2,7 @@
 
 @{
     var moduleUrl = Model.IsAvailable
-        ? $"/adminportal/{Model.Controller.ToLowerInvariant()}"
+        ? (Model.UrlOverride ?? $"/adminportal/{Model.Controller.ToLowerInvariant()}")
         : "#";
     var cardClasses = $"erp-module-card h-100 {Model.AccentClass}";
     if (!Model.IsAvailable)

@@ -1,0 +1,104 @@
+:root {
+    --portal-accent: #0d9488;
+    --portal-accent-dark: #0f766e;
+    --portal-bg: #f0fdfa;
+    --portal-sidebar-bg: #134e4a;
+    --portal-sidebar-text: #ccfbf1;
+}
+
+body.hr-portal.portal-shell {
+    background: var(--portal-bg);
+}
+
+body.hr-portal .portal-sidebar,
+body.hr-portal .portal-offcanvas {
+    background: var(--portal-sidebar-bg);
+    color: var(--portal-sidebar-text);
+}
+
+body.hr-portal .brand-icon {
+    background: var(--portal-accent);
+}
+
+body.hr-portal .portal-menu-link.active,
+body.hr-portal .portal-menu-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+body.hr-portal .portal-menu-link.active {
+    border-left: 3px solid var(--portal-accent);
+}
+
+body.hr-portal .btn-primary {
+    background: var(--portal-accent);
+    border-color: var(--portal-accent);
+}
+
+body.hr-portal .btn-primary:hover {
+    background: var(--portal-accent-dark);
+    border-color: var(--portal-accent-dark);
+}
+
+body.hr-portal .btn-outline-primary {
+    border-color: var(--portal-accent);
+    color: var(--portal-accent);
+}
+
+body.hr-portal .btn-outline-primary:hover {
+    background: var(--portal-accent);
+    border-color: var(--portal-accent);
+}
+
+body.hr-portal .breadcrumb-item a {
+    color: var(--portal-accent);
+}
+
+.hr-module-grid .hr-module-card {
+    background: #fff;
+    border: 1px solid rgba(13, 148, 136, 0.15);
+    border-radius: 1rem;
+    color: inherit;
+    display: block;
+    height: 100%;
+    padding: 1.25rem;
+    text-decoration: none;
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.hr-module-grid .hr-module-card:hover {
+    box-shadow: 0 12px 28px rgba(13, 148, 136, 0.15);
+    transform: translateY(-2px);
+}
+
+.hr-module-card__icon {
+    align-items: center;
+    border-radius: .85rem;
+    display: inline-flex;
+    font-size: 1.35rem;
+    height: 48px;
+    justify-content: center;
+    margin-bottom: .75rem;
+    width: 48px;
+}
+
+.hr-module-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: .35rem;
+}
+
+.hr-module-card__desc {
+    color: #64748b;
+    font-size: .85rem;
+    margin: 0;
+}
+
+.hr-notice {
+    background: rgba(13, 148, 136, 0.08);
+    border: 1px dashed rgba(13, 148, 136, 0.35);
+    border-radius: .75rem;
+    color: #0f766e;
+    font-size: .9rem;
+    padding: .75rem 1rem;
+}

@@ -32,4 +32,7 @@ public sealed class AdminModuleCard
 
     /// <summary>When false, the module appears on the dashboard but is not linked in navigation yet.</summary>
     public bool IsAvailable { get; init; } = true;
+
+    /// <summary>Custom URL when the module does not follow /adminportal/{controller}.</summary>
+    public string? UrlOverride { get; init; }
 }

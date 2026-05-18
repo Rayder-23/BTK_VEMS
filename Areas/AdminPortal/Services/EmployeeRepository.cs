@@ -17,14 +17,14 @@ public sealed class EmployeeRepository : IEmployeeRepository
     {
         const string sql = """
             SELECT
-                uid,
-                EmployeeID,
-                EmployeeName,
+                Uid,
+                EmployeeId,
+                FullName,
                 Department,
                 Designation,
-                EmployeeStatus
+                Status
             FROM dbo.Employee
-            ORDER BY uid DESC;
+            ORDER BY Uid DESC;
             """;
 
         var list = new List<EmployeeListItemViewModel>();
@@ -36,12 +36,12 @@ public sealed class EmployeeRepository : IEmployeeRepository
         {
             list.Add(new EmployeeListItemViewModel
             {
-                Uid = reader.GetInt32(reader.GetOrdinal("uid")),
-                EmployeeID = reader["EmployeeID"] as string ?? string.Empty,
-                EmployeeName = reader["EmployeeName"] as string,
+                Uid = reader.GetInt32(reader.GetOrdinal("Uid")),
+                EmployeeId = reader["EmployeeId"] as string ?? string.Empty,
+                FullName = reader["FullName"] as string ?? string.Empty,
                 Department = reader["Department"] as string,
                 Designation = reader["Designation"] as string,
-                EmployeeStatus = reader["EmployeeStatus"] as string
+                Status = reader["Status"] as string ?? string.Empty
             });
         }
 
@@ -52,38 +52,29 @@ public sealed class EmployeeRepository : IEmployeeRepository
     {
         const string sql = """
             SELECT
-                uid,
-                EmployeeID,
-                EmployeeName,
+                Uid,
+                EmployeeId,
+                FullName,
+                Email,
+                Phone,
                 CNIC,
                 FatherName,
                 DOB,
-                MobileNo,
                 Department,
                 Designation,
-                DateOfJoining,
-                EmployeeStatus,
-                ModifiedBy,
-                ModifiedOn,
-                Details,
-                Project,
-                CarryForwardLeaves,
-                Year2022,
-                Year2023,
-                AdjustedAjusted,
-                Year2024,
-                CarryForwardLeaves1,
-                Year2023New,
-                BasicSalary,
-                ApplyTax,
-                GenStatus
+                Specialization,
+                Qualification,
+                EmployeeType,
+                Status,
+                JoinedDate,
+                Notes
             FROM dbo.Employee
-            WHERE uid = @uid;
+            WHERE Uid = @Uid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@uid", uid);
+        command.Parameters.AddWithValue("@Uid", uid);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         if (!await reader.ReadAsync(cancellationToken))
@@ -96,65 +87,59 @@ public sealed class EmployeeRepository : IEmployeeRepository
 
     public async Task<int> InsertAsync(EmployeeFormModel model, CancellationToken cancellationToken = default)
     {
+        if (!model.JoinedDate.HasValue)
+        {
+            throw new ArgumentException("JoinedDate is required.", nameof(model));
+        }
+
+        var now = DateTime.UtcNow;
         const string sql = """
             INSERT INTO dbo.Employee (
-                EmployeeID,
-                EmployeeName,
+                EmployeeId,
+                FullName,
+                Email,
+                Phone,
                 CNIC,
                 FatherName,
                 DOB,
-                MobileNo,
                 Department,
                 Designation,
-                DateOfJoining,
-                EmployeeStatus,
-                ModifiedBy,
-                ModifiedOn,
-                Details,
-                Project,
-                CarryForwardLeaves,
-                Year2022,
-                Year2023,
-                AdjustedAjusted,
-                Year2024,
-                CarryForwardLeaves1,
-                Year2023New,
-                BasicSalary,
-                ApplyTax,
-                GenStatus
+                Specialization,
+                Qualification,
+                EmployeeType,
+                Status,
+                JoinedDate,
+                Notes,
+                CreatedAt,
+                ModifiedAt
             )
-            OUTPUT INSERTED.uid
+            OUTPUT INSERTED.Uid
             VALUES (
-                @EmployeeID,
-                @EmployeeName,
+                @EmployeeId,
+                @FullName,
+                @Email,
+                @Phone,
                 @CNIC,
                 @FatherName,
                 @DOB,
-                @MobileNo,
                 @Department,
                 @Designation,
-                @DateOfJoining,
-                @EmployeeStatus,
-                @ModifiedBy,
-                @ModifiedOn,
-                @Details,
-                @Project,
-                @CarryForwardLeaves,
-                @Year2022,
-                @Year2023,
-                @AdjustedAjusted,
-                @Year2024,
-                @CarryForwardLeaves1,
-                @Year2023New,
-                @BasicSalary,
-                @ApplyTax,
-                @GenStatus
+                @Specialization,
+                @Qualification,
+                @EmployeeType,
+                @Status,
+                @JoinedDate,
+                @Notes,
+                @CreatedAt,
+                @ModifiedAt
             );
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         AddWriteParameters(command, model);
+        command.Parameters.AddWithValue("@CreatedAt", now);
+        command.Parameters.AddWithValue("@ModifiedAt", now);
         await connection.OpenAsync(cancellationToken);
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return Convert.ToInt32(result);
@@ -162,40 +147,38 @@ public sealed class EmployeeRepository : IEmployeeRepository
 
     public async Task<bool> UpdateAsync(EmployeeFormModel model, CancellationToken cancellationToken = default)
     {
+        if (!model.JoinedDate.HasValue)
+        {
+            throw new ArgumentException("JoinedDate is required.", nameof(model));
+        }
+
         const string sql = """
             UPDATE dbo.Employee
             SET
-                EmployeeID = @EmployeeID,
-                EmployeeName = @EmployeeName,
+                EmployeeId = @EmployeeId,
+                FullName = @FullName,
+                Email = @Email,
+                Phone = @Phone,
                 CNIC = @CNIC,
                 FatherName = @FatherName,
                 DOB = @DOB,
-                MobileNo = @MobileNo,
                 Department = @Department,
                 Designation = @Designation,
-                DateOfJoining = @DateOfJoining,
-                EmployeeStatus = @EmployeeStatus,
-                ModifiedBy = @ModifiedBy,
-                ModifiedOn = @ModifiedOn,
-                Details = @Details,
-                Project = @Project,
-                CarryForwardLeaves = @CarryForwardLeaves,
-                Year2022 = @Year2022,
-                Year2023 = @Year2023,
-                AdjustedAjusted = @AdjustedAjusted,
-                Year2024 = @Year2024,
-                CarryForwardLeaves1 = @CarryForwardLeaves1,
-                Year2023New = @Year2023New,
-                BasicSalary = @BasicSalary,
-                ApplyTax = @ApplyTax,
-                GenStatus = @GenStatus
-            WHERE uid = @uid;
+                Specialization = @Specialization,
+                Qualification = @Qualification,
+                EmployeeType = @EmployeeType,
+                Status = @Status,
+                JoinedDate = @JoinedDate,
+                Notes = @Notes,
+                ModifiedAt = @ModifiedAt
+            WHERE Uid = @Uid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@uid", model.Uid);
+        command.Parameters.AddWithValue("@Uid", model.Uid);
         AddWriteParameters(command, model);
+        command.Parameters.AddWithValue("@ModifiedAt", DateTime.UtcNow);
         await connection.OpenAsync(cancellationToken);
         var rows = await command.ExecuteNonQueryAsync(cancellationToken);
         return rows > 0;
@@ -203,10 +186,10 @@ public sealed class EmployeeRepository : IEmployeeRepository
 
     public async Task<bool> DeleteAsync(int uid, CancellationToken cancellationToken = default)
     {
-        const string sql = "DELETE FROM dbo.Employee WHERE uid = @uid;";
+        const string sql = "DELETE FROM dbo.Employee WHERE Uid = @Uid;";
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@uid", uid);
+        command.Parameters.AddWithValue("@Uid", uid);
         await connection.OpenAsync(cancellationToken);
         var rows = await command.ExecuteNonQueryAsync(cancellationToken);
         return rows > 0;
@@ -214,75 +197,43 @@ public sealed class EmployeeRepository : IEmployeeRepository
 
     private static void AddWriteParameters(SqlCommand command, EmployeeFormModel model)
     {
-        command.Parameters.AddWithValue("@EmployeeID", model.EmployeeID.Trim());
-        command.Parameters.AddWithValue("@EmployeeName", (object?)model.EmployeeName ?? DBNull.Value);
-        command.Parameters.AddWithValue("@CNIC", (object?)model.CNIC ?? DBNull.Value);
-        command.Parameters.AddWithValue("@FatherName", (object?)model.FatherName ?? DBNull.Value);
-        command.Parameters.AddWithValue("@DOB", (object?)model.DOB ?? DBNull.Value);
-        command.Parameters.AddWithValue("@MobileNo", (object?)model.MobileNo ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Department", (object?)model.Department ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Designation", (object?)model.Designation ?? DBNull.Value);
-        command.Parameters.AddWithValue("@DateOfJoining", (object?)model.DateOfJoining ?? DBNull.Value);
-        command.Parameters.AddWithValue("@EmployeeStatus", (object?)model.EmployeeStatus ?? DBNull.Value);
-        command.Parameters.AddWithValue("@ModifiedBy", (object?)model.ModifiedBy ?? DBNull.Value);
-        command.Parameters.AddWithValue("@ModifiedOn", (object?)model.ModifiedOn ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Details", (object?)model.Details ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Project", (object?)model.Project ?? DBNull.Value);
-        command.Parameters.AddWithValue("@CarryForwardLeaves", (object?)model.CarryForwardLeaves ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Year2022", (object?)model.Year2022 ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Year2023", (object?)model.Year2023 ?? DBNull.Value);
-        command.Parameters.AddWithValue("@AdjustedAjusted", (object?)model.AdjustedAjusted ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Year2024", (object?)model.Year2024 ?? DBNull.Value);
-        command.Parameters.AddWithValue("@CarryForwardLeaves1", (object?)model.CarryForwardLeaves1 ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Year2023New", (object?)model.Year2023New ?? DBNull.Value);
-        command.Parameters.AddWithValue("@BasicSalary", (object?)model.BasicSalary ?? DBNull.Value);
-        command.Parameters.AddWithValue("@ApplyTax", (object?)model.ApplyTax ?? DBNull.Value);
-        command.Parameters.AddWithValue("@GenStatus", (object?)model.GenStatus ?? DBNull.Value);
+        command.Parameters.AddWithValue("@EmployeeId", model.EmployeeId.Trim());
+        command.Parameters.AddWithValue("@FullName", model.FullName.Trim());
+        command.Parameters.AddWithValue("@Email", model.Email.Trim());
+        command.Parameters.AddWithValue("@Phone", (object?)model.Phone?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@CNIC", model.CNIC.Trim());
+        command.Parameters.AddWithValue("@FatherName", (object?)model.FatherName?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@DOB", model.DOB.HasValue ? model.DOB.Value.Date : DBNull.Value);
+        command.Parameters.AddWithValue("@Department", (object?)model.Department?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Designation", (object?)model.Designation?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Specialization", (object?)model.Specialization?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Qualification", (object?)model.Qualification?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@EmployeeType", (object?)model.EmployeeType?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Status", model.Status.Trim());
+        command.Parameters.AddWithValue("@JoinedDate", model.JoinedDate!.Value.Date);
+        command.Parameters.AddWithValue("@Notes", (object?)model.Notes?.Trim() ?? DBNull.Value);
     }
 
     private static EmployeeFormModel MapRow(SqlDataReader reader)
     {
-        static string? S(SqlDataReader r, string name) => r[name] as string;
-
         return new EmployeeFormModel
         {
-            Uid = reader.GetInt32(reader.GetOrdinal("uid")),
-            EmployeeID = reader["EmployeeID"] as string ?? string.Empty,
-            EmployeeName = S(reader, "EmployeeName"),
-            CNIC = S(reader, "CNIC"),
-            FatherName = S(reader, "FatherName"),
-            DOB = S(reader, "DOB"),
-            MobileNo = S(reader, "MobileNo"),
-            Department = S(reader, "Department"),
-            Designation = S(reader, "Designation"),
-            DateOfJoining = reader.IsDBNull(reader.GetOrdinal("DateOfJoining"))
-                ? null
-                : reader.GetDateTime(reader.GetOrdinal("DateOfJoining")),
-            EmployeeStatus = S(reader, "EmployeeStatus"),
-            ModifiedBy = S(reader, "ModifiedBy"),
-            ModifiedOn = S(reader, "ModifiedOn"),
-            Details = S(reader, "Details"),
-            Project = S(reader, "Project"),
-            CarryForwardLeaves = reader.IsDBNull(reader.GetOrdinal("CarryForwardLeaves"))
-                ? null
-                : reader.GetDouble(reader.GetOrdinal("CarryForwardLeaves")),
-            Year2022 = reader.IsDBNull(reader.GetOrdinal("Year2022")) ? null : reader.GetDouble(reader.GetOrdinal("Year2022")),
-            Year2023 = reader.IsDBNull(reader.GetOrdinal("Year2023")) ? null : reader.GetDouble(reader.GetOrdinal("Year2023")),
-            AdjustedAjusted = reader.IsDBNull(reader.GetOrdinal("AdjustedAjusted"))
-                ? null
-                : reader.GetInt32(reader.GetOrdinal("AdjustedAjusted")),
-            Year2024 = reader.IsDBNull(reader.GetOrdinal("Year2024")) ? null : reader.GetInt32(reader.GetOrdinal("Year2024")),
-            CarryForwardLeaves1 = reader.IsDBNull(reader.GetOrdinal("CarryForwardLeaves1"))
-                ? null
-                : reader.GetDouble(reader.GetOrdinal("CarryForwardLeaves1")),
-            Year2023New = reader.IsDBNull(reader.GetOrdinal("Year2023New"))
-                ? null
-                : reader.GetDecimal(reader.GetOrdinal("Year2023New")),
-            BasicSalary = reader.IsDBNull(reader.GetOrdinal("BasicSalary"))
-                ? null
-                : reader.GetDecimal(reader.GetOrdinal("BasicSalary")),
-            ApplyTax = S(reader, "ApplyTax"),
-            GenStatus = S(reader, "GenStatus")
+            Uid = reader.GetInt32(reader.GetOrdinal("Uid")),
+            EmployeeId = reader["EmployeeId"] as string ?? string.Empty,
+            FullName = reader["FullName"] as string ?? string.Empty,
+            Email = reader["Email"] as string ?? string.Empty,
+            Phone = reader["Phone"] as string,
+            CNIC = reader["CNIC"] as string ?? string.Empty,
+            FatherName = reader["FatherName"] as string,
+            DOB = reader.IsDBNull(reader.GetOrdinal("DOB")) ? null : reader.GetDateTime(reader.GetOrdinal("DOB")),
+            Department = reader["Department"] as string,
+            Designation = reader["Designation"] as string,
+            Specialization = reader["Specialization"] as string,
+            Qualification = reader["Qualification"] as string,
+            EmployeeType = reader["EmployeeType"] as string,
+            Status = reader["Status"] as string ?? string.Empty,
+            JoinedDate = reader.GetDateTime(reader.GetOrdinal("JoinedDate")),
+            Notes = reader["Notes"] as string
         };
     }
 }

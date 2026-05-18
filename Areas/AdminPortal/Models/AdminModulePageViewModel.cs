@@ -15,4 +15,7 @@ public sealed class AdminModulePageViewModel
     public IReadOnlyList<string> TableHeaders { get; init; } = [];
 
     public IReadOnlyList<IReadOnlyList<string>> TableRows { get; init; } = [];
+
+    /// <summary>HR route segment (e.g. leaves, payroll) for CRUD links.</summary>
+    public string? ModuleSegment { get; init; }
 }

@@ -1,0 +1,54 @@
+@model HrFormPlaceholderViewModel
+@{
+    var title = Model.IsEdit ? $"Edit {Model.ModuleName}" : $"Add {Model.ModuleName}";
+}
+
+<section class="module-page-header @Model.AccentClass">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/hr">HR</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/hr/@Model.Segment">@Model.ModuleName</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@(Model.IsEdit ? "Edit" : "Add")</li>
+        </ol>
+    </nav>
+    <h1 class="h3 fw-bold mb-0">@title</h1>
+    <p class="text-muted mb-0 mt-2">@Model.Description</p>
+</section>
+
+<div class="hr-notice mt-4" role="status">
+    <i class="bi bi-database-slash me-2"></i>
+    This form is a placeholder. Saving will not persist data until the @Model.ModuleName database tables are created.
+</div>
+
+<section class="portal-card mt-4">
+    <form method="post" action="@(Model.IsEdit ? $"/adminportal/hr/{Model.Segment}/edit/{Model.Id}" : $"/adminportal/hr/{Model.Segment}/create")">
+        @Html.AntiForgeryToken()
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <label class="form-label">Code / ID</label>
+                <input class="form-control" type="text" placeholder="Enter code" disabled />
+            </div>
+            <div class="col-12 col-lg-6">
+                <label class="form-label">Name</label>
+                <input class="form-control" type="text" placeholder="Enter name" disabled />
+            </div>
+            <div class="col-12 col-lg-6">
+                <label class="form-label">Amount / value</label>
+                <input class="form-control" type="text" placeholder="Enter value" disabled />
+            </div>
+            <div class="col-12 col-lg-6">
+                <label class="form-label">Status</label>
+                <input class="form-control" type="text" value="Active" disabled />
+            </div>
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" rows="3" placeholder="Optional notes" disabled></textarea>
+            </div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-outline-secondary" href="/adminportal/hr/@Model.Segment">Cancel</a>
+        </div>
+    </form>
+</section>

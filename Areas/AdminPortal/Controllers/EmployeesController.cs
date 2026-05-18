@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
 using VEMS.Areas.AdminPortal.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
 
-public class EmployeesController : AdminBaseController
+[Route("adminportal/hr/employees")]
+public sealed class EmployeesController : HrBaseController
 {
     private readonly IEmployeeRepository _employees;
 
@@ -13,7 +15,8 @@ public class EmployeesController : AdminBaseController
         _employees = employees;
     }
 
-    [HttpGet]
+    [HttpGet("")]
+    [HttpGet("Index")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Employees";
@@ -22,15 +25,19 @@ public class EmployeesController : AdminBaseController
         return View(items);
     }
 
-    [HttpGet]
+    [HttpGet("create")]
     public IActionResult Create()
     {
         ViewData["Title"] = "Add employee";
         ViewData["PageTitle"] = "Employees · Add";
-        return View(new EmployeeFormModel());
+        return View(new EmployeeFormModel
+        {
+            JoinedDate = DateTime.Today,
+            Status = "Active"
+        });
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(EmployeeFormModel model, CancellationToken cancellationToken)
     {
@@ -42,13 +49,12 @@ public class EmployeesController : AdminBaseController
             return View(model);
         }
 
-        ApplyAuditOnWrite(model);
         var newId = await _employees.InsertAsync(model, cancellationToken);
         TempData["StatusMessage"] = $"Employee created (internal id {newId}).";
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet]
+    [HttpGet("edit/{id:int}")]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Edit employee";
@@ -63,7 +69,7 @@ public class EmployeesController : AdminBaseController
         return View(row);
     }
 
-    [HttpPost]
+    [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EmployeeFormModel model, CancellationToken cancellationToken)
     {
@@ -80,7 +86,6 @@ public class EmployeesController : AdminBaseController
             return View(model);
         }
 
-        ApplyAuditOnWrite(model);
         var ok = await _employees.UpdateAsync(model, cancellationToken);
         if (!ok)
         {
@@ -91,26 +96,22 @@ public class EmployeesController : AdminBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
+    [HttpPost("delete/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var ok = await _employees.DeleteAsync(id, cancellationToken);
-        TempData["StatusMessage"] = ok
-            ? "Employee deleted."
-            : "Employee could not be deleted (record not found).";
-        return RedirectToAction(nameof(Index));
-    }
-
-    private void ApplyAuditOnWrite(EmployeeFormModel model)
-    {
-        var admin = HttpContext.Session.GetString(LoginController.AdminSessionKey);
-        if (string.IsNullOrWhiteSpace(admin))
+        try
         {
-            return;
+            var ok = await _employees.DeleteAsync(id, cancellationToken);
+            TempData["StatusMessage"] = ok
+                ? "Employee deleted."
+                : "Employee could not be deleted (record not found).";
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            TempData["ErrorMessage"] = "Employee could not be deleted because login or other records still reference this employee.";
         }
 
-        model.ModifiedBy = admin.Trim();
-        model.ModifiedOn = DateTime.Now.ToString("O");
+        return RedirectToAction(nameof(Index));
     }
 }

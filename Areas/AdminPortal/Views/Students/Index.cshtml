@@ -49,13 +49,13 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
+                    <th scope="col">Registration</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
-                    <th scope="col">Guardian</th>
-                    <th scope="col">Grade</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Enrolled</th>
+                    <th scope="col">Father</th>
+                    <th scope="col">Program</th>
+                    <th scope="col">Roll no.</th>
+                    <th scope="col">Admission</th>
+                    <th scope="col">Active</th>
                     <th scope="col" class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -70,18 +70,18 @@
             {
                 <tr>
                     <td>@s.Uid</td>
-                    <td>@s.FullName</td>
-                    <td>@(s.Email ?? "—")</td>
-                    <td>@(s.Phone ?? "—")</td>
-                    <td>@s.GuardianName</td>
-                    <td>@s.GradeLevel</td>
-                    <td>@s.Status</td>
-                    <td>@s.EnrolledDate.ToString("yyyy-MM-dd")</td>
+                    <td>@s.RegistrationNo</td>
+                    <td>@s.DisplayName</td>
+                    <td>@s.FatherName</td>
+                    <td>@(s.ProgramName ?? "—")</td>
+                    <td>@(s.RollNo ?? "—")</td>
+                    <td>@s.AdmissionDate.ToString("yyyy-MM-dd")</td>
+                    <td>@(s.IsActive ? "Yes" : "No")</td>
                     <td class="text-end">
                         <div class="d-inline-flex flex-wrap justify-content-end gap-1">
                             <a class="btn btn-outline-success btn-sm" asp-action="Edit" asp-route-id="@s.Uid"><i class="bi bi-pencil"></i> Edit</a>
                             <form asp-action="Delete" asp-route-id="@s.Uid" method="post" class="d-inline"
-                                  onsubmit="return confirm('Delete this student? Related fee or challan rows may block this.');">
+                                  onsubmit="return confirm('Delete this student? Related records may block this.');">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
                             </form>

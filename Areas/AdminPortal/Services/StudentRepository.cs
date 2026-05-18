@@ -17,16 +17,17 @@ public sealed class StudentRepository : IStudentRepository
     {
         const string sql = """
             SELECT
-                Uid,
-                FullName,
-                Email,
-                Phone,
-                GuardianName,
-                GradeLevel,
-                Status,
-                EnrolledDate
-            FROM dbo.Students
-            ORDER BY Uid DESC;
+                s.Uid,
+                s.RegistrationNo,
+                s.FirstName + ' ' + ISNULL(s.MiddleName + ' ', '') + s.LastName AS DisplayName,
+                s.FatherName,
+                p.ProgramName,
+                s.RollNo,
+                s.AdmissionDate,
+                s.IsActive
+            FROM dbo.Students s
+            LEFT JOIN dbo.ref_Programs p ON s.ProgramID = p.Uid
+            ORDER BY s.Uid DESC;
             """;
 
         var list = new List<StudentListItemViewModel>();
@@ -38,14 +39,14 @@ public sealed class StudentRepository : IStudentRepository
         {
             list.Add(new StudentListItemViewModel
             {
-                Uid = reader.GetInt32(reader.GetOrdinal("Uid")),
-                FullName = reader["FullName"] as string ?? string.Empty,
-                Email = reader["Email"] as string,
-                Phone = reader["Phone"] as string,
-                GuardianName = reader["GuardianName"] as string ?? string.Empty,
-                GradeLevel = reader["GradeLevel"] as string ?? string.Empty,
-                Status = reader["Status"] as string ?? string.Empty,
-                EnrolledDate = reader.GetDateTime(reader.GetOrdinal("EnrolledDate"))
+                Uid = ToInt32(reader, "Uid"),
+                RegistrationNo = reader["RegistrationNo"] as string ?? string.Empty,
+                DisplayName = reader["DisplayName"] as string ?? string.Empty,
+                FatherName = reader["FatherName"] as string ?? string.Empty,
+                ProgramName = reader["ProgramName"] as string,
+                RollNo = reader["RollNo"] as string,
+                AdmissionDate = reader.GetDateTime(reader.GetOrdinal("AdmissionDate")),
+                IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"))
             });
         }
 
@@ -57,15 +58,28 @@ public sealed class StudentRepository : IStudentRepository
         const string sql = """
             SELECT
                 Uid,
-                FullName,
-                Email,
-                Phone,
-                GuardianName,
-                GuardianPhone,
-                GradeLevel,
-                City,
-                Status,
-                EnrolledDate
+                RegistrationNo,
+                ProgramID,
+                AdmissionYear,
+                AdmissionDate,
+                FirstName,
+                MiddleName,
+                LastName,
+                FatherName,
+                DateOfBirth,
+                Gender,
+                AddressLine1,
+                AddressLine2,
+                CountryID,
+                ProvinceID,
+                CityID,
+                PostalCode,
+                RollNo,
+                NIC_No,
+                BFORM_No,
+                Nationality,
+                IsActive,
+                StatusRemark
             FROM dbo.Students
             WHERE Uid = @Uid;
             """;
@@ -80,81 +94,138 @@ public sealed class StudentRepository : IStudentRepository
             return null;
         }
 
-        return new StudentFormModel
+        return MapRow(reader);
+    }
+
+    public async Task<StudentLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        var programs = await ReadLookupAsync(
+            connection,
+            "SELECT Uid, ProgramCode + ' - ' + ProgramName FROM dbo.ref_Programs WHERE IsActive = 1 ORDER BY ProgramName",
+            cancellationToken);
+        var countries = await ReadLookupAsync(
+            connection,
+            "SELECT Uid, CountryName FROM dbo.ref_Countries WHERE IsActive = 1 ORDER BY CountryName",
+            cancellationToken);
+        var provinces = await ReadLookupAsync(
+            connection,
+            "SELECT Uid, ProvinceName FROM dbo.ref_Provinces WHERE IsActive = 1 ORDER BY ProvinceName",
+            cancellationToken);
+        var cities = await ReadLookupAsync(
+            connection,
+            "SELECT Uid, CityName FROM dbo.ref_Cities WHERE IsActive = 1 ORDER BY CityName",
+            cancellationToken);
+
+        return new StudentLookups
         {
-            Uid = reader.GetInt32(reader.GetOrdinal("Uid")),
-            FullName = reader["FullName"] as string ?? string.Empty,
-            Email = reader["Email"] as string,
-            Phone = reader["Phone"] as string,
-            GuardianName = reader["GuardianName"] as string ?? string.Empty,
-            GuardianPhone = reader["GuardianPhone"] as string ?? string.Empty,
-            GradeLevel = reader["GradeLevel"] as string ?? string.Empty,
-            City = reader["City"] as string,
-            Status = reader["Status"] as string ?? string.Empty,
-            EnrolledDate = reader.GetDateTime(reader.GetOrdinal("EnrolledDate"))
+            Programs = programs,
+            Countries = countries,
+            Provinces = provinces,
+            Cities = cities
         };
     }
 
-    public async Task<int> InsertAsync(StudentFormModel model, CancellationToken cancellationToken = default)
+    public async Task<int> InsertAsync(StudentFormModel model, int createdBy, CancellationToken cancellationToken = default)
     {
-        if (!model.EnrolledDate.HasValue)
-        {
-            throw new ArgumentException("EnrolledDate is required.", nameof(model));
-        }
+        ValidateRequiredDates(model);
 
         const string sql = """
             INSERT INTO dbo.Students (
-                FullName,
-                Email,
-                Phone,
-                GuardianName,
-                GuardianPhone,
-                GradeLevel,
-                City,
-                Status,
-                EnrolledDate
+                RegistrationNo,
+                ProgramID,
+                AdmissionYear,
+                AdmissionDate,
+                FirstName,
+                MiddleName,
+                LastName,
+                FatherName,
+                DateOfBirth,
+                Gender,
+                AddressLine1,
+                AddressLine2,
+                CountryID,
+                ProvinceID,
+                CityID,
+                PostalCode,
+                RollNo,
+                NIC_No,
+                BFORM_No,
+                Nationality,
+                IsActive,
+                StatusRemark,
+                CreatedBy
             )
             OUTPUT INSERTED.Uid
             VALUES (
-                @FullName,
-                @Email,
-                @Phone,
-                @GuardianName,
-                @GuardianPhone,
-                @GradeLevel,
-                @City,
-                @Status,
-                @EnrolledDate
+                @RegistrationNo,
+                @ProgramID,
+                @AdmissionYear,
+                @AdmissionDate,
+                @FirstName,
+                @MiddleName,
+                @LastName,
+                @FatherName,
+                @DateOfBirth,
+                @Gender,
+                @AddressLine1,
+                @AddressLine2,
+                @CountryID,
+                @ProvinceID,
+                @CityID,
+                @PostalCode,
+                @RollNo,
+                @NIC_No,
+                @BFORM_No,
+                @Nationality,
+                @IsActive,
+                @StatusRemark,
+                @CreatedBy
             );
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         AddWriteParameters(command, model);
+        command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await connection.OpenAsync(cancellationToken);
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return Convert.ToInt32(result);
     }
 
-    public async Task<bool> UpdateAsync(StudentFormModel model, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(StudentFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
     {
-        if (!model.EnrolledDate.HasValue)
-        {
-            throw new ArgumentException("EnrolledDate is required.", nameof(model));
-        }
+        ValidateRequiredDates(model);
 
         const string sql = """
             UPDATE dbo.Students
             SET
-                FullName = @FullName,
-                Email = @Email,
-                Phone = @Phone,
-                GuardianName = @GuardianName,
-                GuardianPhone = @GuardianPhone,
-                GradeLevel = @GradeLevel,
-                City = @City,
-                Status = @Status,
-                EnrolledDate = @EnrolledDate
+                RegistrationNo = @RegistrationNo,
+                ProgramID = @ProgramID,
+                AdmissionYear = @AdmissionYear,
+                AdmissionDate = @AdmissionDate,
+                FirstName = @FirstName,
+                MiddleName = @MiddleName,
+                LastName = @LastName,
+                FatherName = @FatherName,
+                DateOfBirth = @DateOfBirth,
+                Gender = @Gender,
+                AddressLine1 = @AddressLine1,
+                AddressLine2 = @AddressLine2,
+                CountryID = @CountryID,
+                ProvinceID = @ProvinceID,
+                CityID = @CityID,
+                PostalCode = @PostalCode,
+                RollNo = @RollNo,
+                NIC_No = @NIC_No,
+                BFORM_No = @BFORM_No,
+                Nationality = @Nationality,
+                IsActive = @IsActive,
+                StatusRemark = @StatusRemark,
+                UpdatedBy = @UpdatedBy,
+                UpdatedAt = SYSUTCDATETIME()
             WHERE Uid = @Uid;
             """;
 
@@ -162,6 +233,7 @@ public sealed class StudentRepository : IStudentRepository
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Uid", model.Uid);
         AddWriteParameters(command, model);
+        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         var rows = await command.ExecuteNonQueryAsync(cancellationToken);
         return rows > 0;
@@ -178,16 +250,98 @@ public sealed class StudentRepository : IStudentRepository
         return rows > 0;
     }
 
+    private static async Task<IReadOnlyList<StudentLookupItem>> ReadLookupAsync(
+        SqlConnection connection,
+        string sql,
+        CancellationToken cancellationToken)
+    {
+        var list = new List<StudentLookupItem>();
+        await using var command = new SqlCommand(sql, connection);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new StudentLookupItem
+            {
+                Id = ToInt32(reader, 0),
+                Name = reader.GetString(1)
+            });
+        }
+
+        return list;
+    }
+
+    private static StudentFormModel MapRow(SqlDataReader reader)
+    {
+        return new StudentFormModel
+        {
+            Uid = ToInt32(reader, "Uid"),
+            RegistrationNo = reader["RegistrationNo"] as string ?? string.Empty,
+            ProgramId = ToInt32(reader, "ProgramID"),
+            AdmissionYear = (short)ToInt32(reader, "AdmissionYear"),
+            AdmissionDate = reader.GetDateTime(reader.GetOrdinal("AdmissionDate")),
+            FirstName = reader["FirstName"] as string ?? string.Empty,
+            MiddleName = reader["MiddleName"] as string,
+            LastName = reader["LastName"] as string ?? string.Empty,
+            FatherName = reader["FatherName"] as string ?? string.Empty,
+            DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth")),
+            Gender = (reader["Gender"] as string ?? "M").Trim(),
+            AddressLine1 = reader["AddressLine1"] as string ?? string.Empty,
+            AddressLine2 = reader["AddressLine2"] as string,
+            CountryId = ToInt32(reader, "CountryID"),
+            ProvinceId = ToInt32(reader, "ProvinceID"),
+            CityId = ToInt32(reader, "CityID"),
+            PostalCode = reader["PostalCode"] as string,
+            RollNo = reader["RollNo"] as string,
+            NIC_No = reader["NIC_No"] as string,
+            BFORM_No = reader["BFORM_No"] as string,
+            Nationality = reader["Nationality"] as string,
+            IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
+            StatusRemark = reader["StatusRemark"] as string
+        };
+    }
+
     private static void AddWriteParameters(SqlCommand command, StudentFormModel model)
     {
-        command.Parameters.AddWithValue("@FullName", model.FullName.Trim());
-        command.Parameters.AddWithValue("@Email", (object?)model.Email?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Phone", (object?)model.Phone?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@GuardianName", model.GuardianName.Trim());
-        command.Parameters.AddWithValue("@GuardianPhone", model.GuardianPhone.Trim());
-        command.Parameters.AddWithValue("@GradeLevel", model.GradeLevel.Trim());
-        command.Parameters.AddWithValue("@City", (object?)model.City?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Status", model.Status.Trim());
-        command.Parameters.AddWithValue("@EnrolledDate", model.EnrolledDate!.Value.Date);
+        command.Parameters.AddWithValue("@RegistrationNo", model.RegistrationNo.Trim());
+        command.Parameters.AddWithValue("@ProgramID", model.ProgramId);
+        command.Parameters.AddWithValue("@AdmissionYear", model.AdmissionYear);
+        command.Parameters.AddWithValue("@AdmissionDate", model.AdmissionDate!.Value.Date);
+        command.Parameters.AddWithValue("@FirstName", model.FirstName.Trim());
+        command.Parameters.AddWithValue("@MiddleName", (object?)model.MiddleName?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@LastName", model.LastName.Trim());
+        command.Parameters.AddWithValue("@FatherName", model.FatherName.Trim());
+        command.Parameters.AddWithValue("@DateOfBirth", model.DateOfBirth!.Value.Date);
+        command.Parameters.AddWithValue("@Gender", model.Gender.Trim().ToUpperInvariant());
+        command.Parameters.AddWithValue("@AddressLine1", model.AddressLine1.Trim());
+        command.Parameters.AddWithValue("@AddressLine2", (object?)model.AddressLine2?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@CountryID", model.CountryId);
+        command.Parameters.AddWithValue("@ProvinceID", model.ProvinceId);
+        command.Parameters.AddWithValue("@CityID", model.CityId);
+        command.Parameters.AddWithValue("@PostalCode", (object?)model.PostalCode?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@RollNo", (object?)model.RollNo?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@NIC_No", (object?)model.NIC_No?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@BFORM_No", (object?)model.BFORM_No?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Nationality", (object?)model.Nationality?.Trim() ?? DBNull.Value);
+        command.Parameters.AddWithValue("@IsActive", model.IsActive);
+        command.Parameters.AddWithValue("@StatusRemark", (object?)model.StatusRemark?.Trim() ?? DBNull.Value);
+    }
+
+    private static int ToInt32(SqlDataReader reader, string column) =>
+        ToInt32(reader, reader.GetOrdinal(column));
+
+    private static int ToInt32(SqlDataReader reader, int ordinal) =>
+        Convert.ToInt32(reader.GetValue(ordinal));
+
+    private static void ValidateRequiredDates(StudentFormModel model)
+    {
+        if (!model.AdmissionDate.HasValue)
+        {
+            throw new ArgumentException("AdmissionDate is required.", nameof(model));
+        }
+
+        if (!model.DateOfBirth.HasValue)
+        {
+            throw new ArgumentException("DateOfBirth is required.", nameof(model));
+        }
     }
 }

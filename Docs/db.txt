@@ -1,16 +1,7 @@
 Virtual Education Management System - Database Schema
-Generated: 2026-05-14 (from live database using ConnectionStrings:DefaultConnection in appsettings.json)
+Generated: 2026-05-18 (from live database using ConnectionStrings:DefaultConnection in appsettings.json)
 
 This file lists database tables and columns only. It does not include data rows or connection credentials.
-
-
-Table: dbo.Admins
-  - Uid: int NOT NULL PK
-  - FullName: nvarchar(100) NOT NULL
-  - Email: nvarchar(150) NOT NULL
-  - AdminRole: nvarchar(50) NOT NULL
-  - Status: nvarchar(50) NOT NULL
-  - CreatedAt: datetime2 NOT NULL
 
 Table: dbo.ChallanItems
   - Uid: int NOT NULL PK
@@ -30,14 +21,16 @@ Table: dbo.Challans
   - TotalAmount: decimal(10,2) NOT NULL
   - PaidAmount: decimal(10,2) NOT NULL
   - Balance: decimal(11,2) NULL
-  - Status: nvarchar(10) NOT NULL
+  - Status: nvarchar(50) NOT NULL
   - IssueDate: date NOT NULL
   - DueDate: date NOT NULL
   - PaidDate: date NULL
-  - PaymentMode: nvarchar(10) NULL
+  - PaymentMode: nvarchar(50) NULL
   - BankRefNo: nvarchar(100) NULL
   - Remarks: nvarchar(max) NULL
   - CreatedAt: datetime2 NOT NULL
+  - DueDateHistory: nvarchar(max) NULL
+  - CreatedBy: int NULL
 
 Table: dbo.Configurations
   - Uid: int NOT NULL PK
@@ -49,42 +42,37 @@ Table: dbo.Configurations
   - UpdatedAt: datetime2 NOT NULL
 
 Table: dbo.Employee
-  - uid: int NOT NULL PK
-  - EmployeeID: varchar(250) NOT NULL
-  - EmployeeName: varchar(250) NULL
-  - CNIC: varchar(250) NULL
-  - FatherName: varchar(250) NULL
-  - DOB: varchar(250) NULL
-  - MobileNo: varchar(250) NULL
-  - Department: varchar(250) NULL
-  - Designation: varchar(250) NULL
-  - DateOfJoining: date NULL
-  - EmployeeStatus: varchar(250) NULL
-  - ModifiedBy: varchar(max) NULL
-  - ModifiedOn: nvarchar(max) NULL
-  - Details: nvarchar(max) NULL
-  - Project: nvarchar(50) NULL
-  - CarryForwardLeaves: float NULL
-  - Year2022: float NULL
-  - Year2023: float NULL
-  - AdjustedAjusted: int NULL
-  - Year2024: int NULL
-  - CarryForwardLeaves1: float NULL
-  - Year2023New: decimal(18,2) NULL
-  - BasicSalary: decimal(18,2) NULL
-  - ApplyTax: nvarchar(10) NULL
-  - GenStatus: nvarchar(50) NULL
+  - Uid: int NOT NULL PK
+  - EmployeeId: varchar(20) NOT NULL
+  - FullName: nvarchar(100) NOT NULL
+  - Email: nvarchar(150) NOT NULL
+  - Phone: nvarchar(20) NULL
+  - CNIC: nvarchar(15) NOT NULL
+  - FatherName: nvarchar(100) NULL
+  - DOB: date NULL
+  - Department: nvarchar(100) NULL
+  - Designation: nvarchar(100) NULL
+  - Specialization: nvarchar(150) NULL
+  - Qualification: nvarchar(150) NULL
+  - EmployeeType: nvarchar(50) NULL
+  - Status: nvarchar(50) NOT NULL
+  - JoinedDate: date NOT NULL
+  - CreatedBy: int NULL
+  - CreatedAt: datetime2 NOT NULL
+  - ModifiedBy: int NULL
+  - ModifiedAt: datetime2 NOT NULL
+  - Notes: nvarchar(max) NULL
 
 Table: dbo.EmployeeLogin
   - Uid: int NOT NULL PK
-  - EmployeeId: varchar(50) NULL
-  - Username: nvarchar(100) NOT NULL
-  - PasswordHash: nvarchar(255) NOT NULL
-  - Role: nvarchar(max) NULL
-  - CreatedBy: varchar(max) NULL
-  - CreatedOn: varchar(max) NULL
-  - History: varchar(max) NULL
-  - Status: nvarchar(50) NULL
+  - EmployeeId: int NOT NULL
+  - Username: varchar(50) NOT NULL
+  - PasswordHash: varchar(max) NOT NULL
+  - Role: nvarchar(50) NOT NULL
+  - Status: nvarchar(50) NOT NULL
+  - CreatedBy: int NULL
+  - CreatedOn: datetime2 NOT NULL
+  - History: nvarchar(max) NULL
 
 Table: dbo.FeeDiscounts
   - Uid: int NOT NULL PK
@@ -100,31 +88,23 @@ Table: dbo.FeePayments
   - ChallanId: int NOT NULL
   - CollectedBy: int NOT NULL
   - AmountPaid: decimal(10,2) NOT NULL
-  - PaymentMode: nvarchar(10) NOT NULL
+  - PaymentMode: nvarchar(50) NOT NULL
   - TransactionRef: nvarchar(100) NULL
   - PaymentDate: date NOT NULL
   - ReceiptNo: nvarchar(30) NOT NULL
   - CreatedAt: datetime2 NOT NULL
 
-Table: dbo.Fees
-  - Uid: int NOT NULL PK
-  - ProgramId: int NOT NULL
-  - Amount: decimal(15,2) NOT NULL
-  - Currency: char(3) NOT NULL
-  - EffectiveDate: date NOT NULL
-  - Notes: nvarchar(500) NULL
-  - FeeType: nvarchar(50) NOT NULL
-  - Status: nvarchar(50) NOT NULL
-
 Table: dbo.FeeStructures
   - Uid: int NOT NULL PK
   - FeeTypeId: int NOT NULL
-  - ClassId: int NOT NULL
+  - ProgramId: int NOT NULL
   - Amount: decimal(10,2) NOT NULL
   - AcademicYear: nvarchar(9) NOT NULL
   - DueDate: date NULL
   - IsActive: bit NOT NULL
   - CreatedAt: datetime2 NOT NULL
+  - LateFeeAmount: decimal(10,2) NOT NULL
+  - LateFeeDays: int NOT NULL
 
 Table: dbo.FeeTypes
   - Uid: int NOT NULL PK
@@ -146,45 +126,217 @@ Table: dbo.Programs
   - UpdatedAt: datetime2 NULL
   - Status: nvarchar(50) NOT NULL
 
+Table: dbo.ref_BloodGroups
+  - Uid: tinyint NOT NULL PK
+  - BloodGroupName: varchar(5) NOT NULL
+
+Table: dbo.ref_Cities
+  - Uid: smallint NOT NULL PK
+  - ProvinceID: smallint NOT NULL
+  - CityName: nvarchar(100) NOT NULL
+  - IsActive: bit NOT NULL
+
+Table: dbo.ref_ContactTypes
+  - Uid: tinyint NOT NULL PK
+  - ContactTypeName: nvarchar(30) NOT NULL
+
+Table: dbo.ref_Countries
+  - CountryID: tinyint NOT NULL PK
+  - CountryName: nvarchar(100) NOT NULL
+  - CountryCode: char(3) NOT NULL
+  - IsActive: bit NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.ref_InstitutionTypes
+  - InstTypeID: tinyint NOT NULL PK
+  - InstTypeCode: char(3) NOT NULL
+  - InstTypeName: nvarchar(50) NOT NULL
+  - IsActive: bit NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.ref_Programs
+  - ProgramID: smallint NOT NULL PK
+  - InstTypeID: tinyint NOT NULL
+  - ProgramCode: nvarchar(10) NOT NULL
+  - ProgramName: nvarchar(100) NOT NULL
+  - TotalSemesters: tinyint NULL
+  - TotalGrades: tinyint NULL
+  - IsActive: bit NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.ref_Provinces
+  - ProvinceID: smallint NOT NULL PK
+  - CountryID: tinyint NOT NULL
+  - ProvinceName: nvarchar(100) NOT NULL
+  - ProvinceCode: nvarchar(10) NULL
+  - IsActive: bit NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.ref_RelationTypes
+  - RelationTypeID: tinyint NOT NULL PK
+  - RelationName: nvarchar(50) NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.ref_Religions
+  - ReligionID: tinyint NOT NULL PK
+  - ReligionName: nvarchar(50) NOT NULL
+  - IsActive: bit NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.ref_Sections
+  - SectionID: tinyint NOT NULL PK
+  - SectionName: nvarchar(10) NOT NULL
+  - Uid: int NOT NULL
+
+Table: dbo.StudentContacts
+  - ContactID: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - ContactTypeID: tinyint NOT NULL
+  - ContactValue: nvarchar(150) NOT NULL
+  - IsPrimary: bit NOT NULL
+  - IsVerified: bit NOT NULL
+  - Remarks: nvarchar(100) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
+  - Uid: int NOT NULL
+
+Table: dbo.StudentEnrollments
+  - EnrollmentID: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - ProgramID: smallint NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - GradeOrSemester: tinyint NOT NULL
+  - SectionID: tinyint NULL
+  - RollNo: nvarchar(30) NOT NULL
+  - EnrollmentDate: date NOT NULL
+  - CompletionDate: date NULL
+  - EnrollmentStatus: nvarchar(20) NOT NULL
+  - FeeStatus: nvarchar(20) NOT NULL
+  - Remarks: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
+  - Uid: int NOT NULL
+
 Table: dbo.StudentFeeAllocations
   - Uid: int NOT NULL PK
   - StudentId: int NOT NULL
   - FeeStructureId: int NOT NULL
   - DiscountId: int NULL
   - FinalAmount: decimal(10,2) NOT NULL
-  - Status: nvarchar(10) NOT NULL
+  - Status: nvarchar(50) NOT NULL
   - AllocatedAt: datetime2 NOT NULL
+
+Table: dbo.StudentParents
+  - Uid: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - RelationTypeID: tinyint NOT NULL
+  - FirstName: nvarchar(50) NOT NULL
+  - LastName: nvarchar(50) NOT NULL
+  - DateOfBirth: date NULL
+  - NIC_No: varchar(15) NULL
+  - Nationality: nvarchar(50) NULL
+  - Education: nvarchar(100) NULL
+  - Occupation: nvarchar(100) NULL
+  - OrganizationName: nvarchar(150) NULL
+  - Designation: nvarchar(100) NULL
+  - MonthlyIncome: decimal(12,2) NULL
+  - AddressLine1: nvarchar(150) NULL
+  - AddressLine2: nvarchar(150) NULL
+  - CityID: smallint NULL
+  - ProvinceID: smallint NULL
+  - CountryID: tinyint NULL
+  - MobileNo: nvarchar(20) NULL
+  - WhatsAppNo: nvarchar(20) NULL
+  - EmailAddress: nvarchar(150) NULL
+  - OfficeNo: nvarchar(20) NULL
+  - IsPrimaryContact: bit NOT NULL
+  - IsAuthorizedPickup: bit NOT NULL
+  - PhotoPath: nvarchar(300) NULL
+  - IsAlive: bit NOT NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
 
 Table: dbo.Students
   - Uid: int NOT NULL PK
-  - FullName: nvarchar(100) NOT NULL
-  - Email: nvarchar(150) NULL
-  - Phone: nvarchar(20) NULL
-  - GuardianName: nvarchar(100) NOT NULL
-  - GuardianPhone: nvarchar(20) NOT NULL
-  - GradeLevel: nvarchar(20) NOT NULL
-  - City: nvarchar(100) NULL
-  - Status: nvarchar(50) NOT NULL
-  - EnrolledDate: date NOT NULL
+  - RegistrationNo: nvarchar(30) NOT NULL
+  - ProgramID: smallint NOT NULL
+  - AdmissionYear: smallint NOT NULL
+  - AdmissionDate: date NOT NULL
+  - FirstName: nvarchar(50) NOT NULL
+  - MiddleName: nvarchar(50) NULL
+  - LastName: nvarchar(50) NOT NULL
+  - FatherName: nvarchar(100) NOT NULL
+  - DateOfBirth: date NOT NULL
+  - Gender: char(1) NOT NULL
+  - BloodGroupID: tinyint NULL
+  - ReligionID: tinyint NULL
+  - Nationality: nvarchar(50) NULL
+  - NIC_No: varchar(15) NULL
+  - BFORM_No: varchar(15) NULL
+  - PassportNo: nvarchar(20) NULL
+  - AddressLine1: nvarchar(150) NOT NULL
+  - AddressLine2: nvarchar(150) NULL
+  - CityID: smallint NOT NULL
+  - ProvinceID: smallint NOT NULL
+  - CountryID: tinyint NOT NULL
+  - PostalCode: nvarchar(10) NULL
+  - PhotoPath: nvarchar(300) NULL
+  - DocumentPath: nvarchar(300) NULL
+  - PreviousSchool: nvarchar(150) NULL
+  - PreviousGradeOrSem: nvarchar(20) NULL
+  - TransferCertNo: nvarchar(50) NULL
+  - HasSpecialNeeds: bit NOT NULL
+  - SpecialNeedsDetail: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - StatusRemark: nvarchar(200) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
+  - RollNo: nvarchar(30) NULL
+
+Table: dbo.StudentSiblings
+  - Uid: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - SiblingStudentID: int NULL
+  - FirstName: nvarchar(50) NULL
+  - LastName: nvarchar(50) NULL
+  - DateOfBirth: date NULL
+  - Gender: char(1) NULL
+  - RelationTypeID: tinyint NOT NULL
+  - InstitutionName: nvarchar(150) NULL
+  - GradeOrClass: nvarchar(20) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
 
 Table: dbo.StudentsLogin
   - Uid: int NOT NULL PK
-  - StudentId: varchar(50) NULL
+  - StudentId: int NOT NULL
   - Username: nvarchar(100) NOT NULL
   - PasswordHash: nvarchar(255) NOT NULL
-  - CreatedBy: varchar(max) NULL
-  - CreatedOn: varchar(max) NULL
-  - History: varchar(max) NULL
-  - Status: nvarchar(50) NULL
-
-Table: dbo.Teachers
-  - Uid: int NOT NULL PK
-  - FullName: nvarchar(100) NOT NULL
-  - Email: nvarchar(150) NOT NULL
-  - Phone: nvarchar(20) NULL
-  - CNIC: nvarchar(15) NOT NULL
-  - TeacherType: nvarchar(50) NOT NULL
-  - Specialization: nvarchar(150) NULL
-  - Qualification: nvarchar(150) NULL
+  - CreatedBy: int NULL
+  - CreatedOn: datetime2 NULL
   - Status: nvarchar(50) NOT NULL
-  - JoinedDate: date NOT NULL
+  - Email: nvarchar(150) NULL
+  - PasswordSalt: nvarchar(255) NULL
+  - LastLoginAt: datetime2 NULL
+  - LastLoginIP: nvarchar(45) NULL
+  - FailedLoginCount: tinyint NOT NULL
+  - LockedUntil: datetime2 NULL
+  - ResetToken: nvarchar(255) NULL
+  - ResetTokenExpiry: datetime2 NULL
+  - MustChangePassword: bit NOT NULL
+  - PasswordChangedAt: datetime2 NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL

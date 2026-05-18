@@ -24,31 +24,33 @@ public class StudentsController : AdminBaseController
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Add student";
         ViewData["PageTitle"] = "Students · Add";
-        return View(new StudentFormModel
+        var lookups = await _students.GetLookupsAsync(cancellationToken);
+        return View(new StudentFormViewModel
         {
-            EnrolledDate = DateTime.Today,
-            Status = "Active"
+            Lookups = lookups,
+            Form = CreateDefaultForm(lookups)
         });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(StudentFormModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(StudentFormViewModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Add student";
         ViewData["PageTitle"] = "Students · Add";
 
         if (!ModelState.IsValid)
         {
+            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
-        var newId = await _students.InsertAsync(model, cancellationToken);
-        TempData["StatusMessage"] = $"Student created (internal id {newId}).";
+        var newId = await _students.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+        TempData["StatusMessage"] = $"Student created (id {newId}).";
         return RedirectToAction(nameof(Index));
     }
 
@@ -64,27 +66,32 @@ public class StudentsController : AdminBaseController
             return NotFound();
         }
 
-        return View(row);
+        return View(new StudentFormViewModel
+        {
+            Form = row,
+            Lookups = await _students.GetLookupsAsync(cancellationToken)
+        });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(StudentFormModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(StudentFormViewModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Edit student";
         ViewData["PageTitle"] = "Students · Edit";
 
-        if (model.Uid <= 0)
+        if (model.Form.Uid <= 0)
         {
             return NotFound();
         }
 
         if (!ModelState.IsValid)
         {
+            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
-        var ok = await _students.UpdateAsync(model, cancellationToken);
+        var ok = await _students.UpdateAsync(model.Form, ResolveActorId(), cancellationToken);
         if (!ok)
         {
             return NotFound();
@@ -107,9 +114,27 @@ public class StudentsController : AdminBaseController
         }
         catch (SqlException ex) when (ex.Number == 547)
         {
-            TempData["ErrorMessage"] = "Student could not be deleted because other records (fees, challans, etc.) still reference this student.";
+            TempData["ErrorMessage"] = "Student could not be deleted because other records (login, enrollments, challans, etc.) still reference this student.";
         }
 
         return RedirectToAction(nameof(Index));
     }
+
+    private static StudentFormModel CreateDefaultForm(StudentLookups lookups)
+    {
+        return new StudentFormModel
+        {
+            AdmissionYear = (short)DateTime.Today.Year,
+            AdmissionDate = DateTime.Today,
+            Gender = "M",
+            Nationality = "Pakistani",
+            IsActive = true,
+            CountryId = lookups.Countries.FirstOrDefault()?.Id ?? 1,
+            ProvinceId = lookups.Provinces.FirstOrDefault()?.Id ?? 1,
+            CityId = lookups.Cities.FirstOrDefault()?.Id ?? 1,
+            ProgramId = lookups.Programs.FirstOrDefault()?.Id ?? 1
+        };
+    }
+
+    private int ResolveActorId() => 1;
 }

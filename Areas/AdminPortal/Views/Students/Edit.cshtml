@@ -1,4 +1,4 @@
-@model StudentFormModel
+@model StudentFormViewModel
 @{
     ViewData["Title"] = "Edit student";
 }
@@ -12,13 +12,13 @@
         </ol>
     </nav>
     <h1 class="h3 fw-bold mb-0">Edit student</h1>
-    <p class="text-muted mb-0 mt-2">Internal id: <strong>@Model.Uid</strong></p>
+    <p class="text-muted mb-0 mt-2">Internal id: <strong>@Model.Form.Uid</strong></p>
 </section>
 
 <section class="portal-card mt-4">
     <form asp-action="Edit" method="post" novalidate>
         @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="Uid" />
+        <input type="hidden" asp-for="Form.Uid" />
         <partial name="_StudentForm" model="Model" />
         <div class="d-flex gap-2 mt-4">
             <button type="submit" class="btn btn-primary">Save changes</button>
