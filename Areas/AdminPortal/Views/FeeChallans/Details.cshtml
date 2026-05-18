@@ -1,0 +1,96 @@
+@model VEMS.Areas.AdminPortal.Models.Fee.ChallanDetailsPageModel
+@{
+    var h = Model.Header;
+    ViewData["Title"] = $"Challan {h.ChallanNo}";
+}
+
+<section class="module-page-header accent-teal">
+    <h1 class="h3 fw-bold">@h.ChallanNo</h1>
+    <p class="text-muted mb-0">@h.StudentName (@h.RegistrationNo) · Due @h.DueDate.ToString("yyyy-MM-dd")</p>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<div class="row g-3 mt-1">
+    <div class="col-md-3">
+        <section class="portal-card h-100">
+            <p class="text-muted small mb-1">Net payable</p>
+            <p class="h4 fw-bold mb-0">@h.NetPayable.ToString("N2")</p>
+        </section>
+    </div>
+    <div class="col-md-3">
+        <section class="portal-card h-100">
+            <p class="text-muted small mb-1">Paid</p>
+            <p class="h4 fw-bold mb-0">@h.AmountPaid.ToString("N2")</p>
+        </section>
+    </div>
+    <div class="col-md-3">
+        <section class="portal-card h-100">
+            <p class="text-muted small mb-1">Balance</p>
+            <p class="h4 fw-bold mb-0">@((h.NetPayable - h.AmountPaid).ToString("N2"))</p>
+        </section>
+    </div>
+    <div class="col-md-3">
+        <section class="portal-card h-100">
+            <p class="text-muted small mb-1">Status</p>
+            <p class="h5 fw-bold mb-0">@h.DisplayStatus</p>
+        </section>
+    </div>
+</div>
+
+<section class="portal-card mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 fw-bold mb-0">Fee breakdown</h2>
+        <div class="d-flex gap-2">
+            @if (h.DisplayStatus is not ("Paid" or "Cancelled"))
+            {
+                <a class="btn btn-sm btn-success" href="/adminportal/fee/payments/create?challanId=@h.Uid">Record payment</a>
+                <form method="post" action="/adminportal/fee/challans/cancel/@h.Uid" onsubmit="return confirm('Cancel this challan?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel challan</button>
+                </form>
+            }
+        </div>
+    </div>
+    <table class="table admin-table">
+        <thead><tr><th>Fee head</th><th>Amount</th><th>Discount</th><th>Late fine</th><th>Net</th></tr></thead>
+        <tbody>
+        @foreach (var line in Model.Lines)
+        {
+            <tr>
+                <td>@line.FeeHeadName</td>
+                <td>@line.Amount.ToString("N2")</td>
+                <td>@line.DiscountAmount.ToString("N2")</td>
+                <td>@line.LateFine.ToString("N2")</td>
+                <td>@line.NetAmount.ToString("N2")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
+
+@if (Model.Payments.Count > 0)
+{
+    <section class="portal-card mt-4">
+        <h2 class="h5 fw-bold">Payments</h2>
+        <table class="table admin-table mt-3">
+            <thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Receipt</th></tr></thead>
+            <tbody>
+            @foreach (var p in Model.Payments)
+            {
+                <tr>
+                    <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
+                    <td>@p.AmountPaid.ToString("N2")</td>
+                    <td>@p.PaymentMode</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(p.ReceiptNo))
+                        {
+                            <a href="/adminportal/fee/payment-receipts/print/@p.Uid">@p.ReceiptNo</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}

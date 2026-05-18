@@ -1,0 +1,58 @@
+@model VEMS.Areas.AdminPortal.Models.Fee.ChallanGenerateFormModel
+@{
+    ViewData["Title"] = "Generate Challan";
+    var students = ViewData["Students"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+    var structures = ViewData["Structures"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+}
+
+<section class="module-page-header accent-teal">
+    <h1 class="h3 fw-bold">Generate challan</h1>
+    <p class="text-muted">Creates challan header and line items from the selected fee structure.</p>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="StudentId" class="form-label"></label>
+                <select asp-for="StudentId" class="form-select" asp-items="@(new SelectList(students, "Id", "Name"))">
+                    <option value="">— Select student —</option>
+                </select>
+                <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="StructureId" class="form-label"></label>
+                <select asp-for="StructureId" class="form-select" asp-items="@(new SelectList(structures, "Id", "Name"))">
+                    <option value="">— Select structure —</option>
+                </select>
+                <span asp-validation-for="StructureId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="IssueDate" class="form-label"></label>
+                <input asp-for="IssueDate" class="form-control" type="date" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DueDate" class="form-label"></label>
+                <input asp-for="DueDate" class="form-control" type="date" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DiscountAmount" class="form-label">Extra discount</label>
+                <input asp-for="DiscountAmount" class="form-control" type="number" step="0.01" min="0" />
+            </div>
+            <div class="col-12">
+                <label asp-for="Remarks" class="form-label"></label>
+                <textarea asp-for="Remarks" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Generate</button>
+            <a class="btn btn-outline-secondary" href="/adminportal/fee/challans">Cancel</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

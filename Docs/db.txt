@@ -1,4 +1,5 @@
-Virtual Education Management System - Database Schema
+﻿Virtual Education Management System - Database Schema
+Generated: 2026-05-18 (from live database using ConnectionStrings:DefaultConnection in appsettings.json)
 
 Version: 1.5  (Increment 'Version' by 0.1 at every change)
 UpdatedAt: 2026-05-18 03:30pm  (Update 'UpdatedAt' timestap at every change)
@@ -8,34 +9,56 @@ IF UPDATING this file, make sure to UPDATE @Database.md aswell while following i
 
 This file lists database tables and columns only. It does not and should not include data rows or connection credentials.
 
-Table: dbo.ChallanItems
+Table: dbo.ChallanDetails
   - Uid: int NOT NULL PK
-  - ChallanId: int NOT NULL
-  - FeeStructureId: int NULL
-  - FeeName: nvarchar(100) NOT NULL
+  - ChallanID: int NOT NULL
+  - FeeHeadID: smallint NOT NULL
   - Amount: decimal(10,2) NOT NULL
-  - Discount: decimal(10,2) NOT NULL
+  - DiscountAmount: decimal(10,2) NOT NULL
+  - LateFine: decimal(10,2) NOT NULL
   - NetAmount: decimal(10,2) NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
 
 Table: dbo.Challans
   - Uid: int NOT NULL PK
-  - StudentId: int NOT NULL
   - ChallanNo: nvarchar(30) NOT NULL
-  - AcademicYear: nvarchar(9) NOT NULL
-  - MonthYear: nvarchar(7) NULL
-  - TotalAmount: decimal(10,2) NOT NULL
-  - PaidAmount: decimal(10,2) NOT NULL
-  - Balance: decimal(11,2) NULL
-  - Status: nvarchar(50) NOT NULL
+  - StudentID: int NOT NULL
+  - StructureID: int NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
   - IssueDate: date NOT NULL
   - DueDate: date NOT NULL
-  - PaidDate: date NULL
-  - PaymentMode: nvarchar(50) NULL
-  - BankRefNo: nvarchar(100) NULL
-  - Remarks: nvarchar(max) NULL
+  - TotalAmount: decimal(10,2) NOT NULL
+  - DiscountAmount: decimal(10,2) NOT NULL
+  - LateFineAmount: decimal(10,2) NOT NULL
+  - NetPayable: decimal(10,2) NOT NULL
+  - AmountPaid: decimal(10,2) NOT NULL
+  - Status: nvarchar(20) NOT NULL
+  - Remarks: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
   - CreatedAt: datetime2 NOT NULL
-  - DueDateHistory: nvarchar(max) NULL
-  - CreatedBy: int NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
+
+Table: dbo.Concessions
+  - Uid: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - FeeHeadID: smallint NULL
+  - ConcessionType: nvarchar(50) NOT NULL
+  - DiscountPercent: decimal(5,2) NOT NULL
+  - DiscountAmount: decimal(10,2) NOT NULL
+  - ApprovedBy: nvarchar(100) NULL
+  - ApprovalDate: date NULL
+  - ValidFrom: date NOT NULL
+  - ValidTo: date NULL
+  - Remarks: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
 
 Table: dbo.Configurations
   - Uid: int NOT NULL PK
@@ -88,28 +111,28 @@ Table: dbo.FeeDiscounts
   - Criteria: nvarchar(max) NULL
   - CreatedAt: datetime2 NOT NULL
 
-Table: dbo.FeePayments
+Table: dbo.FeeStructureDetails
   - Uid: int NOT NULL PK
-  - ChallanId: int NOT NULL
-  - CollectedBy: int NOT NULL
-  - AmountPaid: decimal(10,2) NOT NULL
-  - PaymentMode: nvarchar(50) NOT NULL
-  - TransactionRef: nvarchar(100) NULL
-  - PaymentDate: date NOT NULL
-  - ReceiptNo: nvarchar(30) NOT NULL
+  - StructureID: int NOT NULL
+  - FeeHeadID: smallint NOT NULL
+  - Amount: decimal(10,2) NOT NULL
+  - DueDate: date NULL
+  - LateFinePerDay: decimal(8,2) NOT NULL
+  - MaxLateFine: decimal(10,2) NOT NULL
+  - CreatedBy: int NOT NULL
   - CreatedAt: datetime2 NOT NULL
 
 Table: dbo.FeeStructures
   - Uid: int NOT NULL PK
-  - FeeTypeId: int NOT NULL
-  - ProgramId: int NOT NULL
-  - Amount: decimal(10,2) NOT NULL
-  - AcademicYear: nvarchar(9) NOT NULL
-  - DueDate: date NULL
+  - StructureName: nvarchar(150) NOT NULL
+  - ProgramID: smallint NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
   - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
   - CreatedAt: datetime2 NOT NULL
-  - LateFeeAmount: decimal(10,2) NOT NULL
-  - LateFeeDays: int NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
 
 Table: dbo.FeeTypes
   - Uid: int NOT NULL PK
@@ -119,6 +142,38 @@ Table: dbo.FeeTypes
   - IsActive: bit NOT NULL
   - Description: nvarchar(max) NULL
   - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.PaymentReceipts
+  - Uid: int NOT NULL PK
+  - PaymentID: int NOT NULL
+  - ReceiptNo: nvarchar(30) NOT NULL
+  - IssuedAt: datetime2 NOT NULL
+  - IssuedBy: nvarchar(100) NULL
+  - PrintCount: int NOT NULL
+  - LastPrintedAt: datetime2 NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+
+Table: dbo.Payments
+  - Uid: int NOT NULL PK
+  - ChallanID: int NOT NULL
+  - AmountPaid: decimal(10,2) NOT NULL
+  - PaymentDate: date NOT NULL
+  - PaymentMode: nvarchar(30) NOT NULL
+  - TransactionRef: nvarchar(100) NULL
+  - BankName: nvarchar(100) NULL
+  - BranchName: nvarchar(100) NULL
+  - ChequeNo: nvarchar(50) NULL
+  - ChequeDate: date NULL
+  - Status: nvarchar(20) NOT NULL
+  - VerifiedBy: int NULL
+  - VerifiedAt: datetime2 NULL
+  - Remarks: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
 
 Table: dbo.Programs
   - Uid: int NOT NULL PK
@@ -131,72 +186,63 @@ Table: dbo.Programs
   - UpdatedAt: datetime2 NULL
   - Status: nvarchar(50) NOT NULL
 
-Table: dbo.ref_BloodGroups
-  - Uid: tinyint NOT NULL PK
-  - BloodGroupName: varchar(5) NOT NULL
-
 Table: dbo.ref_Cities
   - Uid: smallint NOT NULL PK
   - ProvinceID: smallint NOT NULL
   - CityName: nvarchar(100) NOT NULL
   - IsActive: bit NOT NULL
 
-Table: dbo.ref_ContactTypes
-  - Uid: tinyint NOT NULL PK
-  - ContactTypeName: nvarchar(30) NOT NULL
-
 Table: dbo.ref_Countries
-  - CountryID: tinyint NOT NULL PK
+  - Uid: tinyint NOT NULL PK
   - CountryName: nvarchar(100) NOT NULL
   - CountryCode: char(3) NOT NULL
   - IsActive: bit NOT NULL
-  - Uid: int NOT NULL
+
+Table: dbo.ref_FeeHeads
+  - Uid: smallint NOT NULL PK
+  - HeadCode: varchar(20) NOT NULL
+  - HeadName: nvarchar(100) NOT NULL
+  - Category: nvarchar(50) NOT NULL
+  - IsMandatory: bit NOT NULL
+  - IsActive: bit NOT NULL
+  - Description: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2 NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2 NULL
 
 Table: dbo.ref_InstitutionTypes
-  - InstTypeID: tinyint NOT NULL PK
+  - Uid: tinyint NOT NULL PK
   - InstTypeCode: char(3) NOT NULL
   - InstTypeName: nvarchar(50) NOT NULL
   - IsActive: bit NOT NULL
-  - Uid: int NOT NULL
 
 Table: dbo.ref_Programs
-  - ProgramID: smallint NOT NULL PK
+  - Uid: smallint NOT NULL PK
   - InstTypeID: tinyint NOT NULL
   - ProgramCode: nvarchar(10) NOT NULL
   - ProgramName: nvarchar(100) NOT NULL
   - TotalSemesters: tinyint NULL
   - TotalGrades: tinyint NULL
   - IsActive: bit NOT NULL
-  - Uid: int NOT NULL
 
 Table: dbo.ref_Provinces
-  - ProvinceID: smallint NOT NULL PK
+  - Uid: smallint NOT NULL PK
   - CountryID: tinyint NOT NULL
   - ProvinceName: nvarchar(100) NOT NULL
   - ProvinceCode: nvarchar(10) NULL
   - IsActive: bit NOT NULL
-  - Uid: int NOT NULL
 
-Table: dbo.ref_RelationTypes
-  - RelationTypeID: tinyint NOT NULL PK
-  - RelationName: nvarchar(50) NOT NULL
-  - Uid: int NOT NULL
-
-Table: dbo.ref_Religions
-  - ReligionID: tinyint NOT NULL PK
-  - ReligionName: nvarchar(50) NOT NULL
-  - IsActive: bit NOT NULL
-  - Uid: int NOT NULL
-
-Table: dbo.ref_Sections
-  - SectionID: tinyint NOT NULL PK
+Table: dbo.Sections
+  - Uid: tinyint NOT NULL PK
   - SectionName: nvarchar(10) NOT NULL
-  - Uid: int NOT NULL
+  - MaxCapacity: int NULL
+  - IsActive: bit NOT NULL
+  - CreatedAt: datetime2 NOT NULL
 
 Table: dbo.StudentContacts
   - ContactID: int NOT NULL PK
   - StudentID: int NOT NULL
-  - ContactTypeID: tinyint NOT NULL
   - ContactValue: nvarchar(150) NOT NULL
   - IsPrimary: bit NOT NULL
   - IsVerified: bit NOT NULL
@@ -207,14 +253,15 @@ Table: dbo.StudentContacts
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2 NULL
   - Uid: int NOT NULL
+  - ContactType: nvarchar(30) NULL
 
 Table: dbo.StudentEnrollments
-  - EnrollmentID: int NOT NULL PK
+  - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
   - ProgramID: smallint NOT NULL
   - AcademicYear: smallint NOT NULL
   - GradeOrSemester: tinyint NOT NULL
-  - SectionID: tinyint NULL
+  - SectionID: int NOT NULL
   - RollNo: nvarchar(30) NOT NULL
   - EnrollmentDate: date NOT NULL
   - CompletionDate: date NULL
@@ -225,21 +272,10 @@ Table: dbo.StudentEnrollments
   - CreatedAt: datetime2 NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2 NULL
-  - Uid: int NOT NULL
-
-Table: dbo.StudentFeeAllocations
-  - Uid: int NOT NULL PK
-  - StudentId: int NOT NULL
-  - FeeStructureId: int NOT NULL
-  - DiscountId: int NULL
-  - FinalAmount: decimal(10,2) NOT NULL
-  - Status: nvarchar(50) NOT NULL
-  - AllocatedAt: datetime2 NOT NULL
 
 Table: dbo.StudentParents
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
-  - RelationTypeID: tinyint NOT NULL
   - FirstName: nvarchar(50) NOT NULL
   - LastName: nvarchar(50) NOT NULL
   - DateOfBirth: date NULL
@@ -268,6 +304,7 @@ Table: dbo.StudentParents
   - CreatedAt: datetime2 NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2 NULL
+  - RelationType: nvarchar(50) NULL
 
 Table: dbo.Students
   - Uid: int NOT NULL PK
@@ -281,8 +318,6 @@ Table: dbo.Students
   - FatherName: nvarchar(100) NOT NULL
   - DateOfBirth: date NOT NULL
   - Gender: char(1) NOT NULL
-  - BloodGroupID: tinyint NULL
-  - ReligionID: tinyint NULL
   - Nationality: nvarchar(50) NULL
   - NIC_No: varchar(15) NULL
   - BFORM_No: varchar(15) NULL
@@ -307,6 +342,8 @@ Table: dbo.Students
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2 NULL
   - RollNo: nvarchar(30) NULL
+  - Religion: nvarchar(50) NULL
+  - BloodGroup: varchar(5) NULL
 
 Table: dbo.StudentSiblings
   - Uid: int NOT NULL PK
@@ -316,7 +353,6 @@ Table: dbo.StudentSiblings
   - LastName: nvarchar(50) NULL
   - DateOfBirth: date NULL
   - Gender: char(1) NULL
-  - RelationTypeID: tinyint NOT NULL
   - InstitutionName: nvarchar(150) NULL
   - GradeOrClass: nvarchar(20) NULL
   - IsActive: bit NOT NULL
@@ -324,6 +360,7 @@ Table: dbo.StudentSiblings
   - CreatedAt: datetime2 NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2 NULL
+  - RelationType: nvarchar(50) NULL
 
 Table: dbo.StudentsLogin
   - Uid: int NOT NULL PK
@@ -345,3 +382,5 @@ Table: dbo.StudentsLogin
   - PasswordChangedAt: datetime2 NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2 NULL
+
+Total tables: 26

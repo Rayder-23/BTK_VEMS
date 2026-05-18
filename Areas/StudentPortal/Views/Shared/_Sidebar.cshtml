@@ -1,3 +1,7 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+
 <div class="sidebar-inner">
     <a class="portal-brand" asp-area="StudentPortal" asp-controller="Dashboard" asp-action="Index">
         <span class="brand-icon"><i class="bi bi-mortarboard-fill"></i></span>
@@ -8,13 +12,15 @@
     </a>
 
     <nav class="portal-menu" aria-label="Student portal navigation">
-        <a class="portal-menu-link active" asp-area="StudentPortal" asp-controller="Dashboard" asp-action="Index">
+        <a class="portal-menu-link @(currentController == "Dashboard" ? "active" : "")"
+           asp-area="StudentPortal" asp-controller="Dashboard" asp-action="Index">
             <i class="bi bi-speedometer2"></i>
             <span>Dashboard</span>
         </a>
-        <a class="portal-menu-link" href="#">
-            <i class="bi bi-people"></i>
-            <span>Students</span>
+        <a class="portal-menu-link @(currentController == "Profile" ? "active" : "")"
+           asp-area="StudentPortal" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person-circle"></i>
+            <span>Profile</span>
         </a>
         <a class="portal-menu-link" href="#">
             <i class="bi bi-journal-bookmark"></i>

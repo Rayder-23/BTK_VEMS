@@ -1,0 +1,151 @@
+@model StudentProfilePageViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    var profile = Model.Profile;
+    var passwordMessage = TempData["PasswordMessage"] as string;
+    var passwordError = TempData["PasswordError"] as string;
+}
+
+<section class="module-page-header accent-blue mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="module-page-icon"><i class="bi bi-person-circle"></i></span>
+        <div>
+            <h1 class="h3 fw-bold mb-1">@profile.FullName</h1>
+            <p class="text-muted mb-0">@profile.RegistrationNo@(string.IsNullOrEmpty(profile.RollNo) ? "" : $" · Roll {profile.RollNo}")</p>
+        </div>
+    </div>
+</section>
+
+@if (!string.IsNullOrEmpty(passwordMessage))
+{
+    <div class="alert alert-success" role="alert">@passwordMessage</div>
+}
+@if (!string.IsNullOrEmpty(passwordError))
+{
+    <div class="alert alert-danger" role="alert">@passwordError</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h5 fw-bold mb-3">Personal information</h2>
+            <dl class="row mb-0 profile-dl">
+                <dt class="col-sm-4">Father's name</dt>
+                <dd class="col-sm-8">@profile.FatherName</dd>
+                <dt class="col-sm-4">Date of birth</dt>
+                <dd class="col-sm-8">@profile.DateOfBirth.ToString("dd MMM yyyy")</dd>
+                <dt class="col-sm-4">Gender</dt>
+                <dd class="col-sm-8">@profile.GenderDisplay</dd>
+                <dt class="col-sm-4">Nationality</dt>
+                <dd class="col-sm-8">@(profile.Nationality ?? "—")</dd>
+                <dt class="col-sm-4">CNIC</dt>
+                <dd class="col-sm-8">@(profile.NicNo ?? "—")</dd>
+                <dt class="col-sm-4">B-Form</dt>
+                <dd class="col-sm-8">@(profile.BformNo ?? "—")</dd>
+                <dt class="col-sm-4">Status</dt>
+                <dd class="col-sm-8">@(profile.IsActive ? "Active" : "Inactive")</dd>
+                @if (!string.IsNullOrWhiteSpace(profile.StatusRemark))
+                {
+                    <dt class="col-sm-4">Remark</dt>
+                    <dd class="col-sm-8">@profile.StatusRemark</dd>
+                }
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h5 fw-bold mb-3">Academic information</h2>
+            <dl class="row mb-0 profile-dl">
+                <dt class="col-sm-4">Program</dt>
+                <dd class="col-sm-8">@(profile.ProgramName ?? "—")</dd>
+                <dt class="col-sm-4">Admission year</dt>
+                <dd class="col-sm-8">@profile.AdmissionYear</dd>
+                <dt class="col-sm-4">Admission date</dt>
+                <dd class="col-sm-8">@profile.AdmissionDate.ToString("dd MMM yyyy")</dd>
+                <dt class="col-sm-4">Registration</dt>
+                <dd class="col-sm-8">@profile.RegistrationNo</dd>
+                <dt class="col-sm-4">Roll number</dt>
+                <dd class="col-sm-8">@(profile.RollNo ?? "—")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h5 fw-bold mb-3">Address</h2>
+            <dl class="row mb-0 profile-dl">
+                <dt class="col-sm-4">Line 1</dt>
+                <dd class="col-sm-8">@profile.AddressLine1</dd>
+                @if (!string.IsNullOrWhiteSpace(profile.AddressLine2))
+                {
+                    <dt class="col-sm-4">Line 2</dt>
+                    <dd class="col-sm-8">@profile.AddressLine2</dd>
+                }
+                <dt class="col-sm-4">City</dt>
+                <dd class="col-sm-8">@(profile.CityName ?? "—")</dd>
+                <dt class="col-sm-4">Province</dt>
+                <dd class="col-sm-8">@(profile.ProvinceName ?? "—")</dd>
+                <dt class="col-sm-4">Country</dt>
+                <dd class="col-sm-8">@(profile.CountryName ?? "—")</dd>
+                <dt class="col-sm-4">Postal code</dt>
+                <dd class="col-sm-8">@(profile.PostalCode ?? "—")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h5 fw-bold mb-3">Portal account</h2>
+            <dl class="row mb-0 profile-dl">
+                <dt class="col-sm-4">Username</dt>
+                <dd class="col-sm-8">@(profile.PortalUsername ?? "—")</dd>
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8">@(profile.PortalEmail ?? "—")</dd>
+                <dt class="col-sm-4">Login status</dt>
+                <dd class="col-sm-8">@(profile.PortalStatus ?? "—")</dd>
+                <dt class="col-sm-4">Last login</dt>
+                <dd class="col-sm-8">@(profile.LastLoginAt?.ToString("dd MMM yyyy HH:mm") ?? "—")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="portal-card">
+            <h2 class="h5 fw-bold mb-1">Change password</h2>
+            <p class="text-muted mb-3">Enter your current password, then your new password twice. Both new fields must match.</p>
+
+            <form asp-action="ChangePassword" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <label asp-for="ChangePassword.OldPassword" class="form-label"></label>
+                        <input asp-for="ChangePassword.OldPassword" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="ChangePassword.OldPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="ChangePassword.NewPassword" class="form-label"></label>
+                        <input asp-for="ChangePassword.NewPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ChangePassword.NewPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="ChangePassword.ConfirmNewPassword" class="form-label"></label>
+                        <input asp-for="ChangePassword.ConfirmNewPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ChangePassword.ConfirmNewPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    <i class="bi bi-shield-lock me-2"></i>Update password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

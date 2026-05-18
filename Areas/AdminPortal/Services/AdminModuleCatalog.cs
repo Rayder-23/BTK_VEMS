@@ -6,12 +6,26 @@ public static class AdminModuleCatalog
 {
     public static IReadOnlyList<AdminModuleCard> Modules { get; } =
     [
-        new() { Name = "Students", Controller = "Students", IconClass = "bi-people-fill", Description = "Manage student records and profiles", AccentClass = "accent-blue", IsAvailable = true },
-        new() { Name = "Courses", Controller = "Courses", IconClass = "bi-journal-bookmark-fill", Description = "Manage courses and academic programs", AccentClass = "accent-green", IsAvailable = true },
-        new() { Name = "Attendance", Controller = "Attendance", IconClass = "bi-calendar-check-fill", Description = "Track daily attendance records", AccentClass = "accent-purple", IsAvailable = true },
-        new() { Name = "Results", Controller = "Results", IconClass = "bi-clipboard-data-fill", Description = "Manage exams and student results", AccentClass = "accent-orange", IsAvailable = true },
-        new() { Name = "Fee", Controller = "Fee", IconClass = "bi-cash-coin", Description = "Configure fee structures and billing", AccentClass = "accent-red", IsAvailable = true },
-        new() { Name = "Challan", Controller = "Challans", IconClass = "bi-receipt-cutoff", Description = "Generate and track fee challans", AccentClass = "accent-teal", IsAvailable = true },
+        new()
+        {
+            Name = "Students Management",
+            Controller = "StudentMgmt",
+            IconClass = "bi-mortarboard-fill",
+            Description = "Students, courses, attendance, results, fees, challans, and logins",
+            AccentClass = "accent-blue",
+            IsAvailable = true,
+            UrlOverride = "/adminportal/students"
+        },
+        new()
+        {
+            Name = "Fee Management",
+            Controller = "FeeMgmt",
+            IconClass = "bi-cash-coin",
+            Description = "Fee heads, structures, challans, payments, receipts, and concessions",
+            AccentClass = "accent-red",
+            IsAvailable = true,
+            UrlOverride = "/adminportal/fee"
+        },
         new() { Name = "Settings", Controller = "Settings", IconClass = "bi-gear-fill", Description = "Configure system-wide options", AccentClass = "accent-indigo", IsAvailable = true },
         new() { Name = "Accounts", Controller = "Accounts", IconClass = "bi-bank2", Description = "Manage finance and ledger accounts", AccentClass = "accent-pink", IsAvailable = true },
         new()
@@ -51,42 +65,6 @@ public static class AdminModuleCatalog
 
         return controller switch
         {
-            "Students" => CreatePage(module, "Add Student", ["Student ID", "Name", "Class", "Status"],
-            [
-                ["STD-1001", "Ayesha Khan", "BS Computer Science", "Active"],
-                ["STD-1002", "Hamza Ali", "BBA", "Active"],
-                ["STD-1003", "Fatima Noor", "Intermediate", "Pending"]
-            ]),
-            "Courses" => CreatePage(module, "Add Course", ["Code", "Course Name", "Credit Hours", "Status"],
-            [
-                ["CS-101", "Introduction to Programming", "3", "Active"],
-                ["MTH-210", "Linear Algebra", "3", "Active"],
-                ["ENG-115", "Communication Skills", "2", "Draft"]
-            ]),
-            "Attendance" => CreatePage(module, "Add Attendance", ["Date", "Class", "Present", "Absent"],
-            [
-                ["2026-05-11", "BSCS Semester 4", "42", "3"],
-                ["2026-05-11", "BBA Semester 2", "37", "5"],
-                ["2026-05-10", "Intermediate", "58", "6"]
-            ]),
-            "Results" => CreatePage(module, "Add Result", ["Exam", "Class", "Published", "Status"],
-            [
-                ["Mid Term", "BSCS Semester 4", "Yes", "Published"],
-                ["Quiz 2", "BBA Semester 2", "No", "Review"],
-                ["Final Term", "Intermediate", "No", "Draft"]
-            ]),
-            "Fee" => CreatePage(module, "Add Fee", ["Fee Type", "Program", "Amount", "Status"],
-            [
-                ["Tuition Fee", "BSCS", "45,000", "Active"],
-                ["Library Fee", "All Programs", "2,500", "Active"],
-                ["Lab Fee", "Computer Science", "5,000", "Active"]
-            ]),
-            "Challans" => CreatePage(module, "Generate Challan", ["Challan No", "Student", "Amount", "Status"],
-            [
-                ["CH-2026-001", "Ayesha Khan", "45,000", "Paid"],
-                ["CH-2026-002", "Hamza Ali", "42,000", "Pending"],
-                ["CH-2026-003", "Fatima Noor", "38,000", "Overdue"]
-            ]),
             "Settings" => CreatePage(module, "Add Setting", ["Setting", "Value", "Scope", "Status"],
             [
                 ["Academic Year", "2026", "Global", "Active"],

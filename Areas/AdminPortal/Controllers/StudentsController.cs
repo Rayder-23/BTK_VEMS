@@ -5,7 +5,8 @@ using VEMS.Areas.AdminPortal.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
 
-public class StudentsController : AdminBaseController
+[Route("adminportal/students/students")]
+public sealed class StudentsController : StudentMgmtBaseController
 {
     private readonly IStudentRepository _students;
 
@@ -14,19 +15,33 @@ public class StudentsController : AdminBaseController
         _students = students;
     }
 
-    [HttpGet]
+    protected override string ModuleKey => "Students";
+
+    [HttpGet("")]
+    [HttpGet("Index")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Students";
-        ViewData["PageTitle"] = "Students";
+        ViewData["Title"] = "All Students";
+        ViewData["PageTitle"] = "Students · All Students";
         var items = await _students.ListAsync(cancellationToken);
-        return View(items);
+        var active = items.Where(s => s.IsActive).ToList();
+        return View("Index", active);
     }
 
-    [HttpGet]
+    [HttpGet("previous")]
+    public async Task<IActionResult> Previous(CancellationToken cancellationToken)
+    {
+        ViewData["Title"] = "Previous Students";
+        ViewData["PageTitle"] = "Students · Previous Students";
+        var items = await _students.ListAsync(cancellationToken);
+        var inactive = items.Where(s => !s.IsActive).ToList();
+        return View("Index", inactive);
+    }
+
+    [HttpGet("create")]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Add student";
+        ViewData["Title"] = "Add Student";
         ViewData["PageTitle"] = "Students · Add";
         var lookups = await _students.GetLookupsAsync(cancellationToken);
         return View(new StudentFormViewModel
@@ -36,11 +51,11 @@ public class StudentsController : AdminBaseController
         });
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(StudentFormViewModel model, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Add student";
+        ViewData["Title"] = "Add Student";
         ViewData["PageTitle"] = "Students · Add";
 
         if (!ModelState.IsValid)
@@ -54,10 +69,10 @@ public class StudentsController : AdminBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet]
+    [HttpGet("edit/{id:int}")]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Edit student";
+        ViewData["Title"] = "Edit Student";
         ViewData["PageTitle"] = "Students · Edit";
 
         var row = await _students.GetAsync(id, cancellationToken);
@@ -73,11 +88,11 @@ public class StudentsController : AdminBaseController
         });
     }
 
-    [HttpPost]
+    [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(StudentFormViewModel model, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Edit student";
+        ViewData["Title"] = "Edit Student";
         ViewData["PageTitle"] = "Students · Edit";
 
         if (model.Form.Uid <= 0)
@@ -101,7 +116,7 @@ public class StudentsController : AdminBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
+    [HttpPost("delete/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {

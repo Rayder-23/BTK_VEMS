@@ -1,0 +1,37 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.PaymentListItem>
+@{ ViewData["Title"] = "Payments"; }
+
+<section class="module-page-header accent-green">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h3 fw-bold mb-0">Payments</h1>
+        <a class="btn btn-primary rounded-pill" href="/adminportal/fee/payments/create">Record payment</a>
+    </div>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <table class="table admin-table align-middle">
+        <thead>
+            <tr><th>Date</th><th>Challan</th><th>Student</th><th>Amount</th><th>Mode</th><th>Receipt</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td>@row.PaymentDate.ToString("yyyy-MM-dd")</td>
+                <td>@row.ChallanNo</td>
+                <td>@row.StudentName</td>
+                <td>@row.AmountPaid.ToString("N2")</td>
+                <td>@row.PaymentMode</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(row.ReceiptNo))
+                    {
+                        <a href="/adminportal/fee/payment-receipts/print/@row.Uid">@row.ReceiptNo</a>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>

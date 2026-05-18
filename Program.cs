@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Scalar.AspNetCore;    // <-- Scalar UI -->
 using VEMS.Areas.AdminPortal.Services;
+using VEMS.Areas.AdminPortal.Services.Fee;
 using VEMS.Areas.StudentPortal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,9 +27,17 @@ builder.Services
         options.SlidingExpiration = true;
     });
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
+builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentsLoginRepository, StudentsLoginRepository>();
 builder.Services.AddScoped<IConfigurationsRepository, ConfigurationsRepository>();
+builder.Services.AddScoped<IFeeLookupRepository, FeeLookupRepository>();
+builder.Services.AddScoped<IFeeHeadRepository, FeeHeadRepository>();
+builder.Services.AddScoped<IFeeStructureRepository, FeeStructureRepository>();
+builder.Services.AddScoped<IFeeConcessionRepository, FeeConcessionRepository>();
+builder.Services.AddScoped<IFeeChallanRepository, FeeChallanRepository>();
+builder.Services.AddScoped<IFeePaymentRepository, FeePaymentRepository>();
 
 // <-- Scalar UI -->
 builder.Services.AddControllers();

@@ -1,0 +1,31 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.PaymentListItem>
+@{ ViewData["Title"] = "Receipts"; }
+
+<section class="module-page-header accent-indigo">
+    <h1 class="h3 fw-bold">Payment receipts</h1>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <table class="table admin-table align-middle">
+        <thead>
+            <tr><th>Receipt</th><th>Date</th><th>Challan</th><th>Student</th><th>Amount</th><th></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td>@(row.ReceiptNo ?? "—")</td>
+                <td>@row.PaymentDate.ToString("yyyy-MM-dd")</td>
+                <td>@row.ChallanNo</td>
+                <td>@row.StudentName</td>
+                <td>@row.AmountPaid.ToString("N2")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/payment-receipts/print/@row.Uid" target="_blank">Print</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>

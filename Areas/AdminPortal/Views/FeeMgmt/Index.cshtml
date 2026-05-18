@@ -1,0 +1,39 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeDashboardTile>
+@{
+    ViewData["Title"] = "Fee Management";
+}
+
+<section class="module-page-header accent-red">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Fee Management</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-3">
+        <span class="module-page-icon"><i class="bi bi-cash-coin"></i></span>
+        <div>
+            <h1 class="h3 fw-bold mb-1">Fee Management</h1>
+            <p class="text-muted mb-0">Fee heads, structures, challans, payments, receipts, and concessions.</p>
+        </div>
+    </div>
+</section>
+
+<section class="portal-card mt-4">
+    <h2 class="h5 fw-bold mb-3">Modules</h2>
+    <div class="row g-3 fm-module-grid">
+        @foreach (var tile in Model)
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <a class="fm-module-card @tile.AccentClass" href="@tile.Url">
+                    <span class="fm-module-card__icon @tile.AccentClass">
+                        <i class="bi @tile.IconClass"></i>
+                    </span>
+                    <h3 class="fm-module-card__title">@tile.Title</h3>
+                    <p class="fm-module-card__desc">@tile.Description</p>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+

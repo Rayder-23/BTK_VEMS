@@ -1,0 +1,19 @@
+@model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureFormModel
+@{ ViewData["Title"] = "Edit Fee Structure"; }
+
+<section class="module-page-header accent-orange">
+    <h1 class="h3 fw-bold">Edit fee structure</h1>
+</section>
+<partial name="_FeeAlerts" />
+<section class="portal-card mt-4">
+    <form method="post" asp-route-id="@Model.Uid">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Uid" />
+        <partial name="_StructureForm" />
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a class="btn btn-outline-secondary" href="/adminportal/fee/fee-structures">Cancel</a>
+        </div>
+    </form>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,3 +1,4 @@
+@using VEMS.Areas.AdminPortal.Services
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var hrControllers = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -5,7 +6,28 @@
         "HR", "Employees", "Leaves", "HrAttendance", "Payroll", "Tax", "Allowances", "Deductions"
     };
 
-    Layout = hrControllers.Contains(controller)
-        ? "/Areas/AdminPortal/Views/Shared/_HrLayout.cshtml"
-        : "/Areas/AdminPortal/Views/Shared/_AdminLayout.cshtml";
+    if (string.Equals(controller, "StudentMgmt", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtHomeLayout.cshtml";
+    }
+    else if (StudentMgmtModuleCatalog.TryGetByController(controller) is not null)
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtModuleLayout.cshtml";
+    }
+    else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtHomeLayout.cshtml";
+    }
+    else if (FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtModuleLayout.cshtml";
+    }
+    else if (hrControllers.Contains(controller))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_HrLayout.cshtml";
+    }
+    else
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_AdminLayout.cshtml";
+    }
 }

@@ -1,0 +1,43 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Services.StudentMgmtModule>
+@{
+    ViewData["Title"] = "Student Management";
+}
+
+<section class="module-page-header accent-blue">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Student Management</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-3">
+        <span class="module-page-icon"><i class="bi bi-mortarboard-fill"></i></span>
+        <div>
+            <h1 class="h3 fw-bold mb-1">Student Management</h1>
+            <p class="text-muted mb-0">Students, courses, attendance, results, fees, challans, and portal logins.</p>
+        </div>
+    </div>
+</section>
+
+<div class="sm-notice mt-4" role="status">
+    <i class="bi bi-info-circle me-2"></i>
+    Choose a module below. Each module has its own sidebar for related tasks. Student records use the live <code>dbo.Students</code> table.
+</div>
+
+<section class="portal-card mt-4">
+    <h2 class="h5 fw-bold mb-3">Modules</h2>
+    <div class="row g-3 sm-module-grid">
+        @foreach (var module in Model)
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <a class="sm-module-card @module.AccentClass" href="@module.Url">
+                    <span class="sm-module-card__icon @module.AccentClass">
+                        <i class="bi @module.IconClass"></i>
+                    </span>
+                    <h3 class="sm-module-card__title">@module.Name</h3>
+                    <p class="sm-module-card__desc">@module.Description</p>
+                </a>
+            </div>
+        }
+    </div>
+</section>

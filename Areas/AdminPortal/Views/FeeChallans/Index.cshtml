@@ -1,0 +1,62 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.ChallanListItem>
+@{
+    ViewData["Title"] = "Challans";
+    var search = ViewData["Search"] as string;
+}
+
+<section class="module-page-header accent-teal">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+        <h1 class="h3 fw-bold mb-0">Challan list</h1>
+        <a class="btn btn-primary rounded-pill" href="/adminportal/fee/challans/create">Generate challan</a>
+    </div>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-8">
+            <input type="search" name="search" value="@search" class="form-control" placeholder="Challan no, registration, student name" />
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-outline-primary w-100">Search</button>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>Challan</th>
+                    <th>Student</th>
+                    <th>Term</th>
+                    <th>Due</th>
+                    <th>Net</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>@row.ChallanNo</td>
+                    <td>@row.StudentName<br /><small class="text-muted">@row.RegistrationNo</small></td>
+                    <td>@row.Semester @row.AcademicYear</td>
+                    <td>@row.DueDate.ToString("yyyy-MM-dd")</td>
+                    <td>@row.NetPayable.ToString("N2")</td>
+                    <td>@row.AmountPaid.ToString("N2")</td>
+                    <td><span class="badge text-bg-secondary">@row.DisplayStatus</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/challans/details/@row.Uid">View</a>
+                        @if (row.DisplayStatus is not ("Paid" or "Cancelled"))
+                        {
+                            <a class="btn btn-sm btn-outline-success" href="/adminportal/fee/payments/create?challanId=@row.Uid">Pay</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -51,7 +51,9 @@ public sealed class StudentLoginRepository : IStudentLoginRepository
         return new StudentLoginUser
         {
             Uid = Convert.ToInt32(reader["Uid"]), // Use CamelCase
-            StudentId = reader["StudentId"] is DBNull ? null : reader["StudentId"].ToString(),
+            StudentId = reader["StudentId"] is DBNull or null
+                ? null
+                : Convert.ToInt32(reader["StudentId"]).ToString(),
             Username = reader["Username"] as string ?? trimmedUsername,
             Role = "Student" // Hardcoded since we know this is the Student portal
         };

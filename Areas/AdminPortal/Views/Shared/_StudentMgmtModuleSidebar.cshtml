@@ -1,0 +1,37 @@
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var module = ViewData["StudentMgmtModule"] as StudentMgmtModule
+        ?? StudentMgmtModuleCatalog.TryGetByController(ViewContext.RouteData.Values["controller"]?.ToString() ?? "")
+        ?? StudentMgmtModuleCatalog.Get("Students");
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+}
+
+<div class="sidebar-inner">
+    <a class="portal-brand" href="/adminportal/students">
+        <span class="brand-icon"><i class="bi bi-mortarboard-fill"></i></span>
+        <span class="brand-copy">
+            <span class="brand-title">Student Management</span>
+            <small>@module.Name</small>
+        </span>
+    </a>
+
+    <nav class="portal-menu" aria-label="@module.Name navigation">
+        @foreach (var item in module.SubNav)
+        {
+            var isActive = string.Equals(currentAction, item.Action, StringComparison.OrdinalIgnoreCase);
+            <a class="portal-menu-link @(isActive ? "active" : "")" href="@item.BuildUrl(module.Segment)">
+                <i class="bi @(item.Action == "Create" ? "bi-plus-circle" : item.Action == "Previous" ? "bi-archive" : "bi-list-ul")" aria-hidden="true"></i>
+                <span>@item.Name</span>
+            </a>
+        }
+    </nav>
+
+    <div class="sidebar-card">
+        <p class="mb-1 fw-semibold">All modules</p>
+        <a class="small text-decoration-none" href="/adminportal/students">
+            <i class="bi bi-grid-3x3-gap me-1"></i>Back to module grid
+        </a>
+    </div>
+</div>
+
+

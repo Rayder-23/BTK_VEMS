@@ -1,0 +1,126 @@
+:root {
+    --portal-accent: #2563eb;
+    --portal-accent-dark: #1d4ed8;
+    --portal-bg: #f0fdfa;
+    --portal-sidebar-bg: #1e3a8a;
+    --portal-sidebar-text: #dbeafe;
+}
+
+body.student-mgmt-portal.portal-shell {
+    background: var(--portal-bg);
+}
+
+body.student-mgmt-portal .portal-sidebar,
+body.student-mgmt-portal .portal-offcanvas {
+    background: var(--portal-sidebar-bg);
+    color: var(--portal-sidebar-text);
+}
+
+body.student-mgmt-portal .brand-icon {
+    background: var(--portal-accent);
+}
+
+body.student-mgmt-portal .portal-menu-link.active,
+body.student-mgmt-portal .portal-menu-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+body.student-mgmt-portal .portal-menu-link.active {
+    border-left: 3px solid var(--portal-accent);
+}
+
+body.student-mgmt-portal .btn-primary {
+    background: var(--portal-accent);
+    border-color: var(--portal-accent);
+}
+
+body.student-mgmt-portal .btn-primary:hover {
+    background: var(--portal-accent-dark);
+    border-color: var(--portal-accent-dark);
+}
+
+body.student-mgmt-portal .btn-outline-primary {
+    border-color: var(--portal-accent);
+    color: var(--portal-accent);
+}
+
+body.student-mgmt-portal .btn-outline-primary:hover {
+    background: var(--portal-accent);
+    border-color: var(--portal-accent);
+}
+
+body.student-mgmt-portal .breadcrumb-item a {
+    color: var(--portal-accent);
+}
+
+.sm-module-grid .sm-module-card {
+    background: #fff;
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    border-radius: 1rem;
+    color: inherit;
+    display: block;
+    height: 100%;
+    padding: 1.25rem;
+    text-decoration: none;
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.sm-module-grid .sm-module-card:hover {
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.15);
+    transform: translateY(-2px);
+}
+
+.sm-module-card__icon {
+    align-items: center;
+    border-radius: .85rem;
+    display: inline-flex;
+    font-size: 1.35rem;
+    height: 48px;
+    justify-content: center;
+    margin-bottom: .75rem;
+    width: 48px;
+}
+
+.sm-module-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: .35rem;
+}
+
+.sm-module-card__desc {
+    color: #64748b;
+    font-size: .85rem;
+    margin: 0;
+}
+
+.sm-notice {
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px dashed rgba(37, 99, 235, 0.35);
+    border-radius: .75rem;
+    color: #1d4ed8;
+    font-size: .9rem;
+    padding: .75rem 1rem;
+}
+
+body.student-mgmt-home {
+    background: #eff6ff;
+}
+
+body.student-mgmt-home .student-mgmt-home-content {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 1.5rem 1rem 2.5rem;
+}
+
+body.student-mgmt-home .home-brand-icon {
+    align-items: center;
+    background: #2563eb;
+    border-radius: .75rem;
+    color: #fff;
+    display: inline-flex;
+    font-size: 1.25rem;
+    height: 40px;
+    justify-content: center;
+    width: 40px;
+}

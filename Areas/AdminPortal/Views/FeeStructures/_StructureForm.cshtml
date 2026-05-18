@@ -1,0 +1,32 @@
+@model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureFormModel
+@{
+    var programs = ViewData["Programs"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="row g-3">
+    <div class="col-12">
+        <label asp-for="StructureName" class="form-label"></label>
+        <input asp-for="StructureName" class="form-control" />
+        <span asp-validation-for="StructureName" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ProgramId" class="form-label"></label>
+        <select asp-for="ProgramId" class="form-select" asp-items="@(new SelectList(programs, "Id", "Name"))"></select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Semester" class="form-label"></label>
+        <input asp-for="Semester" class="form-control" placeholder="e.g. Fall, Spring 1" />
+        <span asp-validation-for="Semester" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="AcademicYear" class="form-label"></label>
+        <input asp-for="AcademicYear" class="form-control" type="number" />
+    </div>
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label">Active</label>
+        </div>
+    </div>
+</div>

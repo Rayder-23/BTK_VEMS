@@ -1,0 +1,47 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.ConcessionListItem>
+@{ ViewData["Title"] = "Concessions"; }
+
+<section class="module-page-header accent-purple">
+    <div class="d-flex justify-content-between">
+        <h1 class="h3 fw-bold">Concessions</h1>
+        <a class="btn btn-primary rounded-pill" href="/adminportal/fee/concessions/create">Add concession</a>
+    </div>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <table class="table admin-table align-middle">
+        <thead>
+            <tr><th>Student</th><th>Fee head</th><th>Type</th><th>Value</th><th>Valid</th><th>Active</th><th></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model)
+        {
+            <tr>
+                <td>@row.StudentName</td>
+                <td>@(row.FeeHeadName ?? "All heads")</td>
+                <td>@row.ConcessionType</td>
+                <td>
+                    @(row.ConcessionType.Contains("Percent", StringComparison.OrdinalIgnoreCase)
+                        ? $"{row.DiscountPercent:N2}%"
+                        : row.DiscountAmount.ToString("N2"))
+                </td>
+                <td>@row.ValidFrom.ToString("yyyy-MM-dd") — @(row.ValidTo?.ToString("yyyy-MM-dd") ?? "open")</td>
+                <td>@(row.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-success" href="/adminportal/fee/concessions/edit/@row.Uid">Edit</a>
+                    @if (row.IsActive)
+                    {
+                        <form method="post" action="/adminportal/fee/concessions/deactivate/@row.Uid" class="d-inline"
+                              onsubmit="return confirm('Deactivate?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</section>
