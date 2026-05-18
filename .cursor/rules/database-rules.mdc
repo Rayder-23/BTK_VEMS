@@ -1,6 +1,7 @@
 ---
 description: Apply when modifying database schemas, writing raw SQL, or updating C# models, repositories, and controllers handling data persistence.
-globs: ["**/*.cs", "**/*.sql", "**/Repositories/**", "**/Models/**", "**/Data/**"]
+globs: ["**/*.cs", "**/*.sql", "**/Repositories/**", "**/Models/**", "**/Data/**", "**/Docs/**"]
+alwaysApply: true
 ---
 # VEMS Database Architecture & Integrity Rules
 
