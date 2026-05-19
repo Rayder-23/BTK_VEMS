@@ -11,15 +11,15 @@ n/a
 | Framework | ASP.NET Core MVC |
 | Language | C# |
 | Styling | Bootstrap |
+| Database | SQL Server |
 
 ---
 
 ## Quickstart
 
 ### Access URLs
-- **Frontend Website:** http://localhost:
-- **Backend API Documentation:** http://localhost:
-
+- **Frontend Website:** http://localhost:5265
+- **Backend API Documentation:** http://localhost:5265/scalar/
 
 ### Project Start
 ```bash
