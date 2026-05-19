@@ -31,7 +31,7 @@ public sealed class FeeHeadFormModel
     public string HeadName { get; set; } = string.Empty;
 
     [Required, StringLength(50)]
-    public string Category { get; set; } = "Tuition";
+    public string Category { get; set; } = "Academic";
 
     [Display(Name = "Mandatory")]
     public bool IsMandatory { get; set; }
@@ -63,11 +63,11 @@ public sealed class FeeStructureFormModel
     public string StructureName { get; set; } = string.Empty;
 
     [Display(Name = "Program")]
-    [Range(1, short.MaxValue)]
-    public short ProgramId { get; set; }
+    [Range(1, int.MaxValue)]
+    public int ProgramId { get; set; }
 
     [Required, StringLength(20)]
-    public string Semester { get; set; } = string.Empty;
+    public string Semester { get; set; } = "Fall";
 
     [Display(Name = "Academic year")]
     public short AcademicYear { get; set; } = (short)DateTime.Today.Year;
@@ -271,7 +271,7 @@ public sealed class ConcessionFormModel
 
     [Required, StringLength(50)]
     [Display(Name = "Concession type")]
-    public string ConcessionType { get; set; } = "Percentage";
+    public string ConcessionType { get; set; } = "Merit";
 
     [Range(0, 100)]
     [Display(Name = "Discount %")]

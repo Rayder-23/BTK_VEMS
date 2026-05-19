@@ -1,4 +1,5 @@
 @model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureFormModel
+@using VEMS.Areas.AdminPortal.Models.Fee
 @{
     var programs = ViewData["Programs"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
 }
@@ -16,7 +17,7 @@
     </div>
     <div class="col-md-4">
         <label asp-for="Semester" class="form-label"></label>
-        <input asp-for="Semester" class="form-control" placeholder="e.g. Fall, Spring 1" />
+        <select asp-for="Semester" class="form-select" asp-items="@(new SelectList(FeeConstants.Semesters))"></select>
         <span asp-validation-for="Semester" class="text-danger"></span>
     </div>
     <div class="col-md-4">

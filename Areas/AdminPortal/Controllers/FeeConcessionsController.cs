@@ -120,17 +120,19 @@ public sealed class FeeConcessionsController : FeeMgmtControllerBase
 
     private static void NormalizeConcession(ConcessionFormModel model)
     {
-        if (string.Equals(model.ConcessionType, "Percentage", StringComparison.OrdinalIgnoreCase))
+        // dbo.Concessions: ConcessionType is a merit/category label (CHECK). Discount is either %-based or flat.
+        if (model.DiscountPercent > 0 && model.DiscountAmount > 0)
         {
             model.DiscountAmount = 0;
         }
-        else
+
+        if (model.DiscountPercent > 0)
+        {
+            model.DiscountAmount = 0;
+        }
+        else if (model.DiscountAmount > 0)
         {
             model.DiscountPercent = 0;
-            if (!string.Equals(model.ConcessionType, "FixedAmount", StringComparison.OrdinalIgnoreCase))
-            {
-                model.ConcessionType = "FixedAmount";
-            }
         }
     }
 }

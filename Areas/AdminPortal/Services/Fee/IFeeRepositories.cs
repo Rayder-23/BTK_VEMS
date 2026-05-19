@@ -25,7 +25,7 @@ public interface IFeeStructureRepository
 {
     Task<IReadOnlyList<FeeStructureListItem>> ListAsync(CancellationToken cancellationToken = default);
     Task<FeeStructureFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(short programId, string semester, short academicYear, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(int programId, string semester, short academicYear, int? excludeUid, CancellationToken cancellationToken = default);
     Task<int> InsertAsync(FeeStructureFormModel model, int createdBy, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(FeeStructureFormModel model, int? updatedBy, CancellationToken cancellationToken = default);
     Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default);

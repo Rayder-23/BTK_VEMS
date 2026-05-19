@@ -69,14 +69,14 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
         {
             Uid = FeeSql.ToInt32(reader, "Uid"),
             StructureName = reader["StructureName"] as string ?? "",
-            ProgramId = FeeSql.ToInt16(reader, "ProgramID"),
+            ProgramId = FeeSql.ToInt32(reader, "ProgramID"),
             Semester = reader["Semester"] as string ?? "",
             AcademicYear = FeeSql.ToInt16(reader, "AcademicYear"),
             IsActive = FeeSql.ToBoolean(reader, "IsActive")
         };
     }
 
-    public async Task<bool> ExistsAsync(short programId, string semester, short academicYear, int? excludeUid, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(int programId, string semester, short academicYear, int? excludeUid, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT COUNT(1) FROM dbo.FeeStructures

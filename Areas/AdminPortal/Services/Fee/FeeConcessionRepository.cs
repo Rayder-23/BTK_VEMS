@@ -147,15 +147,15 @@ public sealed class FeeConcessionRepository : IFeeConcessionRepository
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            var type = reader["ConcessionType"] as string ?? "";
-            if (string.Equals(type, "Percentage", StringComparison.OrdinalIgnoreCase))
+            var pct = FeeSql.ToDecimal(reader, "DiscountPercent");
+            var flat = FeeSql.ToDecimal(reader, "DiscountAmount");
+            if (pct > 0)
             {
-                var pct = FeeSql.ToDecimal(reader, "DiscountPercent");
                 totalDiscount += Math.Round(amount * pct / 100m, 2);
             }
-            else
+            else if (flat > 0)
             {
-                totalDiscount += FeeSql.ToDecimal(reader, "DiscountAmount");
+                totalDiscount += flat;
             }
         }
 
@@ -183,7 +183,7 @@ public sealed class FeeConcessionRepository : IFeeConcessionRepository
         Uid = FeeSql.ToInt32(reader, "Uid"),
         StudentId = FeeSql.ToInt32(reader, "StudentID"),
         FeeHeadId = reader["FeeHeadID"] is DBNull ? null : FeeSql.ToInt16(reader, "FeeHeadID"),
-        ConcessionType = reader["ConcessionType"] as string ?? "Percentage",
+        ConcessionType = reader["ConcessionType"] as string ?? "Merit",
         DiscountPercent = FeeSql.ToDecimal(reader, "DiscountPercent"),
         DiscountAmount = FeeSql.ToDecimal(reader, "DiscountAmount"),
         ApprovedBy = reader["ApprovedBy"] as string,
