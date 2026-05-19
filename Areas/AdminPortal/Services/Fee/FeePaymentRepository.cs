@@ -80,7 +80,7 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
                      ChequeNo, ChequeDate, Status, Remarks, IsActive, CreatedBy, CreatedAt)
                 VALUES
                     (@ChallanId, @AmountPaid, @PaymentDate, @PaymentMode, @TransactionRef, @BankName, @BranchName,
-                     @ChequeNo, @ChequeDate, 'Posted', @Remarks, 1, @CreatedBy, SYSUTCDATETIME());
+                     @ChequeNo, @ChequeDate, @Status, @Remarks, 1, @CreatedBy, SYSUTCDATETIME());
                 SELECT CAST(SCOPE_IDENTITY() AS int);
                 """;
 
@@ -97,6 +97,7 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
                 command.Parameters.AddWithValue("@ChequeNo", (object?)model.ChequeNo?.Trim() ?? DBNull.Value);
                 command.Parameters.AddWithValue("@ChequeDate", model.ChequeDate.HasValue ? model.ChequeDate.Value.ToDateTime(TimeOnly.MinValue) : DBNull.Value);
                 command.Parameters.AddWithValue("@Remarks", (object?)model.Remarks?.Trim() ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Status", FeeConstants.PaymentStatusVerified);
                 command.Parameters.AddWithValue("@CreatedBy", createdBy);
                 paymentId = Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
             }

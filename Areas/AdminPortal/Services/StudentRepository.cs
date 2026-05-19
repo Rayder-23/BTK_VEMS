@@ -339,9 +339,14 @@ public sealed class StudentRepository : IStudentRepository
             throw new ArgumentException("AdmissionDate is required.", nameof(model));
         }
 
-        if (!model.DateOfBirth.HasValue)
+        if (!model.DateOfBirth.HasValue || model.DateOfBirth.Value.Year < 1900)
         {
             throw new ArgumentException("DateOfBirth is required.", nameof(model));
+        }
+
+        if (model.DateOfBirth.Value.Date >= DateTime.Today)
+        {
+            throw new ArgumentException("DateOfBirth must be before today.", nameof(model));
         }
     }
 }

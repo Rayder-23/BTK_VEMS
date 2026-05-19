@@ -9,6 +9,11 @@ public static class FeeConstants
         "Cash", "Bank Transfer", "Online", "Cheque", "JazzCash", "EasyPaisa"
     ];
 
+    /// <summary>Matches <c>CK_Payments_Status</c> on dbo.Payments.</summary>
+    public static readonly string[] PaymentStatuses = ["Pending", "Verified", "Rejected"];
+
+    public const string PaymentStatusVerified = "Verified";
+
     public static readonly string[] FeeHeadCategories =
     [
         "Tuition", "Admission", "Exam", "Transport", "Hostel", "Miscellaneous", "Other"

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
@@ -58,6 +59,7 @@ public sealed class StudentsController : StudentMgmtBaseController
         ViewData["Title"] = "Add Student";
         ViewData["PageTitle"] = "Students · Add";
 
+        ValidateStudentForm(model.Form);
         if (!ModelState.IsValid)
         {
             model.Lookups = await _students.GetLookupsAsync(cancellationToken);
@@ -100,6 +102,7 @@ public sealed class StudentsController : StudentMgmtBaseController
             return NotFound();
         }
 
+        ValidateStudentForm(model.Form);
         if (!ModelState.IsValid)
         {
             model.Lookups = await _students.GetLookupsAsync(cancellationToken);
@@ -135,12 +138,29 @@ public sealed class StudentsController : StudentMgmtBaseController
         return RedirectToAction(nameof(Index));
     }
 
+    private void ValidateStudentForm(StudentFormModel form)
+    {
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(form, new ValidationContext(form), results, validateAllProperties: true);
+        foreach (var result in results)
+        {
+            var members = result.MemberNames.Any()
+                ? result.MemberNames.Select(m => $"Form.{m}")
+                : ["Form"];
+            foreach (var key in members)
+            {
+                ModelState.AddModelError(key, result.ErrorMessage ?? "Invalid value.");
+            }
+        }
+    }
+
     private static StudentFormModel CreateDefaultForm(StudentLookups lookups)
     {
         return new StudentFormModel
         {
             AdmissionYear = (short)DateTime.Today.Year,
             AdmissionDate = DateTime.Today,
+            DateOfBirth = DateTime.Today.AddYears(-18),
             Gender = "M",
             Nationality = "Pakistani",
             IsActive = true,

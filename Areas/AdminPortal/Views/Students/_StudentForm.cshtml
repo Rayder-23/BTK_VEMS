@@ -52,7 +52,8 @@
     </div>
     <div class="col-12 col-lg-3">
         <label asp-for="Form.DateOfBirth" class="form-label"></label>
-        <input asp-for="Form.DateOfBirth" class="form-control" type="date" />
+        <input asp-for="Form.DateOfBirth" class="form-control" type="date"
+               max="@DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd")" />
         <span asp-validation-for="Form.DateOfBirth" class="text-danger small"></span>
     </div>
     <div class="col-12 col-lg-3">

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VEMS.Areas.AdminPortal.Models;
 
-public sealed class StudentFormModel
+public sealed class StudentFormModel : IValidatableObject
 {
     public int Uid { get; set; }
 
@@ -100,4 +100,22 @@ public sealed class StudentFormModel
     [StringLength(200)]
     [Display(Name = "Status remark")]
     public string? StatusRemark { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (!DateOfBirth.HasValue || DateOfBirth.Value.Year < 1900)
+        {
+            yield return new ValidationResult(
+                "Date of birth is required.",
+                [nameof(DateOfBirth)]);
+            yield break;
+        }
+
+        if (DateOfBirth.Value.Date >= DateTime.Today)
+        {
+            yield return new ValidationResult(
+                "Date of birth must be before today.",
+                [nameof(DateOfBirth)]);
+        }
+    }
 }
