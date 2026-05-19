@@ -1,0 +1,46 @@
+@{
+    var path = (ViewContext.HttpContext.Request.Path.Value ?? "").TrimEnd('/');
+    var isGenerate = path.EndsWith("/create", StringComparison.OrdinalIgnoreCase);
+    var isPrintHub = path.Contains("/print-voucher", StringComparison.OrdinalIgnoreCase);
+    var isPrintDoc = path.Contains("/print/", StringComparison.OrdinalIgnoreCase);
+    var isPrintSection = isPrintHub || isPrintDoc;
+    var isAll = !isGenerate && !isPrintSection;
+}
+
+<div class="sidebar-inner">
+    <a class="portal-brand" href="/adminportal/fee/challans">
+        <span class="brand-icon"><i class="bi bi-receipt-cutoff"></i></span>
+        <span class="brand-copy">
+            <span class="brand-title">Challans</span>
+            <small>Fee vouchers</small>
+        </span>
+    </a>
+
+    <nav class="portal-menu" aria-label="Challans navigation">
+        <a class="portal-menu-link @(isGenerate ? "active" : "")" href="/adminportal/fee/challans/create">
+            <i class="bi bi-plus-circle" aria-hidden="true"></i><span>Generate Challans</span>
+        </a>
+        <a class="portal-menu-link @(isAll ? "active" : "")" href="/adminportal/fee/challans">
+            <i class="bi bi-list-ul" aria-hidden="true"></i><span>All Challans</span>
+        </a>
+        <a class="portal-menu-link @(isPrintSection ? "active" : "")" href="/adminportal/fee/challans/print-voucher">
+            <i class="bi bi-printer" aria-hidden="true"></i><span>Print Voucher</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-card">
+        <p class="mb-1 fw-semibold">Other fee tools</p>
+        <a class="small d-block text-decoration-none mb-1" href="/adminportal/fee/fee-heads">
+            <i class="bi bi-tags me-1"></i>Fee heads
+        </a>
+        <a class="small d-block text-decoration-none mb-1" href="/adminportal/fee/fee-structures">
+            <i class="bi bi-layers me-1"></i>Fee structures
+        </a>
+        <a class="small d-block text-decoration-none mb-2" href="/adminportal/fee/payments">
+            <i class="bi bi-cash-stack me-1"></i>Payments
+        </a>
+        <a class="small text-decoration-none" href="/adminportal/fee">
+            <i class="bi bi-grid-3x3-gap me-1"></i>Fee module home
+        </a>
+    </div>
+</div>

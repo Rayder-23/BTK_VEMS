@@ -1,0 +1,41 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.ChallanListItem>
+
+<section class="module-page-header accent-teal">
+    <h1 class="h3 fw-bold mb-0">Print voucher</h1>
+    <p class="text-muted mb-0">Choose a challan to open a printable fee voucher.</p>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <label for="challanPrintSelect" class="form-label fw-semibold">Challan</label>
+    <div class="row g-2 align-items-end">
+        <div class="col-md-8">
+            <select id="challanPrintSelect" class="form-select">
+                @foreach (var row in Model)
+                {
+                    <option value="@row.Uid">@row.ChallanNo — @row.StudentName (@row.DisplayStatus)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-primary w-100" id="challanPrintOpenBtn"@if (Model.Count == 0) { <text> disabled</text> }>Open printable voucher</button>
+        </div>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <p class="text-muted mt-3 mb-0">No challans found. <a href="/adminportal/fee/challans/create">Generate a challan</a> first.</p>
+    }
+</section>
+
+@section Scripts {
+    <script>
+        document.getElementById('challanPrintOpenBtn')?.addEventListener('click', () => {
+            const sel = document.getElementById('challanPrintSelect');
+            const id = sel?.value;
+            if (id) {
+                window.location.href = '/adminportal/fee/challans/print/' + encodeURIComponent(id);
+            }
+        });
+    </script>
+}

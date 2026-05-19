@@ -90,4 +90,26 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
         TempData["StatusMessage"] = ok ? "Challan cancelled." : "Challan could not be cancelled (not found or already paid).";
         return RedirectToAction(nameof(Details), new { id });
     }
+
+    [HttpGet("print-voucher")]
+    public async Task<IActionResult> PrintVoucher(CancellationToken cancellationToken)
+    {
+        ViewData["Title"] = "Print voucher";
+        ViewData["PageTitle"] = "Challans · Print voucher";
+        ViewData["FeeMgmtModuleKey"] = "Challans";
+        var list = await _challans.ListAsync(null, cancellationToken);
+        return View(list);
+    }
+
+    [HttpGet("print/{id:int}")]
+    public async Task<IActionResult> Print(int id, CancellationToken cancellationToken)
+    {
+        var page = await _challans.GetDetailsAsync(id, cancellationToken);
+        if (page is null)
+        {
+            return NotFound();
+        }
+
+        return View(page);
+    }
 }

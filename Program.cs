@@ -7,7 +7,8 @@ using VEMS.Areas.StudentPortal.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+// Runtime compilation loads .cshtml from disk (fixes missing precompiled views in some publish / host setups).
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -39,8 +40,7 @@ builder.Services.AddScoped<IFeeConcessionRepository, FeeConcessionRepository>();
 builder.Services.AddScoped<IFeeChallanRepository, FeeChallanRepository>();
 builder.Services.AddScoped<IFeePaymentRepository, FeePaymentRepository>();
 
-// <-- Scalar UI -->
-builder.Services.AddControllers();
+// <-- Scalar / OpenAPI: AddControllersWithViews above already registers controllers + API explorer. -->
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

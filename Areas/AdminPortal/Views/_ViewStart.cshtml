@@ -18,6 +18,10 @@
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtHomeLayout.cshtml";
     }
+    else if (string.Equals(controller, "FeeChallans", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeChallansModuleLayout.cshtml";
+    }
     else if (FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtModuleLayout.cshtml";

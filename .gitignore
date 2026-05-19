@@ -68,6 +68,9 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Local publish smoke-test output (dotnet publish -o pubtest)
+pubtest/
+
 # Tye
 .tye/
 

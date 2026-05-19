@@ -5,8 +5,13 @@
 }
 
 <section class="module-page-header accent-teal">
-    <h1 class="h3 fw-bold">@h.ChallanNo</h1>
-    <p class="text-muted mb-0">@h.StudentName (@h.RegistrationNo) · Due @h.DueDate.ToString("yyyy-MM-dd")</p>
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-start">
+        <div>
+            <h1 class="h3 fw-bold">@h.ChallanNo</h1>
+            <p class="text-muted mb-0">@h.StudentName (@h.RegistrationNo) · Due @h.DueDate.ToString("yyyy-MM-dd")</p>
+        </div>
+        <a class="btn btn-outline-primary rounded-pill no-print" href="/adminportal/fee/challans/print/@h.Uid" target="_blank" rel="noopener">Print voucher</a>
+    </div>
 </section>
 
 <partial name="_FeeAlerts" />
