@@ -1,4 +1,5 @@
 @using VEMS.Areas.AdminPortal.Services
+@using VEMS.Areas.AdminPortal.Services.Examination
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var hrControllers = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -13,6 +14,14 @@
     else if (StudentMgmtModuleCatalog.TryGetByController(controller) is not null)
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtModuleLayout.cshtml";
+    }
+    else if (string.Equals(controller, "ExaminationMgmt", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_ExaminationHomeLayout.cshtml";
+    }
+    else if (ExaminationModuleCatalog.TryGetByController(controller) is not null)
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_ExaminationMgmtLayout.cshtml";
     }
     else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase))
     {

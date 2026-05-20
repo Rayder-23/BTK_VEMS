@@ -428,3 +428,95 @@ body.payments-receipts-mgmt-shell.fee-erp-sidebar-collapsed .payments-receipts-m
         margin-left: 0 !important;
     }
 }
+
+/* ----- Examination home (banner, no sidebar) ----- */
+.exam-module-home-banner {
+    background: linear-gradient(135deg, #0b1426 0%, #14532d 42%, #059669 100%);
+    color: #fff;
+}
+
+.exam-module-home-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 92% 18%, rgba(16, 185, 129, 0.25), transparent 42%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.exam-module-home-banner__inner {
+    position: relative;
+    z-index: 1;
+}
+
+.exam-module-home-banner__breadcrumb {
+    --bs-breadcrumb-divider-color: rgba(255, 255, 255, 0.45);
+}
+
+.exam-module-home-banner__breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 600;
+}
+
+.exam-module-home-banner__breadcrumb .breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.exam-module-home-banner__eyebrow {
+    color: rgba(52, 211, 153, 0.95);
+    letter-spacing: 0.06em;
+}
+
+.exam-module-home-banner__title {
+    font-size: clamp(1.65rem, 3vw, 2.25rem);
+    font-weight: 700;
+}
+
+.exam-module-home-banner__lead {
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.exam-module-home-banner__icon-wrap {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.exam-module-home-banner__icon-decor {
+    font-size: 3.25rem;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+body.examination-mgmt-shell .examination-mgmt-sidebar {
+    width: 280px;
+}
+
+body.examination-mgmt-shell .examination-mgmt-main {
+    margin-left: 280px;
+}
+
+body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-sidebar {
+    width: 76px;
+}
+
+body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-main {
+    margin-left: 76px;
+}
+
+body.examination-mgmt-shell .examination-mgmt-sidebar-exit:hover {
+    background: var(--fee-erp-nav-hover) !important;
+    color: #fff !important;
+}
+
+.examination-mgmt-nav-scroll .fee-erp-nav-label {
+    font-size: 0.88rem;
+}
+
+@media (max-width: 991.98px) {
+    body.examination-mgmt-shell .examination-mgmt-main {
+        margin-left: 0 !important;
+    }
+}
+

@@ -1,0 +1,49 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Examination.ExaminationDashboardTile>
+@{
+    ViewData["Title"] = "Examination";
+}
+
+<section class="exam-module-home-banner rounded-4 shadow-sm mb-4 position-relative overflow-hidden">
+    <div class="exam-module-home-banner__inner position-relative px-4 py-4 px-lg-5 py-lg-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb exam-module-home-banner__breadcrumb mb-3 mb-lg-4">
+                <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Examination</li>
+            </ol>
+        </nav>
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <p class="exam-module-home-banner__eyebrow text-uppercase small fw-semibold mb-2">
+                    <i class="fa-solid fa-pen-ruler me-2"></i>Assessment &amp; results
+                </p>
+                <h1 class="exam-module-home-banner__title text-white mb-2 mb-lg-3">Examination</h1>
+                <p class="exam-module-home-banner__lead text-white-50 mb-0 col-lg-11">
+                    Exam setup, marking, schedules, student marks, submissions, grades, and official semester results—open a workflow below.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end d-none d-lg-block">
+                <div class="exam-module-home-banner__icon-wrap d-inline-flex align-items-center justify-content-center rounded-4">
+                    <i class="bi bi-clipboard-data exam-module-home-banner__icon-decor"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="portal-card" aria-label="Examination modules">
+    <h2 class="h5 fw-bold mb-3">Modules</h2>
+    <div class="row g-3 fm-module-grid">
+        @foreach (var tile in Model)
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <a class="fm-module-card @tile.AccentClass" href="@tile.Url">
+                    <span class="fm-module-card__icon @tile.AccentClass">
+                        <i class="bi @tile.IconClass"></i>
+                    </span>
+                    <h3 class="fm-module-card__title">@tile.Title</h3>
+                    <p class="fm-module-card__desc">@tile.Description</p>
+                </a>
+            </div>
+        }
+    </div>
+</section>

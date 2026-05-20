@@ -38,7 +38,16 @@ public static class AdminModuleCatalog
             IsAvailable = true,
             UrlOverride = "/adminportal/hr"
         },
-        new() { Name = "Examination", Controller = "Examination", IconClass = "bi-pencil-square", Description = "Exam scheduling and assessment", AccentClass = "accent-green", IsAvailable = false },
+        new()
+        {
+            Name = "Examination",
+            Controller = "ExaminationMgmt",
+            IconClass = "bi-pencil-square",
+            Description = "Exam types, marking, schedules, grades, and semester results",
+            AccentClass = "accent-green",
+            IsAvailable = true,
+            UrlOverride = "/adminportal/examination"
+        },
         new() { Name = "Library", Controller = "Library", IconClass = "bi-book-fill", Description = "Library catalog and circulation", AccentClass = "accent-purple", IsAvailable = false },
         new() { Name = "Transport", Controller = "Transport", IconClass = "bi-bus-front-fill", Description = "Routes, vehicles, and transport fees", AccentClass = "accent-orange", IsAvailable = false },
         new() { Name = "Hostel", Controller = "Hostel", IconClass = "bi-house-door-fill", Description = "Hostel allocation and facilities", AccentClass = "accent-red", IsAvailable = false },

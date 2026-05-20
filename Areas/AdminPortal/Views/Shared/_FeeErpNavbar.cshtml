@@ -46,6 +46,12 @@
         </div>
 
         <ul class="navbar-nav flex-row align-items-center gap-1 gap-sm-2 ms-auto">
+            <li class="nav-item d-flex align-items-center">
+                <a class="btn btn-light btn-sm rounded-3 d-inline-flex align-items-center px-2 px-sm-3" href="/adminportal"
+                   aria-label="Admin portal home" title="Admin portal home">
+                    <i class="fa-solid fa-house-chimney me-sm-2"></i><span class="d-none d-sm-inline">Admin home</span>
+                </a>
+            </li>
             <li class="nav-item d-none d-sm-block">
                 <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Notifications"
                         data-bs-toggle="tooltip" title="Notifications">
@@ -73,7 +79,7 @@
                     <li><span class="dropdown-item-text small text-muted px-3">Signed in as <strong>@displayName</strong></span></li>
                     <li><span class="dropdown-item-text small text-muted px-3">Role: @roleLabel</span></li>
                     <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" href="/adminportal"><i class="fa-solid fa-gauge-high me-2 text-muted"></i>Main admin portal</a></li>
+                    <li><a class="dropdown-item" href="/adminportal"><i class="fa-solid fa-house-chimney me-2 text-muted"></i>Admin home</a></li>
                     <li><a class="dropdown-item" href="/adminportal/fee"><i class="fa-solid fa-wallet me-2 text-muted"></i>Fee Management home</a></li>
                     <li>
                         <form asp-area="AdminPortal" asp-controller="Login" asp-action="Logout" method="post" class="px-3 pt-1">

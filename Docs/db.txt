@@ -1,14 +1,28 @@
-﻿Virtual Education Management System - Database Schema
-Generated: 2026-05-19 (from live database using ConnectionStrings:DefaultConnection in appsettings.json)
+Virtual Education Management System - Database Schema
+Generated: 2026-05-20 (from live database using ConnectionStrings:DefaultConnection in appsettings.Development.json)
 
-Version: 1.6  (Increment 'Version' by 0.1 at every change)
-UpdatedAt: 2026-05-19 03:45pm  (Update 'UpdatedAt' timestamp at every change)
+Version: 1.7  (Increment 'Version' by 0.1 at every change)
+UpdatedAt: 2026-05-20  (Update 'UpdatedAt' timestamp at every change)
 
 READ @Database.md, @DBworkflows.md and @database-rules.mdc for implementation details.
-IF UPDATING this file, make sure to UPDATE @Database.md aswell while following it's formatting.
+IF UPDATING this file, make sure to UPDATE @Database.md aswell while following its formatting.
 
 This file lists database tables and columns only. It does not and should not include data rows or connection credentials.
-
+Table: dbo.AssignmentSubmissions
+  - Uid: int NOT NULL PK
+  - StudentMarkID: int NOT NULL
+  - ExamID: int NOT NULL
+  - StudentID: int NOT NULL
+  - SubmissionDate: datetime2(7) NOT NULL
+  - DueDate: datetime2(7) NOT NULL
+  - IsLate: bit NOT NULL
+  - FilePath: nvarchar(500) NULL
+  - FileName: nvarchar(200) NULL
+  - Comments: nvarchar(500) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
 Table: dbo.ChallanDetails
   - Uid: int NOT NULL PK
   - ChallanID: int NOT NULL
@@ -19,7 +33,6 @@ Table: dbo.ChallanDetails
   - NetAmount: decimal(10,2) NOT NULL
   - CreatedBy: int NOT NULL
   - CreatedAt: datetime2(7) NOT NULL
-
 Table: dbo.ChallanReminders
   - Uid: int NOT NULL PK
   - ChallanID: int NOT NULL
@@ -31,7 +44,6 @@ Table: dbo.ChallanReminders
   - SentAt: datetime2(7) NULL
   - CreatedBy: int NOT NULL
   - CreatedAt: datetime2(7) NOT NULL
-
 Table: dbo.Challans
   - Uid: int NOT NULL PK
   - ChallanNo: nvarchar(30) NOT NULL
@@ -53,7 +65,6 @@ Table: dbo.Challans
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
 Table: dbo.Concessions
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -71,7 +82,6 @@ Table: dbo.Concessions
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
 Table: dbo.Configurations
   - Uid: int NOT NULL PK
   - ConfigKey: nvarchar(100) NOT NULL
@@ -80,7 +90,6 @@ Table: dbo.Configurations
   - IsActive: bit NOT NULL
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedAt: datetime2(7) NOT NULL
-
 Table: dbo.Employee
   - Uid: int NOT NULL PK
   - EmployeeId: varchar(20) NOT NULL
@@ -102,7 +111,6 @@ Table: dbo.Employee
   - ModifiedBy: int NULL
   - ModifiedAt: datetime2(7) NOT NULL
   - Notes: nvarchar(max) NULL
-
 Table: dbo.EmployeeLogin
   - Uid: int NOT NULL PK
   - EmployeeId: int NOT NULL
@@ -113,7 +121,48 @@ Table: dbo.EmployeeLogin
   - CreatedBy: int NULL
   - CreatedOn: datetime2(7) NOT NULL
   - History: nvarchar(max) NULL
-
+Table: dbo.Exams
+  - Uid: int NOT NULL PK
+  - ExamTitle: nvarchar(150) NOT NULL
+  - ExamTypeID: smallint NOT NULL
+  - CourseID: int NOT NULL
+  - ProgramID: int NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - TotalMarks: decimal(6,2) NOT NULL
+  - PassingMarks: decimal(6,2) NOT NULL
+  - ExamNo: tinyint NOT NULL
+  - IsActive: bit NOT NULL
+  - Remarks: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+Table: dbo.ExamSchedule
+  - Uid: int NOT NULL PK
+  - ExamID: int NOT NULL
+  - ExamDate: date NOT NULL
+  - StartTime: time(0) NOT NULL
+  - EndTime: time(0) NOT NULL
+  - RoomNo: nvarchar(30) NULL
+  - Building: nvarchar(100) NULL
+  - InvigilatorID: int NULL
+  - Remarks: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+Table: dbo.ExamTypes
+  - Uid: smallint NOT NULL PK
+  - TypeCode: varchar(20) NOT NULL
+  - TypeName: nvarchar(100) NOT NULL
+  - Description: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
 Table: dbo.FeeStructureDetails
   - Uid: int NOT NULL PK
   - StructureID: int NOT NULL
@@ -126,7 +175,6 @@ Table: dbo.FeeStructureDetails
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
 Table: dbo.FeeStructures
   - Uid: int NOT NULL PK
   - StructureName: nvarchar(150) NOT NULL
@@ -138,7 +186,60 @@ Table: dbo.FeeStructures
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
+Table: dbo.GradeRemarks
+  - Uid: smallint NOT NULL PK
+  - RemarkCode: varchar(20) NOT NULL
+  - RemarkName: nvarchar(100) NOT NULL
+  - ScaleID: smallint NOT NULL
+  - MinCGPA: decimal(4,2) NULL
+  - MaxCGPA: decimal(4,2) NULL
+  - MinPercentage: decimal(5,2) NULL
+  - MaxPercentage: decimal(5,2) NULL
+  - Description: nvarchar(300) NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+Table: dbo.GradingScaleDetails
+  - Uid: smallint NOT NULL PK
+  - ScaleID: smallint NOT NULL
+  - LetterGrade: nvarchar(5) NOT NULL
+  - MinMarks: decimal(5,2) NOT NULL
+  - MaxMarks: decimal(5,2) NOT NULL
+  - GradePoints: decimal(4,2) NOT NULL
+  - Remarks: nvarchar(50) NULL
+  - IsPassing: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+Table: dbo.GradingScales
+  - Uid: smallint NOT NULL PK
+  - ScaleName: nvarchar(100) NOT NULL
+  - ScaleType: nvarchar(30) NOT NULL
+  - MaxGPA: decimal(4,2) NULL
+  - PassingMarks: decimal(5,2) NOT NULL
+  - Description: nvarchar(300) NULL
+  - IsDefault: bit NOT NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+Table: dbo.MarkingScheme
+  - Uid: int NOT NULL PK
+  - SchemeName: nvarchar(150) NOT NULL
+  - ProgramID: int NOT NULL
+  - CourseID: int NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - ExamTypeID: smallint NOT NULL
+  - WeightPercent: decimal(5,2) NOT NULL
+  - TotalMarks: decimal(6,2) NOT NULL
+  - IsActive: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
 Table: dbo.PaymentReceipts
   - Uid: int NOT NULL PK
   - PaymentID: int NOT NULL
@@ -149,7 +250,6 @@ Table: dbo.PaymentReceipts
   - LastPrintedAt: datetime2(7) NULL
   - CreatedBy: int NOT NULL
   - CreatedAt: datetime2(7) NOT NULL
-
 Table: dbo.Payments
   - Uid: int NOT NULL PK
   - ChallanID: int NOT NULL
@@ -170,19 +270,16 @@ Table: dbo.Payments
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
 Table: dbo.ref_Cities
   - Uid: int NOT NULL PK
   - ProvinceID: int NOT NULL
   - CityName: nvarchar(100) NOT NULL
   - IsActive: bit NOT NULL
-
 Table: dbo.ref_Countries
   - Uid: int NOT NULL PK
   - CountryName: nvarchar(100) NOT NULL
   - CountryCode: char(3) NOT NULL
   - IsActive: bit NOT NULL
-
 Table: dbo.ref_FeeHeads
   - Uid: smallint NOT NULL PK
   - HeadCode: varchar(20) NOT NULL
@@ -195,13 +292,11 @@ Table: dbo.ref_FeeHeads
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
 Table: dbo.ref_InstitutionTypes
   - Uid: int NOT NULL PK
   - InstTypeCode: char(3) NOT NULL
   - InstTypeName: nvarchar(50) NOT NULL
   - IsActive: bit NOT NULL
-
 Table: dbo.ref_Programs
   - Uid: int NOT NULL PK
   - InstTypeId: int NOT NULL
@@ -220,14 +315,25 @@ Table: dbo.ref_Programs
   - DurationYears: tinyint NULL
   - TotalCreditHours: smallint NULL
   - CreatedBy: int NULL
-
 Table: dbo.ref_Provinces
   - Uid: int NOT NULL PK
   - CountryID: int NOT NULL
   - ProvinceName: nvarchar(100) NOT NULL
   - ProvinceCode: nvarchar(10) NULL
   - IsActive: bit NOT NULL
-
+Table: dbo.ResultDetails
+  - Uid: int NOT NULL PK
+  - ResultID: int NOT NULL
+  - StudentID: int NOT NULL
+  - CourseID: int NOT NULL
+  - CreditHours: tinyint NOT NULL
+  - LetterGrade: nvarchar(5) NOT NULL
+  - GradePoints: decimal(4,2) NOT NULL
+  - QualityPoints: decimal(6,2) NOT NULL
+  - IsPassing: bit NOT NULL
+  - IsRepeat: bit NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
 Table: dbo.Sections
   - Uid: int NOT NULL PK
   - SectionName: nvarchar(10) NOT NULL
@@ -237,7 +343,6 @@ Table: dbo.Sections
   - ProgramId: int NOT NULL
   - GradeLevel: nvarchar(20) NOT NULL
   - AcademicYear: nvarchar(9) NOT NULL
-
 Table: dbo.StudentContacts
   - ContactID: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -252,7 +357,6 @@ Table: dbo.StudentContacts
   - UpdatedAt: datetime2(7) NULL
   - Uid: int NOT NULL
   - ContactType: nvarchar(30) NULL
-
 Table: dbo.StudentEnrollments
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -270,7 +374,41 @@ Table: dbo.StudentEnrollments
   - CreatedAt: datetime2(7) NOT NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
+Table: dbo.StudentGrades
+  - Uid: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - CourseID: int NOT NULL
+  - ProgramID: int NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - ScaleID: smallint NOT NULL
+  - TotalWeightedMarks: decimal(6,2) NOT NULL
+  - PercentageMarks: decimal(5,2) NOT NULL
+  - LetterGrade: nvarchar(5) NOT NULL
+  - GradePoints: decimal(4,2) NOT NULL
+  - IsPassing: bit NOT NULL
+  - IsRepeat: bit NOT NULL
+  - ComputedAt: datetime2(7) NOT NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+Table: dbo.StudentMarks
+  - Uid: int NOT NULL PK
+  - ExamID: int NOT NULL
+  - StudentID: int NOT NULL
+  - MarksObtained: decimal(6,2) NOT NULL
+  - IsAbsent: bit NOT NULL
+  - IsExcused: bit NOT NULL
+  - EnteredBy: int NOT NULL
+  - EnteredAt: datetime2(7) NOT NULL
+  - VerifiedBy: int NULL
+  - VerifiedAt: datetime2(7) NULL
+  - Remarks: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
 Table: dbo.StudentParents
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -303,7 +441,26 @@ Table: dbo.StudentParents
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
   - RelationType: nvarchar(50) NULL
-
+Table: dbo.StudentResults
+  - Uid: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - ProgramID: int NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - TotalCourses: tinyint NOT NULL
+  - CoursesPassed: tinyint NOT NULL
+  - CoursesFailed: tinyint NOT NULL
+  - TotalCreditHours: smallint NOT NULL
+  - CreditHoursEarned: smallint NOT NULL
+  - SemesterGPA: decimal(4,2) NOT NULL
+  - CumulativeCGPA: decimal(4,2) NOT NULL
+  - ResultStatus: nvarchar(20) NOT NULL
+  - IsLocked: bit NOT NULL
+  - DeclaredAt: datetime2(7) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
 Table: dbo.Students
   - Uid: int NOT NULL PK
   - RegistrationNo: nvarchar(30) NOT NULL
@@ -343,7 +500,6 @@ Table: dbo.Students
   - Religion: nvarchar(50) NULL
   - BloodGroup: varchar(5) NULL
   - SectionId: int NULL
-
 Table: dbo.StudentSiblings
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -360,7 +516,6 @@ Table: dbo.StudentSiblings
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
   - RelationType: nvarchar(50) NULL
-
 Table: dbo.StudentsLogin
   - Uid: int NOT NULL PK
   - StudentId: int NOT NULL
@@ -381,7 +536,6 @@ Table: dbo.StudentsLogin
   - PasswordChangedAt: datetime2(7) NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-
 Table: dbo.TeacherSections
   - Uid: int NOT NULL PK
   - SectionId: int NOT NULL
@@ -390,5 +544,4 @@ Table: dbo.TeacherSections
   - IsActive: bit NOT NULL
   - AssignedAt: datetime2(7) NOT NULL
   - AssignedBy: int NULL
-
-Total tables: 25
+Total tables: 37

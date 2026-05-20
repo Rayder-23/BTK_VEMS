@@ -51,8 +51,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="fee-erp-nav-link fee-erp-nav-link--soon" href="#" title="Coming soon">
-                    <i class="fa-fw fa-solid fa-pen-ruler"></i><span class="fee-erp-nav-label">Examinations</span>
+                <a class="fee-erp-nav-link @(path.StartsWith("/adminportal/examination", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   href="/adminportal/examination">
+                    <i class="fa-fw fa-solid fa-pen-ruler"></i><span class="fee-erp-nav-label">Examination</span>
                 </a>
             </li>
             <li class="nav-item">

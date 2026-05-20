@@ -1,0 +1,40 @@
+@using VEMS.Areas.AdminPortal.Services.Examination
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+<div class="fee-erp-sidebar-inner d-flex flex-column h-100 examination-mgmt-sidebar-inner">
+    <div class="fee-erp-sidebar-brand px-3 py-4 border-bottom border-light border-opacity-10">
+        <a href="/adminportal/examination" class="text-decoration-none text-white d-flex align-items-center gap-3">
+            <span class="fee-erp-sidebar-logo rounded-3 d-inline-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-pen-ruler"></i>
+            </span>
+            <div class="fee-erp-sidebar-brand-text">
+                <span class="d-block fw-bold small text-uppercase tracking-wide opacity-75">VEMS</span>
+                <span class="d-block fw-semibold">Examination</span>
+            </div>
+        </a>
+    </div>
+
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2 examination-mgmt-nav-scroll" aria-label="Examination modules">
+        <ul class="nav flex-column gap-1 fee-erp-nav-list">
+            @foreach (var m in ExaminationModuleCatalog.SidebarModules)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link @(string.Equals(controller, m.Controller, StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                       href="@ExaminationModuleCatalog.Url(m)">
+                        <i class="fa-fw fa-solid @m.IconClass"></i>
+                        <span class="fee-erp-nav-label">@m.Name</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10">
+        <a class="fee-erp-nav-link examination-mgmt-sidebar-exit border border-light border-opacity-25 bg-transparent"
+           href="/adminportal">
+            <i class="fa-fw fa-solid fa-arrow-left"></i>
+            <span class="fee-erp-nav-label">Admin portal home</span>
+        </a>
+    </div>
+</div>
