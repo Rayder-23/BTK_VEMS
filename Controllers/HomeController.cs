@@ -13,8 +13,7 @@ namespace VEMS.Controllers
             _logger = logger;
         }
 
-        /// <summary>Site root: avoid Razor view resolution failures on some hosts; send users to the admin portal.</summary>
-        public IActionResult Index() => Redirect("/adminportal");
+        public IActionResult Index() => View("~/Views/Home/Index.cshtml");
 
         public IActionResult Privacy() => View("~/Views/Home/Privacy.cshtml");
 
