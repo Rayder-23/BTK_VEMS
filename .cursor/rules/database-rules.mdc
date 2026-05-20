@@ -9,7 +9,7 @@ You are assisting with the Virtual Education Management System (VEMS), an ASP.NE
 
 ## ⚠️ Mandatory Pre-Flight Action
 
-Before writing any code or analyzing errors in this domain, you must read and align with the core system specs located at:
+Before writing any code or analyzing errors in this domain, you must read and align with the core system database specs located at:
 - `Docs/Database.md`
 - `Docs/DBworkflows.md`
 
