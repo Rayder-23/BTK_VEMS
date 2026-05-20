@@ -141,6 +141,27 @@ public sealed class ConfigurationsRepository : IConfigurationsRepository
         return rows > 0;
     }
 
+    public async Task<bool> UpdateIsActiveAsync(int uid, bool isActive, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        const string sql = """
+            UPDATE dbo.Configurations
+            SET
+                IsActive = @IsActive,
+                UpdatedAt = @UpdatedAt
+            WHERE Uid = @Uid;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@IsActive", isActive);
+        command.Parameters.AddWithValue("@UpdatedAt", now);
+        await connection.OpenAsync(cancellationToken);
+        var rows = await command.ExecuteNonQueryAsync(cancellationToken);
+        return rows > 0;
+    }
+
     public async Task<bool> DeleteAsync(int uid, CancellationToken cancellationToken = default)
     {
         const string sql = "DELETE FROM dbo.Configurations WHERE Uid = @Uid;";

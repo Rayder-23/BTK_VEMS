@@ -12,5 +12,7 @@ public interface IConfigurationsRepository
 
     Task<bool> UpdateAsync(ConfigurationFormModel model, CancellationToken cancellationToken = default);
 
+    Task<bool> UpdateIsActiveAsync(int uid, bool isActive, CancellationToken cancellationToken = default);
+
     Task<bool> DeleteAsync(int uid, CancellationToken cancellationToken = default);
 }

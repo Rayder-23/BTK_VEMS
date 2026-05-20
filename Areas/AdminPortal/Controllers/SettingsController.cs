@@ -108,4 +108,15 @@ public class SettingsController : AdminBaseController
 
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetActive(int id, bool isActive, CancellationToken cancellationToken)
+    {
+        var ok = await _configurations.UpdateIsActiveAsync(id, isActive, cancellationToken);
+        TempData["StatusMessage"] = ok
+            ? $"Configuration {(isActive ? "activated" : "deactivated")}."
+            : "Configuration could not be updated (record not found).";
+        return RedirectToAction(nameof(Index));
+    }
 }
