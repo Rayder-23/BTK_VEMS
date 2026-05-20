@@ -1,7 +1,7 @@
 @model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureDetailsPageModel
 @{
     ViewData["Title"] = "Structure Details";
-    var feeHeads = ViewData["FeeHeads"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+    var feeHeads = ViewData["FeeHeads"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
     var s = Model.Structure;
 }
 

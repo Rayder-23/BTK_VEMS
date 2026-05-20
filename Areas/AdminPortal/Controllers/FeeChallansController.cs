@@ -21,8 +21,8 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
     [HttpGet("Index")]
     public async Task<IActionResult> Index(string? search, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Challan List";
-        ViewData["PageTitle"] = "Challans";
+        ViewData["Title"] = "Challans Management";
+        ViewData["PageTitle"] = "Challans Management";
         ViewData["FeeMgmtModuleKey"] = "Challans";
         ViewData["Search"] = search;
         return View(await _challans.ListAsync(search, cancellationToken));

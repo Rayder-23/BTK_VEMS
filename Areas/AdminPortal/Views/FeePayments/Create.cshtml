@@ -2,7 +2,7 @@
 @using VEMS.Areas.AdminPortal.Models.Fee
 @{
     ViewData["Title"] = "Record Payment";
-    var challans = ViewData["Challans"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+    var challans = ViewData["Challans"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <section class="module-page-header accent-green">

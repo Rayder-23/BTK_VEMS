@@ -1,8 +1,8 @@
 @model VEMS.Areas.AdminPortal.Models.Fee.ConcessionFormModel
 @using VEMS.Areas.AdminPortal.Models.Fee
 @{
-    var students = ViewData["Students"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
-    var feeHeads = ViewData["FeeHeads"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+    var students = ViewData["Students"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+    var feeHeads = ViewData["FeeHeads"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>

@@ -1,0 +1,82 @@
+@model string
+@using VEMS.Areas.AdminPortal.Controllers
+@{
+    var adminUsername = Context.Session.GetString(LoginController.AdminSessionKey) ?? "Admin";
+    var displayName = string.IsNullOrWhiteSpace(adminUsername) ? "Admin" : adminUsername;
+    var avatarLetter = char.ToUpperInvariant(displayName.Trim()[0]);
+    const string roleLabel = "Administrator";
+}
+
+<header class="fee-erp-navbar navbar navbar-expand-lg fixed-top bg-white border-bottom shadow-sm">
+    <div class="container-fluid gap-2 align-items-center px-3 px-lg-4">
+        <span class="visually-hidden">Current page: @Model</span>
+
+        <button class="btn btn-outline-secondary d-lg-none fee-erp-icon-btn" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
+                aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <button class="btn btn-outline-secondary d-none d-lg-inline-flex fee-erp-icon-btn" type="button"
+                id="feeErpSidebarCollapse" aria-label="Collapse sidebar" data-bs-toggle="tooltip"
+                data-bs-placement="bottom" title="Toggle sidebar width">
+            <i class="fa-solid fa-sidebar"></i>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center gap-2 me-auto me-lg-3 text-decoration-none" href="/adminportal/fee">
+            <span class="fee-erp-brand-icon rounded-3 d-inline-flex align-items-center justify-content-center text-white">
+                <i class="fa-solid fa-wallet"></i>
+            </span>
+            <span class="fee-erp-brand-text fw-semibold text-dark">Fee Management System</span>
+        </a>
+
+        <div class="d-none d-md-flex flex-grow-1 justify-content-center mx-lg-4" style="max-width: 420px;">
+            <div class="input-group input-group-sm fee-erp-global-search shadow-sm">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="search" class="form-control border-start-0" placeholder="Search students, challans, receipts…"
+                       aria-label="Global search" disabled />
+            </div>
+        </div>
+
+        <ul class="navbar-nav flex-row align-items-center gap-1 gap-sm-2 ms-auto">
+            <li class="nav-item d-none d-sm-block">
+                <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Notifications"
+                        data-bs-toggle="tooltip" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger fee-erp-nav-badge">5</span>
+                </button>
+            </li>
+            <li class="nav-item d-none d-sm-block">
+                <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Messages"
+                        data-bs-toggle="tooltip" title="Messages">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary fee-erp-nav-badge">3</span>
+                </button>
+            </li>
+            <li class="nav-item dropdown">
+                <button class="btn btn-light d-flex align-items-center gap-2 py-2 px-2 px-sm-3 rounded-3 fee-erp-user-btn dropdown-toggle"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false" id="feeErpUserMenu">
+                    <span class="fee-erp-avatar rounded-circle text-white fw-semibold">@avatarLetter</span>
+                    <span class="d-none d-sm-flex flex-column text-start lh-sm">
+                        <span class="small fw-semibold text-dark">@displayName</span>
+                        <span class="fee-erp-role-label">@roleLabel</span>
+                    </span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 py-2 fee-erp-dropdown" aria-labelledby="feeErpUserMenu">
+                    <li><span class="dropdown-item-text small text-muted px-3">Signed in as <strong>@displayName</strong></span></li>
+                    <li><span class="dropdown-item-text small text-muted px-3">Role: @roleLabel</span></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" href="/adminportal"><i class="fa-solid fa-gauge-high me-2 text-muted"></i>Main admin portal</a></li>
+                    <li>
+                        <form asp-area="AdminPortal" asp-controller="Login" asp-action="Logout" method="post" class="px-3 pt-1">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</header>

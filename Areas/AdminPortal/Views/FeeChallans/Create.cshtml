@@ -1,8 +1,8 @@
 @model VEMS.Areas.AdminPortal.Models.Fee.ChallanGenerateFormModel
 @{
     ViewData["Title"] = "Generate Challan";
-    var students = ViewData["Students"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
-    var structures = ViewData["Structures"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+    var students = ViewData["Students"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+    var structures = ViewData["Structures"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <section class="module-page-header accent-teal">

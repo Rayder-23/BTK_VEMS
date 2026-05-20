@@ -5,7 +5,6 @@
     ViewData["Title"] = "Admin Dashboard";
     var adminUsername = Context.Session.GetString("AdminUsername") ?? "Admin";
     var moduleCount = Model.Modules.Count;
-    var activeModuleCount = Model.Modules.Count(m => m.IsAvailable);
 }
 
 <div class="erp-dashboard">
@@ -15,18 +14,10 @@
         </ol>
     </nav>
 
-    <header class="erp-dashboard-hero rounded-4 mb-4">
-        <div class="row align-items-center g-4">
+    <header class="erp-dashboard-hero rounded-4 mb-3">
+        <div class="row align-items-center g-3">
             <div class="col-lg-8">
-                <p class="erp-dashboard-hero__eyebrow mb-2">
-                    <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>
-                    Administration Console
-                </p>
-                <h1 class="erp-dashboard-hero__title mb-2">Welcome back, @adminUsername</h1>
-                <p class="erp-dashboard-hero__subtitle mb-0">
-                    Access @activeModuleCount active modules across your student management ecosystem.
-                    <span class="d-none d-md-inline">Use search to quickly find any module.</span>
-                </p>
+                <h1 class="erp-dashboard-hero__title mb-0">Welcome back, @adminUsername</h1>
             </div>
             <div class="col-lg-4">
                 <div class="erp-dashboard-hero__meta">

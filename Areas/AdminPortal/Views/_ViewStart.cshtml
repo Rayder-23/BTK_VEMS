@@ -14,17 +14,13 @@
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtModuleLayout.cshtml";
     }
-    else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase))
+    else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "FeeChallans", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "FeePayments", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "FeePaymentReceipts", StringComparison.OrdinalIgnoreCase)
+        || FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
     {
-        Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtHomeLayout.cshtml";
-    }
-    else if (string.Equals(controller, "FeeChallans", StringComparison.OrdinalIgnoreCase))
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_FeeChallansModuleLayout.cshtml";
-    }
-    else if (FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtModuleLayout.cshtml";
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeErpLayout.cshtml";
     }
     else if (hrControllers.Contains(controller))
     {

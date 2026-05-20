@@ -1,0 +1,247 @@
+/* VEMS Fee ERP shell — dashboard.css (see _FeeErpLayout.cshtml) */
+
+:root {
+    --fee-erp-primary: #0d6efd;
+    --fee-erp-primary-dark: #0b5ed7;
+    --fee-erp-accent: #20c997;
+    --fee-erp-bg: #f5f7fb;
+    --fee-erp-sidebar-start: #0b1426;
+    --fee-erp-sidebar-end: #152a45;
+    --fee-erp-nav-hover: rgba(255, 255, 255, 0.08);
+    --fee-erp-nav-active: rgba(13, 110, 253, 0.35);
+    --fee-erp-topnav-h: 58px;
+}
+
+body.fee-erp-shell {
+    --portal-accent: var(--fee-erp-primary);
+    --portal-accent-dark: var(--fee-erp-primary-dark);
+    background-color: var(--fee-erp-bg);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh;
+    padding-top: var(--fee-erp-topnav-h);
+}
+
+.fee-erp-navbar {
+    min-height: var(--fee-erp-topnav-h);
+    z-index: 1035;
+}
+
+.fee-erp-brand-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--fee-erp-primary), #4dabff);
+    font-size: 1rem;
+}
+
+.fee-erp-icon-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.65rem;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.fee-erp-icon-btn:hover {
+    background-color: #f1f5f9 !important;
+    transform: translateY(-1px);
+}
+
+.fee-erp-global-search .input-group-text {
+    border-radius: 0.65rem 0 0 0.65rem;
+}
+
+.fee-erp-global-search .form-control {
+    border-radius: 0 0.65rem 0.65rem 0;
+}
+
+.fee-erp-nav-badge {
+    font-size: 0.65rem;
+    padding: 0.2em 0.45em;
+}
+
+.fee-erp-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    line-height: 36px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--fee-erp-primary), #6ea8fe);
+}
+
+.fee-erp-role-label {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.fee-erp-canvas {
+    min-height: calc(100vh - var(--fee-erp-topnav-h));
+    position: relative;
+}
+
+.fee-erp-sidebar {
+    position: fixed;
+    top: var(--fee-erp-topnav-h);
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1020;
+    background: linear-gradient(180deg, var(--fee-erp-sidebar-start) 0%, var(--fee-erp-sidebar-end) 100%);
+    color: #e2e8f0;
+    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.12);
+    transition: width 0.25s ease;
+}
+
+.fee-erp-sidebar-inner {
+    min-height: 0;
+}
+
+.fee-erp-sidebar-logo {
+    width: 42px;
+    height: 42px;
+    background: rgba(13, 110, 253, 0.25);
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.fee-erp-nav-list .fee-erp-nav-link,
+.fee-erp-nav-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.65rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.fee-erp-nav-link:hover,
+.fee-erp-nav-toggle:hover {
+    background: var(--fee-erp-nav-hover);
+    color: #fff;
+}
+
+.fee-erp-nav-link.active,
+.fee-erp-nav-toggle.is-open {
+    background: var(--fee-erp-nav-active);
+    color: #fff;
+    box-shadow: inset 3px 0 0 var(--fee-erp-accent);
+}
+
+.fee-erp-nav-link--soon {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.fee-erp-nav-toggle .fee-erp-chevron {
+    transition: transform 0.2s ease;
+    opacity: 0.75;
+}
+
+.fee-erp-nav-toggle.is-open .fee-erp-chevron {
+    transform: rotate(-180deg);
+}
+
+.fee-erp-subnav {
+    border-left: 2px solid rgba(255, 255, 255, 0.12);
+    margin-left: 0.5rem;
+    padding-left: 0.35rem;
+}
+
+.fee-erp-subnav-link {
+    display: block;
+    padding: 0.45rem 0.65rem 0.45rem 0.5rem;
+    border-radius: 0.45rem;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.fee-erp-subnav-link:hover {
+    background: var(--fee-erp-nav-hover);
+    color: #fff;
+}
+
+.fee-erp-subnav-link.active {
+    background: rgba(32, 201, 151, 0.18);
+    color: #fff;
+    font-weight: 600;
+}
+
+body.fee-erp-sidebar-collapsed .fee-erp-sidebar {
+    width: 76px;
+}
+
+body.fee-erp-sidebar-collapsed .fee-erp-sidebar-brand-text,
+body.fee-erp-sidebar-collapsed .fee-erp-nav-label,
+body.fee-erp-sidebar-collapsed .fee-erp-chevron,
+body.fee-erp-sidebar-collapsed .fee-erp-subnav,
+body.fee-erp-sidebar-collapsed .fee-erp-sidebar-foot span.fee-erp-nav-label {
+    display: none !important;
+}
+
+body.fee-erp-sidebar-collapsed .fee-erp-nav-link,
+body.fee-erp-sidebar-collapsed .fee-erp-nav-toggle {
+    justify-content: center;
+}
+
+body.fee-erp-sidebar-collapsed .fee-erp-sidebar-brand .gap-3 {
+    gap: 0 !important;
+}
+
+body.fee-erp-sidebar-collapsed .fee-mgmt-sub-collapse.collapse {
+    display: none !important;
+}
+
+.fee-erp-main {
+    margin-left: 280px;
+    min-height: calc(100vh - var(--fee-erp-topnav-h));
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.25s ease;
+    background: var(--fee-erp-bg);
+}
+
+body.fee-erp-sidebar-collapsed .fee-erp-main {
+    margin-left: 76px;
+}
+
+@media (max-width: 991.98px) {
+    .fee-erp-sidebar.d-none {
+        display: none !important;
+    }
+
+    .fee-erp-main {
+        margin-left: 0 !important;
+    }
+}
+
+.fee-erp-main-inner {
+    flex: 1 0 auto;
+}
+
+.fee-erp-footer {
+    flex-shrink: 0;
+    border-top: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.fee-erp-offcanvas {
+    --bs-offcanvas-width: min(320px, 92vw);
+}
+
+.fee-erp-shell .fm-module-grid .fm-module-card {
+    border-color: rgba(13, 110, 253, 0.12);
+}
+
+.fee-erp-shell .fm-module-grid .fm-module-card:hover {
+    box-shadow: 0 14px 36px rgba(13, 110, 253, 0.12);
+}

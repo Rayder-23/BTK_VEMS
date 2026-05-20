@@ -1,0 +1,114 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var path = (ViewContext.HttpContext.Request.Path.Value ?? "").TrimEnd('/').ToLowerInvariant();
+
+    bool IsController(string name) =>
+        string.Equals(controller, name, StringComparison.OrdinalIgnoreCase);
+
+    var feeSectionOpen = path.Contains("/adminportal/fee", StringComparison.OrdinalIgnoreCase);
+    var isFeeHome = IsController("FeeMgmt");
+}
+
+<div class="fee-erp-sidebar-inner d-flex flex-column h-100">
+    <div class="fee-erp-sidebar-brand px-3 py-4 border-bottom border-light border-opacity-10">
+        <a href="/adminportal/fee" class="text-decoration-none text-white d-flex align-items-center gap-3">
+            <span class="fee-erp-sidebar-logo rounded-3 d-inline-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-building-columns"></i>
+            </span>
+            <div class="fee-erp-sidebar-brand-text">
+                <span class="d-block fw-bold small text-uppercase tracking-wide opacity-75">VEMS</span>
+                <span class="d-block fw-semibold">Operations</span>
+            </div>
+        </a>
+    </div>
+
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Main sidebar">
+        <ul class="nav flex-column gap-1 fee-erp-nav-list">
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(IsController("Dashboard") ? "active" : "")" href="/adminportal">
+                    <i class="fa-fw fa-solid fa-gauge-high"></i><span class="fee-erp-nav-label">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(path.Contains("/adminportal/students", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   href="/adminportal/students">
+                    <i class="fa-fw fa-solid fa-users"></i><span class="fee-erp-nav-label">Students</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link fee-erp-nav-link--soon" href="#" title="Coming soon">
+                    <i class="fa-fw fa-solid fa-user-plus"></i><span class="fee-erp-nav-label">Admissions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(IsController("Attendance") ? "active" : "")" href="/adminportal/Attendance">
+                    <i class="fa-fw fa-solid fa-calendar-check"></i><span class="fee-erp-nav-label">Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(IsController("Courses") ? "active" : "")" href="/adminportal/Courses">
+                    <i class="fa-fw fa-solid fa-book"></i><span class="fee-erp-nav-label">Courses</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link fee-erp-nav-link--soon" href="#" title="Coming soon">
+                    <i class="fa-fw fa-solid fa-pen-ruler"></i><span class="fee-erp-nav-label">Examinations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(IsController("Results") ? "active" : "")" href="/adminportal/Results">
+                    <i class="fa-fw fa-solid fa-chart-simple"></i><span class="fee-erp-nav-label">Results</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <button class="fee-erp-nav-link fee-erp-nav-toggle w-100 text-start @(feeSectionOpen || isFeeHome ? "is-open" : "")"
+                        type="button" data-bs-toggle="collapse" data-bs-target=".fee-mgmt-sub-collapse"
+                        aria-expanded="@(feeSectionOpen || isFeeHome ? "true" : "false")">
+                    <i class="fa-fw fa-solid fa-money-check-dollar"></i>
+                    <span class="fee-erp-nav-label flex-grow-1">Fee Management</span>
+                    <i class="fa-solid fa-chevron-down fee-erp-chevron small"></i>
+                </button>
+                <div class="collapse fee-mgmt-sub-collapse @(feeSectionOpen ? "show" : "")">
+                    <ul class="nav flex-column ms-2 mt-1 gap-0 fee-erp-subnav">
+                        <li><a class="fee-erp-subnav-link @(IsController("FeeRefFeeHeads") ? "active" : "")" href="/adminportal/fee/fee-heads"><i class="fa-solid fa-tags me-2"></i>Fee Heads</a></li>
+                        <li><a class="fee-erp-subnav-link @(IsController("FeeStructures") || IsController("FeeStructureDetails") ? "active" : "")" href="/adminportal/fee/fee-structures"><i class="fa-solid fa-layer-group me-2"></i>Fee Structures</a></li>
+                        <li><a class="fee-erp-subnav-link @(IsController("FeeChallans") || IsController("FeeChallanDetails") ? "active" : "")" href="/adminportal/fee/challans"><i class="fa-solid fa-file-invoice me-2"></i>Challans</a></li>
+                        <li><a class="fee-erp-subnav-link @(IsController("FeePayments") ? "active" : "")" href="/adminportal/fee/payments"><i class="fa-solid fa-wallet me-2"></i>Payments</a></li>
+                        <li><a class="fee-erp-subnav-link @(IsController("FeePaymentReceipts") ? "active" : "")" href="/adminportal/fee/payment-receipts"><i class="fa-solid fa-receipt me-2"></i>Receipts</a></li>
+                        <li><a class="fee-erp-subnav-link @(IsController("FeeConcessions") ? "active" : "")" href="/adminportal/fee/concessions"><i class="fa-solid fa-percent me-2"></i>Concessions</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(path.Contains("/adminportal/hr", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   href="/adminportal/hr">
+                    <i class="fa-fw fa-solid fa-people-group"></i><span class="fee-erp-nav-label">HR Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(IsController("Accounts") ? "active" : "")" href="/adminportal/Accounts">
+                    <i class="fa-fw fa-solid fa-scale-balanced"></i><span class="fee-erp-nav-label">Accounts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link fee-erp-nav-link--soon" href="#" title="Coming soon">
+                    <i class="fa-fw fa-solid fa-chart-pie"></i><span class="fee-erp-nav-label">Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(IsController("Settings") ? "active" : "")" href="/adminportal/Settings">
+                    <i class="fa-fw fa-solid fa-gear"></i><span class="fee-erp-nav-label">Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10 small text-white-50">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-info"></i>
+            <span class="fee-erp-nav-label">Secure session · ERP</span>
+        </div>
+    </div>
+</div>

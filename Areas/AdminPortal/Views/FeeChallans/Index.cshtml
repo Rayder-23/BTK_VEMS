@@ -1,12 +1,11 @@
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.ChallanListItem>
 @{
-    ViewData["Title"] = "Challans";
     var search = ViewData["Search"] as string;
 }
 
 <section class="module-page-header accent-teal">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-        <h1 class="h3 fw-bold mb-0">Challan list</h1>
+        <h1 class="h3 fw-bold mb-0">Challans Management</h1>
         <a class="btn btn-primary rounded-pill" href="/adminportal/fee/challans/create">Generate challan</a>
     </div>
 </section>
