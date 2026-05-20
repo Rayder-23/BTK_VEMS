@@ -4,11 +4,11 @@
     {
       "id": 1,
       "prompt": "Commit my changes — I fixed the challan PaidAmount not updating when a partial FeePayments row is inserted.",
-      "expected_output": "Runs secret scan, stages only safe files, commits with Fix: prefix and brief message. Does not commit without user having asked (they did).",
+      "expected_output": "Runs secret scan, stages only safe files, commits with Fix: subject and a body explaining why. Does not commit without user having asked (they did).",
       "files": [],
       "expectations": [
-        "Commit message starts with Fix:",
-        "Message is a single brief line",
+        "Commit message subject starts with Fix:",
+        "Commit message includes a body after a blank line explaining the change",
         "No git merge or pull was run",
         "Agent reported git status after commit"
       ]
@@ -22,6 +22,18 @@
         "Did not commit .env or files containing ConnectionStrings with real credentials",
         "Warned user about secrets",
         "Mentioned updating or checking .gitignore"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "commit and push to github",
+      "expected_output": "Activates full skill: secret scan, commit with prefixed subject and body, then git push. Reports push result.",
+      "files": [],
+      "expectations": [
+        "Used github-commit workflow including secret scan",
+        "Committed with an allowed prefix on the subject",
+        "Ran git push after successful commit",
+        "Did not force-push to main without approval"
       ]
     },
     {

@@ -4,18 +4,31 @@ description: >-
   Safe Git commits with brief prefixed messages (Add, Update, Fix, Feature,
   Remove), secret scanning, and .gitignore hygiene. Use whenever the user asks
   to commit, push changes, save work to git, create a commit, stage files, or
-  mentions commit messages — even casually ("commit this", "git it up"). Also
-  use before any git operation that might touch merges or conflicts. Do NOT use
-  for pull requests, branch strategy, or code review without a commit request.
+  says "commit and push to github" (the primary activation phrase — always use
+  this skill for that). Also triggers on casual phrasing ("commit this", "git it
+  up", "push to github"). Use before any git operation that might touch merges
+  or conflicts. Do NOT use for pull requests, branch strategy, or code review
+  without a commit request.
 ---
 
 # GitHub Commit
 
 Commit only when the user explicitly asks. Never commit proactively.
 
+## Activation
+
+**Primary phrase:** `commit and push to github`
+
+When the user says this (or a close variant — e.g. "commit and push to GitHub", "commit & push to github"), treat it as full activation:
+
+1. Run the complete workflow in this skill (secret scan → stage → commit with prefixed subject + body).
+2. **Then push** to the remote after a successful commit (`git push`, or `git push -u origin <branch>` when upstream is not set).
+
+If the user asks to **commit only** (no "push" in the request), commit locally and do not push unless they ask separately.
+
 ## Commit message format
 
-Write **one line**, clean and brief. Start with exactly one of these prefixes (including the colon):
+**Subject line:** One line, clean and brief. Start with exactly one of these prefixes (including the colon):
 
 | Prefix | Use when |
 |--------|----------|
@@ -28,15 +41,23 @@ Write **one line**, clean and brief. Start with exactly one of these prefixes (i
 
 **Pattern:** `Prefix: short imperative summary in plain language`
 
-**Examples:**
-- `Add: student fee allocation check during challan generation`
-- `Update: Scalar OpenAPI route mapping in Program.cs`
-- `Fix: PaidAmount not updating after partial FeePayments insert`
-- `Feature: employee role dropdown from Configurations`
-- `Feature(Billing): late fee applied when past DueDate and LateFeeDays`
-- `Remove: unused Swagger UI package reference`
+**Body (default):** After a blank line, add a short body that explains *why* the change was made — bullet points or paragraphs, same style as a normal descriptive commit. Focus on intent and impact, not a file list.
 
-Pick the prefix that best matches the **primary intent** of the diff. Do not combine prefixes. Do not add a body unless the user asks for detail.
+**Example with body:**
+```
+Fix: PaidAmount not updating after partial FeePayments insert
+
+FeePayments rows were inserted without syncing Challans.PaidAmount.
+Update PaidAmount on each insert so Balance (computed) stays correct.
+```
+
+**Subject-only examples:**
+- `Add: Student fee allocation check during challan generation`
+- `Update: Scalar OpenAPI route mapping in Program.cs`
+- `Feature(Billing): Late fee applied when past DueDate and LateFeeDays`
+- `Remove: Unused Swagger UI package reference`
+
+Pick the prefix that best matches the **primary intent** of the diff. Do not combine prefixes on the subject line.
 
 ## Pre-commit workflow
 
@@ -117,21 +138,28 @@ Use project-appropriate entries (e.g. `bin/`, `obj/`, `.vs/`, `pubtest/` for .NE
 2. `git add` only approved paths
 3. Commit with the formatted message
 
-**PowerShell (preferred on Windows):**
-```powershell
-git commit -m "Fix: challan PaidAmount sync on FeePayments insert"
-```
-
-**Multi-line only if user requests a body:**
+**PowerShell (preferred on Windows)** — use a here-string when the message has a body:
 ```powershell
 git commit -m @"
-Feature(Fees): late fee at voucher generation
+Fix: PaidAmount not updating after partial FeePayments insert
 
-Apply LateFeeAmount when past DueDate by LateFeeDays.
+Sync Challans.PaidAmount on each FeePayments insert so the computed Balance stays correct.
 "@
 ```
 
+Single-line commits are fine when the change is trivial and needs no explanation.
+
 4. `git status` after commit to confirm success
+
+**After commit — push (when activated):** If the user used the activation phrase or explicitly asked to push:
+
+```powershell
+git push
+# or, if no upstream yet:
+git push -u origin HEAD
+```
+
+Report push result (branch, remote, commits pushed). Never force-push to `main`/`master` without explicit approval.
 
 ## Merges and conflicts — always ask first
 
@@ -158,7 +186,8 @@ If a commit attempt surfaces merge conflicts or a dirty merge state:
 - [ ] User explicitly asked to commit
 - [ ] No secrets, .env (except safe examples), or connection strings in the commit
 - [ ] .gitignore updated if needed
-- [ ] Message uses one allowed prefix and is brief
+- [ ] Subject uses one allowed prefix; body explains why when the change is non-trivial
 - [ ] No merge/conflict operations without user approval
 - [ ] git status clean after commit (or explain remaining state)
+- [ ] Pushed to GitHub when activation phrase or explicit push was requested
 ```
