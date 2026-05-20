@@ -1,7 +1,7 @@
 @model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureFormModel
 @using VEMS.Areas.AdminPortal.Models.Fee
 @{
-    var programs = ViewData["Programs"] as IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeLookupItem> ?? [];
+    var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
