@@ -5,29 +5,36 @@
     var displayName = string.IsNullOrWhiteSpace(adminUsername) ? "Admin" : adminUsername;
     var avatarLetter = char.ToUpperInvariant(displayName.Trim()[0]);
     const string roleLabel = "Administrator";
+    var showSidebarChrome = ViewData["FeeErpShowSidebarChrome"] as bool? != false;
+    var brandHref = ViewData["FeeErpNavbarBrandHref"] as string ?? "/adminportal/fee";
+    var brandText = ViewData["FeeErpNavbarBrandText"] as string ?? "Fee Management System";
+    var brandIcon = ViewData["FeeErpNavbarBrandIcon"] as string ?? "fa-wallet";
 }
 
 <header class="fee-erp-navbar navbar navbar-expand-lg fixed-top bg-white border-bottom shadow-sm">
     <div class="container-fluid gap-2 align-items-center px-3 px-lg-4">
         <span class="visually-hidden">Current page: @Model</span>
 
-        <button class="btn btn-outline-secondary d-lg-none fee-erp-icon-btn" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
-                aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+        @if (showSidebarChrome)
+        {
+            <button class="btn btn-outline-secondary d-lg-none fee-erp-icon-btn" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
+                    aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
 
-        <button class="btn btn-outline-secondary d-none d-lg-inline-flex fee-erp-icon-btn" type="button"
-                id="feeErpSidebarCollapse" aria-label="Collapse sidebar" data-bs-toggle="tooltip"
-                data-bs-placement="bottom" title="Toggle sidebar width">
-            <i class="fa-solid fa-sidebar"></i>
-        </button>
+            <button class="btn btn-outline-secondary d-none d-lg-inline-flex fee-erp-icon-btn" type="button"
+                    id="feeErpSidebarCollapse" aria-label="Collapse sidebar" data-bs-toggle="tooltip"
+                    data-bs-placement="bottom" title="Toggle sidebar width">
+                <i class="fa-solid fa-sidebar"></i>
+            </button>
+        }
 
-        <a class="navbar-brand d-flex align-items-center gap-2 me-auto me-lg-3 text-decoration-none" href="/adminportal/fee">
+        <a class="navbar-brand d-flex align-items-center gap-2 me-auto me-lg-3 text-decoration-none" href="@brandHref">
             <span class="fee-erp-brand-icon rounded-3 d-inline-flex align-items-center justify-content-center text-white">
-                <i class="fa-solid fa-wallet"></i>
+                <i class="fa-solid @brandIcon"></i>
             </span>
-            <span class="fee-erp-brand-text fw-semibold text-dark">Fee Management System</span>
+            <span class="fee-erp-brand-text fw-semibold text-dark">@brandText</span>
         </a>
 
         <div class="d-none d-md-flex flex-grow-1 justify-content-center mx-lg-4" style="max-width: 420px;">
@@ -67,6 +74,7 @@
                     <li><span class="dropdown-item-text small text-muted px-3">Role: @roleLabel</span></li>
                     <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="/adminportal"><i class="fa-solid fa-gauge-high me-2 text-muted"></i>Main admin portal</a></li>
+                    <li><a class="dropdown-item" href="/adminportal/fee"><i class="fa-solid fa-wallet me-2 text-muted"></i>Fee Management home</a></li>
                     <li>
                         <form asp-area="AdminPortal" asp-controller="Login" asp-action="Logout" method="post" class="px-3 pt-1">
                             @Html.AntiForgeryToken()

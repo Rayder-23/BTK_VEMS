@@ -1,14 +1,16 @@
-@using VEMS.Areas.AdminPortal.Controllers
 @{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Fee Management";
+    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Challan management";
     ViewData["FeeErpShowSidebarChrome"] = true;
+    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/fee/challans";
+    ViewData["FeeErpNavbarBrandText"] = "Challan Management";
+    ViewData["FeeErpNavbarBrandIcon"] = "fa-file-invoice-dollar";
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — Fee Management System</title>
+    <title>@ViewData["Title"] — Challan Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -22,34 +24,34 @@
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="fee-erp-shell">
+<body class="fee-erp-shell challan-mgmt-shell">
     <partial name="_FeeErpNavbar" model="pageTitle" />
 
     <div class="fee-erp-canvas">
-        <aside class="fee-erp-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Primary navigation">
-            <partial name="_FeeErpSidebar" />
+        <aside class="fee-erp-sidebar challan-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Challan navigation">
+            <partial name="_ChallanMgmtSidebar" />
         </aside>
 
         <div class="offcanvas offcanvas-start fee-erp-offcanvas text-bg-dark" tabindex="-1" id="feeErpSidebarOffcanvas"
              aria-labelledby="feeErpSidebarOffcanvasLabel">
             <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
                 <h5 class="offcanvas-title" id="feeErpSidebarOffcanvasLabel">
-                    <i class="fa-solid fa-layer-group me-2 text-info"></i>Navigation
+                    <i class="fa-solid fa-file-invoice-dollar me-2 text-info"></i>Challan Management
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body p-0 overflow-auto">
-                <partial name="_FeeErpSidebar" />
+                <partial name="_ChallanMgmtSidebar" />
             </div>
         </div>
 
-        <div class="fee-erp-main">
+        <div class="fee-erp-main challan-mgmt-main">
             <div class="fee-erp-main-inner container-fluid py-4 px-3 px-lg-4">
                 @RenderBody()
             </div>
             <footer class="fee-erp-footer">
                 <div class="container-fluid px-3 px-lg-4 py-3 small text-muted">
-                    <span>&copy; @DateTime.UtcNow.Year VEMS · Fee Management System</span>
+                    <span>&copy; @DateTime.UtcNow.Year VEMS · Challan Management</span>
                 </div>
             </footer>
         </div>

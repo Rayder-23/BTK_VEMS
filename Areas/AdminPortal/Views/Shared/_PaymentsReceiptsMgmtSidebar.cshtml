@@ -1,0 +1,55 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var isPayments = string.Equals(controller, "FeePayments", StringComparison.OrdinalIgnoreCase);
+    var isReceipts = string.Equals(controller, "FeePaymentReceipts", StringComparison.OrdinalIgnoreCase);
+    var isConcessions = string.Equals(controller, "FeeConcessions", StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="fee-erp-sidebar-inner d-flex flex-column h-100 payments-receipts-mgmt-sidebar-inner">
+    <div class="fee-erp-sidebar-brand px-3 py-4 border-bottom border-light border-opacity-10">
+        <a href="/adminportal/fee/payments" class="text-decoration-none text-white d-flex align-items-center gap-3">
+            <span class="fee-erp-sidebar-logo rounded-3 d-inline-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-money-check-dollar"></i>
+            </span>
+            <div class="fee-erp-sidebar-brand-text">
+                <span class="d-block fw-bold small text-uppercase tracking-wide opacity-75">VEMS</span>
+                <span class="d-block fw-semibold">Payments &amp; Receipts</span>
+            </div>
+        </a>
+    </div>
+
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Payments and receipts sections">
+        <ul class="nav flex-column gap-1 fee-erp-nav-list">
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(isPayments ? "active" : "")" href="/adminportal/fee/payments">
+                    <i class="fa-fw fa-solid fa-wallet"></i>
+                    <span class="fee-erp-nav-label">Payments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(isReceipts ? "active" : "")" href="/adminportal/fee/payment-receipts">
+                    <i class="fa-fw fa-solid fa-receipt"></i>
+                    <span class="fee-erp-nav-label">Receipts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(isConcessions ? "active" : "")" href="/adminportal/fee/concessions">
+                    <i class="fa-fw fa-solid fa-percent"></i>
+                    <span class="fee-erp-nav-label">Concessions</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10">
+        <a class="fee-erp-nav-link payments-receipts-mgmt-sidebar-exit border border-light border-opacity-25 bg-transparent"
+           href="/adminportal/fee">
+            <i class="fa-fw fa-solid fa-arrow-left"></i>
+            <span class="fee-erp-nav-label">Fee Management home</span>
+        </a>
+        <div class="small text-white-50 mt-3 px-1 payments-receipts-mgmt-sidebar-hint">
+            <i class="fa-solid fa-circle-info me-1 opacity-75"></i>
+            Payments, receipts, and concessions — other modules are on Fee Management home.
+        </div>
+    </div>
+</div>

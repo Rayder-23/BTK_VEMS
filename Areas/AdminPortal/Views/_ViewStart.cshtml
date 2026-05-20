@@ -14,11 +14,28 @@
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtModuleLayout.cshtml";
     }
-    else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeeChallans", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeePayments", StringComparison.OrdinalIgnoreCase)
+    else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeErpHomeLayout.cshtml";
+    }
+    else if (string.Equals(controller, "FeeChallans", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "FeeChallanDetails", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_ChallanMgmtLayout.cshtml";
+    }
+    else if (string.Equals(controller, "FeeRefFeeHeads", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "FeeStructures", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "FeeStructureDetails", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeStructureMgmtLayout.cshtml";
+    }
+    else if (string.Equals(controller, "FeePayments", StringComparison.OrdinalIgnoreCase)
         || string.Equals(controller, "FeePaymentReceipts", StringComparison.OrdinalIgnoreCase)
-        || FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
+        || string.Equals(controller, "FeeConcessions", StringComparison.OrdinalIgnoreCase))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_PaymentsReceiptsMgmtLayout.cshtml";
+    }
+    else if (FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_FeeErpLayout.cshtml";
     }

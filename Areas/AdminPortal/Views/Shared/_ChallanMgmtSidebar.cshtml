@@ -1,0 +1,55 @@
+@{
+    var path = (ViewContext.HttpContext.Request.Path.Value ?? "").TrimEnd('/').ToLowerInvariant();
+    var isCreate = path.EndsWith("/create", StringComparison.OrdinalIgnoreCase);
+    var isPrintVoucher = path.Contains("/print-voucher", StringComparison.OrdinalIgnoreCase);
+    var isAllChallans = !isCreate && !isPrintVoucher;
+}
+
+<div class="fee-erp-sidebar-inner d-flex flex-column h-100 challan-mgmt-sidebar-inner">
+    <div class="fee-erp-sidebar-brand px-3 py-4 border-bottom border-light border-opacity-10">
+        <a href="/adminportal/fee/challans" class="text-decoration-none text-white d-flex align-items-center gap-3">
+            <span class="fee-erp-sidebar-logo rounded-3 d-inline-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+            </span>
+            <div class="fee-erp-sidebar-brand-text">
+                <span class="d-block fw-bold small text-uppercase tracking-wide opacity-75">VEMS</span>
+                <span class="d-block fw-semibold">Challan Management</span>
+            </div>
+        </a>
+    </div>
+
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Challan sections">
+        <ul class="nav flex-column gap-1 fee-erp-nav-list">
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(isCreate ? "active" : "")" href="/adminportal/fee/challans/create">
+                    <i class="fa-fw fa-solid fa-file-circle-plus"></i>
+                    <span class="fee-erp-nav-label">Create challans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(isAllChallans ? "active" : "")" href="/adminportal/fee/challans">
+                    <i class="fa-fw fa-solid fa-list"></i>
+                    <span class="fee-erp-nav-label">All challans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="fee-erp-nav-link @(isPrintVoucher ? "active" : "")" href="/adminportal/fee/challans/print-voucher">
+                    <i class="fa-fw fa-solid fa-print"></i>
+                    <span class="fee-erp-nav-label">Print voucher</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10">
+        <a class="fee-erp-nav-link challan-mgmt-sidebar-exit border border-light border-opacity-25 bg-transparent"
+           href="/adminportal/fee">
+            <i class="fa-fw fa-solid fa-arrow-left"></i>
+            <span class="fee-erp-nav-label">Fee Management home</span>
+        </a>
+        <div class="small text-white-50 mt-3 px-1 challan-mgmt-sidebar-hint">
+            <i class="fa-solid fa-circle-info me-1 opacity-75"></i>
+            Challan tasks only — other fee modules are on Fee Management home.
+        </div>
+    </div>
+</div>

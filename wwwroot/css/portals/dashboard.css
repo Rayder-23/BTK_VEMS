@@ -245,3 +245,186 @@ body.fee-erp-sidebar-collapsed .fee-erp-main {
 .fee-erp-shell .fm-module-grid .fm-module-card:hover {
     box-shadow: 0 14px 36px rgba(13, 110, 253, 0.12);
 }
+
+/* ----- Fee module home (no sidebar): full-width main under top nav ----- */
+body.fee-erp-home-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.fee-erp-home-main {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: 100%;
+}
+
+.fee-erp-home-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+/* Home hero banner */
+.fee-fms-home-banner {
+    background: linear-gradient(135deg, #0b1426 0%, #152a45 42%, var(--fee-erp-primary) 100%);
+    color: #fff;
+}
+
+.fee-fms-home-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 90% 20%, rgba(32, 201, 151, 0.2), transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.fee-fms-home-banner__inner {
+    position: relative;
+    z-index: 1;
+}
+
+.fee-fms-home-banner__breadcrumb {
+    --bs-breadcrumb-divider-color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 0;
+}
+
+.fee-fms-home-banner__breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.fee-fms-home-banner__breadcrumb .breadcrumb-item a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.fee-fms-home-banner__breadcrumb .breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.fee-fms-home-banner__eyebrow {
+    color: rgba(32, 201, 151, 0.95);
+    letter-spacing: 0.06em;
+}
+
+.fee-fms-home-banner__title {
+    font-size: clamp(1.65rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.fee-fms-home-banner__lead {
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.fee-fms-home-banner__icon-wrap {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+}
+
+.fee-fms-home-banner__icon-decor {
+    font-size: 3.25rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* ----- Challan management layout: narrow sidebar, no ERP menu ----- */
+body.challan-mgmt-shell .challan-mgmt-sidebar {
+    width: 268px;
+}
+
+body.challan-mgmt-shell .challan-mgmt-main {
+    margin-left: 268px;
+}
+
+body.challan-mgmt-shell.fee-erp-sidebar-collapsed .challan-mgmt-sidebar {
+    width: 76px;
+}
+
+body.challan-mgmt-shell.fee-erp-sidebar-collapsed .challan-mgmt-main {
+    margin-left: 76px;
+}
+
+body.challan-mgmt-shell .challan-mgmt-sidebar-exit:hover {
+    background: var(--fee-erp-nav-hover) !important;
+    color: #fff !important;
+}
+
+body.challan-mgmt-shell.fee-erp-sidebar-collapsed .challan-mgmt-sidebar-hint {
+    display: none !important;
+}
+
+@media (max-width: 991.98px) {
+    body.challan-mgmt-shell .challan-mgmt-main {
+        margin-left: 0 !important;
+    }
+}
+
+/* ----- Fee structure setup layout (fee heads + structures), no full ERP sidebar ----- */
+body.fee-structure-mgmt-shell .fee-structure-mgmt-sidebar {
+    width: 268px;
+}
+
+body.fee-structure-mgmt-shell .fee-structure-mgmt-main {
+    margin-left: 268px;
+}
+
+body.fee-structure-mgmt-shell.fee-erp-sidebar-collapsed .fee-structure-mgmt-sidebar {
+    width: 76px;
+}
+
+body.fee-structure-mgmt-shell.fee-erp-sidebar-collapsed .fee-structure-mgmt-main {
+    margin-left: 76px;
+}
+
+body.fee-structure-mgmt-shell .fee-structure-mgmt-sidebar-exit:hover {
+    background: var(--fee-erp-nav-hover) !important;
+    color: #fff !important;
+}
+
+body.fee-structure-mgmt-shell.fee-erp-sidebar-collapsed .fee-structure-mgmt-sidebar-hint {
+    display: none !important;
+}
+
+@media (max-width: 991.98px) {
+    body.fee-structure-mgmt-shell .fee-structure-mgmt-main {
+        margin-left: 0 !important;
+    }
+}
+
+/* ----- Payments & receipts layout (payments, receipts, concessions), no full ERP sidebar ----- */
+body.payments-receipts-mgmt-shell .payments-receipts-mgmt-sidebar {
+    width: 268px;
+}
+
+body.payments-receipts-mgmt-shell .payments-receipts-mgmt-main {
+    margin-left: 268px;
+}
+
+body.payments-receipts-mgmt-shell.fee-erp-sidebar-collapsed .payments-receipts-mgmt-sidebar {
+    width: 76px;
+}
+
+body.payments-receipts-mgmt-shell.fee-erp-sidebar-collapsed .payments-receipts-mgmt-main {
+    margin-left: 76px;
+}
+
+body.payments-receipts-mgmt-shell .payments-receipts-mgmt-sidebar-exit:hover {
+    background: var(--fee-erp-nav-hover) !important;
+    color: #fff !important;
+}
+
+body.payments-receipts-mgmt-shell.fee-erp-sidebar-collapsed .payments-receipts-mgmt-sidebar-hint {
+    display: none !important;
+}
+
+@media (max-width: 991.98px) {
+    body.payments-receipts-mgmt-shell .payments-receipts-mgmt-main {
+        margin-left: 0 !important;
+    }
+}
