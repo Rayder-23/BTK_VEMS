@@ -157,6 +157,10 @@ dotnet run
 
 HTTPS profile also binds **https://localhost:7102** when using the `https` launch profile.
 
+### Deployed Access URL
+
+Hostinger VPS: http://dlpuae.com
+
 ---
 
 ## Authentication
