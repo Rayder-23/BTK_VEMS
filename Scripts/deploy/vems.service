@@ -1,0 +1,15 @@
+[Unit]
+Description=VEMS ASP.NET Core (dlpuae.com)
+After=network.target docker.service
+
+[Service]
+WorkingDirectory=/var/www/dlpuae
+ExecStart=/usr/bin/dotnet /var/www/dlpuae/VEMS.dll
+Restart=always
+RestartSec=10
+User=www-data
+EnvironmentFile=/etc/vems/environment
+SyslogIdentifier=vems
+
+[Install]
+WantedBy=multi-user.target

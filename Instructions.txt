@@ -1,0 +1,19 @@
+# VEMS deploy — dlpuae.com (Hostinger VPS)
+
+SSH host key (verify on first connect):
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA0nJKcesNgWBRrDZZalW2WAQwBAKwFWr5OmKsi1A4EB hostinger-vps-coditium
+
+Host:     root@93.127.199.220
+Domain:   dlpuae.com, www.dlpuae.com
+SSH key:  D:\.ssh\hostinger_vps
+
+App path: /var/www/dlpuae
+Service:  vems (Kestrel http://127.0.0.1:5100)
+Nginx:    /etc/nginx/sites-available/dlpuae
+Secrets:  /etc/vems/environment (not in git; create on server once)
+
+Redeploy from repo root:
+  .\Scripts\deploy\Deploy-Dlpuae.ps1
+
+HTTPS (on server, after DNS points to 93.127.199.220):
+  certbot --nginx -d dlpuae.com -d www.dlpuae.com

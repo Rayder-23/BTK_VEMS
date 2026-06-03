@@ -1,0 +1,3 @@
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_URLS=http://127.0.0.1:5100
+ConnectionStrings__DefaultConnection=Server=tcp:127.0.0.1,1433;Database=VEMS;User Id=YOUR_USER;Password=YOUR_PASSWORD;Encrypt=True;TrustServerCertificate=True;
