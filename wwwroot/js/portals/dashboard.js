@@ -24,9 +24,17 @@
         });
     });
 
+    function syncSidebarTogglePressed() {
+        const collapsed = body.classList.contains("fee-erp-sidebar-collapsed");
+        document.querySelectorAll(".portal-sidebar-toggle").forEach(function (btn) {
+            btn.setAttribute("aria-pressed", collapsed ? "true" : "false");
+        });
+    }
+
     if (collapseBtn) {
         collapseBtn.addEventListener("click", function () {
             body.classList.toggle("fee-erp-sidebar-collapsed");
+            syncSidebarTogglePressed();
             try {
                 localStorage.setItem("feeErpSidebarCollapsed", body.classList.contains("fee-erp-sidebar-collapsed") ? "1" : "0");
             } catch (_) {
@@ -41,6 +49,8 @@
         } catch (_) {
             /* ignore */
         }
+
+        syncSidebarTogglePressed();
     }
 
     window.addEventListener("load", initTooltips);

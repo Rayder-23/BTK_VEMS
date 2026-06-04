@@ -1,6 +1,9 @@
 @{
     var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Admissions";
     ViewData["FeeErpShowSidebarChrome"] = true;
+    ViewData["FeeErpHideGlobalSearch"] = true;
+    ViewData["FeeErpHideNavbarBrandIcon"] = true;
+    ViewData["FeeErpHideNavAlerts"] = true;
     ViewData["FeeErpNavbarBrandHref"] = "/adminportal/admissions";
     ViewData["FeeErpNavbarBrandText"] = "Admissions Module";
     ViewData["FeeErpNavbarBrandIcon"] = "fa-door-open";
@@ -25,6 +28,7 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="fee-erp-shell admissions-mgmt-shell">
+    <partial name="_AdmissionsModuleTopBar" />
     <partial name="_FeeErpNavbar" model="pageTitle" />
     <div class="fee-erp-canvas">
         <aside class="fee-erp-sidebar admissions-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Admissions navigation">

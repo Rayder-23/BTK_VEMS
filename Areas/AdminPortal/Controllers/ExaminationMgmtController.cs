@@ -10,8 +10,8 @@ public sealed class ExaminationMgmtController : AdminBaseController
     [HttpGet("Index")]
     public IActionResult Index()
     {
-        ViewData["Title"] = "Examination";
-        ViewData["PageTitle"] = "Examination";
+        ViewData["Title"] = "Dashboard";
+        ViewData["PageTitle"] = "Examination · Dashboard";
         return View(ExaminationDashboardCatalog.Tiles);
     }
 }

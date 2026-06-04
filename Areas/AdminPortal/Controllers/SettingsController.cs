@@ -5,7 +5,8 @@ using VEMS.Areas.AdminPortal.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
 
-public class SettingsController : AdminBaseController
+[Route("adminportal/settings")]
+public sealed class SettingsController : AdminBaseController
 {
     private readonly IConfigurationsRepository _configurations;
 
@@ -14,7 +15,8 @@ public class SettingsController : AdminBaseController
         _configurations = configurations;
     }
 
-    [HttpGet]
+    [HttpGet("")]
+    [HttpGet("Index")]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Settings";
@@ -23,7 +25,7 @@ public class SettingsController : AdminBaseController
         return View(items);
     }
 
-    [HttpGet]
+    [HttpGet("create")]
     public IActionResult Create()
     {
         ViewData["Title"] = "Add configuration";
@@ -31,7 +33,7 @@ public class SettingsController : AdminBaseController
         return View(new ConfigurationFormModel { IsActive = true });
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ConfigurationFormModel model, CancellationToken cancellationToken)
     {
@@ -48,7 +50,7 @@ public class SettingsController : AdminBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet]
+    [HttpGet("edit/{id:int}")]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Edit configuration";
@@ -63,7 +65,7 @@ public class SettingsController : AdminBaseController
         return View(row);
     }
 
-    [HttpPost]
+    [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ConfigurationFormModel model, CancellationToken cancellationToken)
     {
@@ -90,7 +92,7 @@ public class SettingsController : AdminBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
+    [HttpPost("delete/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
@@ -109,7 +111,7 @@ public class SettingsController : AdminBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
+    [HttpPost("set-active/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SetActive(int id, bool isActive, CancellationToken cancellationToken)
     {

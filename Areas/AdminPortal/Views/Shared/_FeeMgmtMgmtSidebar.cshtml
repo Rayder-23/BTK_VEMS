@@ -1,13 +1,13 @@
-@using VEMS.Areas.AdminPortal.Services.Admissions
+@using VEMS.Areas.AdminPortal.Services
 @{
     var path = Context.Request.Path.Value ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
-    var activeKey = AdmissionsNavCatalog.ResolveActiveKey(path, action);
+    var activeKey = FeeMgmtNavCatalog.ResolveActiveKey(path, action);
 }
-<div class="fee-erp-sidebar-inner d-flex flex-column h-100 admissions-mgmt-sidebar-inner">
-    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Admissions navigation">
+<div class="fee-erp-sidebar-inner d-flex flex-column h-100 fee-mgmt-sidebar-inner">
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Fee management navigation">
         <ul class="nav flex-column gap-1 fee-erp-nav-list">
-            @foreach (var item in AdmissionsNavCatalog.SidebarNav)
+            @foreach (var item in FeeMgmtNavCatalog.SidebarNav)
             {
                 <li class="nav-item">
                     <a class="fee-erp-nav-link @(activeKey == item.Key ? "active" : "")" href="@item.Url">

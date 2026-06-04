@@ -1,38 +1,15 @@
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeDashboardTile>
 @{
-    ViewData["Title"] = "Fee Management";
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Fee Management · Dashboard";
 }
 
-<!-- Top banner (home only — no sidebar on this page) -->
-<section class="fee-fms-home-banner rounded-4 shadow-sm mb-4 position-relative overflow-hidden">
-    <div class="fee-fms-home-banner__inner position-relative px-4 py-4 px-lg-5 py-lg-5">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb fee-fms-home-banner__breadcrumb mb-3 mb-lg-4">
-                <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Fee Management</li>
-            </ol>
-        </nav>
-        <div class="row align-items-center g-4">
-            <div class="col-lg-8">
-                <p class="fee-fms-home-banner__eyebrow text-uppercase small fw-semibold mb-2">
-                    <i class="fa-solid fa-money-check-dollar me-2"></i>Billing &amp; finance
-                </p>
-                <h1 class="fee-fms-home-banner__title text-white mb-2 mb-lg-3">Fee Management</h1>
-                <p class="fee-fms-home-banner__lead text-white-50 mb-0 col-lg-11">
-                    Structures, challans, payments, receipts, and concessions—open a workflow below.
-                </p>
-            </div>
-            <div class="col-lg-4 text-lg-end d-none d-lg-block">
-                <div class="fee-fms-home-banner__icon-wrap d-inline-flex align-items-center justify-content-center rounded-4">
-                    <i class="bi bi-cash-coin fee-fms-home-banner__icon-decor"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<h1 class="h4 fw-bold mb-3">Dashboard</h1>
+
+<p class="text-muted mb-4">Fee heads, structures, challans, payments, receipts, and concessions.</p>
 
 <section class="portal-card" aria-label="Fee modules">
-    <h2 class="h5 fw-bold mb-3">Modules</h2>
+    <h2 class="h6 fw-bold mb-3">Modules</h2>
     <div class="row g-3 fm-module-grid">
         @foreach (var tile in Model)
         {

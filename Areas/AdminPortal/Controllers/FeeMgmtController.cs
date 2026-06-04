@@ -10,8 +10,8 @@ public sealed class FeeMgmtController : AdminBaseController
     [HttpGet("Index")]
     public IActionResult Index()
     {
-        ViewData["Title"] = "Fee Management";
-        ViewData["PageTitle"] = "Fee Management";
+        ViewData["Title"] = "Dashboard";
+        ViewData["PageTitle"] = "Fee Management · Dashboard";
         return View(FeeDashboardCatalog.Tiles);
     }
 }

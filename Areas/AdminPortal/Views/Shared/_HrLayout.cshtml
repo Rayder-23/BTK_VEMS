@@ -46,9 +46,17 @@
             crossorigin="anonymous"></script>
     <script>
         const sidebarToggle = document.getElementById('hrSidebarToggle');
+        function syncPortalSidebarToggle() {
+            const collapsed = document.body.classList.contains('sidebar-collapsed');
+            document.querySelectorAll('.portal-sidebar-toggle').forEach(function (btn) {
+                btn.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+            });
+        }
         sidebarToggle?.addEventListener('click', () => {
             document.body.classList.toggle('sidebar-collapsed');
+            syncPortalSidebarToggle();
         });
+        syncPortalSidebarToggle();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

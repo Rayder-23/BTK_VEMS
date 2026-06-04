@@ -127,6 +127,110 @@ body.portal-shell {
     z-index: 100;
 }
 
+/* Sidebar layout toggle — mini panel + grip (reads as a control, not a flat icon) */
+.portal-sidebar-toggle {
+    align-items: center;
+    background: linear-gradient(180deg, #fff 0%, #f1f5f9 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 0.55rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 40px;
+    justify-content: center;
+    padding: 0;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    width: 46px;
+}
+
+.portal-sidebar-toggle:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    transform: translateY(-1px);
+}
+
+.portal-sidebar-toggle:focus-visible {
+    border-color: var(--portal-accent, #0d6efd);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+    outline: 0;
+}
+
+.portal-sidebar-toggle[aria-pressed="true"] {
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: #60a5fa;
+}
+
+.portal-sidebar-toggle__graphic {
+    align-items: stretch;
+    display: flex;
+    gap: 2px;
+    height: 18px;
+    width: 26px;
+}
+
+.portal-sidebar-toggle__pane--nav {
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 2px 0 0 2px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    flex: 0 0 9px;
+    transition: flex-basis 0.25s ease, opacity 0.2s ease;
+}
+
+.portal-sidebar-toggle__grip {
+    align-items: center;
+    background: #e2e8f0;
+    display: flex;
+    flex: 0 0 4px;
+    justify-content: center;
+}
+
+.portal-sidebar-toggle__chevron {
+    border-bottom: 4px solid transparent;
+    border-right: 5px solid #64748b;
+    border-top: 4px solid transparent;
+    display: block;
+    height: 0;
+    margin-left: -1px;
+    transition: transform 0.25s ease, border-right-color 0.2s ease;
+    width: 0;
+}
+
+.portal-sidebar-toggle__pane--content {
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #cbd5e1;
+    border-left: 0;
+    border-radius: 0 2px 2px 0;
+    flex: 1 1 auto;
+    min-width: 8px;
+    transition: flex-grow 0.25s ease;
+}
+
+body.sidebar-collapsed .portal-sidebar-toggle__pane--nav,
+body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--nav {
+    flex-basis: 4px;
+    opacity: 0.75;
+}
+
+body.sidebar-collapsed .portal-sidebar-toggle__pane--content,
+body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--content {
+    flex-grow: 1.6;
+}
+
+body.sidebar-collapsed .portal-sidebar-toggle__chevron,
+body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__chevron {
+    border-right-color: #2563eb;
+    transform: rotate(180deg);
+}
+
+.fee-erp-shell .portal-sidebar-toggle {
+    --portal-accent: var(--fee-erp-primary, #0d6efd);
+}
+
+.fee-erp-shell .portal-sidebar-toggle__pane--nav {
+    background: linear-gradient(180deg, var(--fee-erp-primary, #0d6efd) 0%, var(--fee-erp-primary-dark, #0b5ed7) 100%);
+}
+
 .notification-dot {
     background: var(--portal-accent);
     border: 2px solid #fff;

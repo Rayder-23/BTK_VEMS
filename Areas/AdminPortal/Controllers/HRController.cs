@@ -10,8 +10,8 @@ public sealed class HRController : HrBaseController
     [HttpGet("Index")]
     public IActionResult Index()
     {
-        ViewData["Title"] = "HR Management";
-        ViewData["PageTitle"] = "HR Management";
+        ViewData["Title"] = "Dashboard";
+        ViewData["PageTitle"] = "HR Management · Dashboard";
         return View(HrModuleCatalog.ModuleNavItems);
     }
 }

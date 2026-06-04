@@ -6,9 +6,14 @@
     var avatarLetter = char.ToUpperInvariant(displayName.Trim()[0]);
     const string roleLabel = "Administrator";
     var showSidebarChrome = ViewData["FeeErpShowSidebarChrome"] as bool? != false;
+    var hideGlobalSearch = ViewData["FeeErpHideGlobalSearch"] as bool? == true;
+    var hideNavbarBrandIcon = ViewData["FeeErpHideNavbarBrandIcon"] as bool? == true;
+    var hideNavAlerts = ViewData["FeeErpHideNavAlerts"] as bool? == true;
     var brandHref = ViewData["FeeErpNavbarBrandHref"] as string ?? "/adminportal/fee";
     var brandText = ViewData["FeeErpNavbarBrandText"] as string ?? "Fee Management System";
     var brandIcon = ViewData["FeeErpNavbarBrandIcon"] as string ?? "fa-wallet";
+    ViewData["SidebarToggleId"] = "feeErpSidebarCollapse";
+    ViewData["SidebarToggleClass"] = "d-none d-lg-inline-flex";
 }
 
 <header class="fee-erp-navbar navbar navbar-expand-lg fixed-top bg-white border-bottom shadow-sm">
@@ -23,27 +28,29 @@
                 <i class="fa-solid fa-bars"></i>
             </button>
 
-            <button class="btn btn-outline-secondary d-none d-lg-inline-flex fee-erp-icon-btn" type="button"
-                    id="feeErpSidebarCollapse" aria-label="Collapse sidebar" data-bs-toggle="tooltip"
-                    data-bs-placement="bottom" title="Toggle sidebar width">
-                <i class="fa-solid fa-sidebar"></i>
-            </button>
+            <partial name="_PortalSidebarToggle" />
         }
 
-        <a class="navbar-brand d-flex align-items-center gap-2 me-auto me-lg-3 text-decoration-none" href="@brandHref">
-            <span class="fee-erp-brand-icon rounded-3 d-inline-flex align-items-center justify-content-center text-white">
-                <i class="fa-solid @brandIcon"></i>
-            </span>
+        <a class="navbar-brand d-flex align-items-center @(hideNavbarBrandIcon ? "" : "gap-2") me-auto me-lg-3 text-decoration-none" href="@brandHref">
+            @if (!hideNavbarBrandIcon)
+            {
+                <span class="fee-erp-brand-icon rounded-3 d-inline-flex align-items-center justify-content-center text-white">
+                    <i class="fa-solid @brandIcon"></i>
+                </span>
+            }
             <span class="fee-erp-brand-text fw-semibold text-dark">@brandText</span>
         </a>
 
-        <div class="d-none d-md-flex flex-grow-1 justify-content-center mx-lg-4" style="max-width: 420px;">
-            <div class="input-group input-group-sm fee-erp-global-search shadow-sm">
-                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="search" class="form-control border-start-0" placeholder="Search students, challans, receipts…"
-                       aria-label="Global search" disabled />
+        @if (!hideGlobalSearch)
+        {
+            <div class="d-none d-md-flex flex-grow-1 justify-content-center mx-lg-4" style="max-width: 420px;">
+                <div class="input-group input-group-sm fee-erp-global-search shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="search" class="form-control border-start-0" placeholder="Search students, challans, receipts…"
+                           aria-label="Global search" disabled />
+                </div>
             </div>
-        </div>
+        }
 
         <ul class="navbar-nav flex-row align-items-center gap-1 gap-sm-2 ms-auto">
             <li class="nav-item d-flex align-items-center">
@@ -52,20 +59,23 @@
                     <i class="fa-solid fa-house-chimney me-sm-2"></i><span class="d-none d-sm-inline">Admin home</span>
                 </a>
             </li>
-            <li class="nav-item d-none d-sm-block">
-                <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Notifications"
-                        data-bs-toggle="tooltip" title="Notifications">
-                    <i class="fa-regular fa-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger fee-erp-nav-badge">5</span>
-                </button>
-            </li>
-            <li class="nav-item d-none d-sm-block">
-                <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Messages"
-                        data-bs-toggle="tooltip" title="Messages">
-                    <i class="fa-regular fa-envelope"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary fee-erp-nav-badge">3</span>
-                </button>
-            </li>
+            @if (!hideNavAlerts)
+            {
+                <li class="nav-item d-none d-sm-block">
+                    <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Notifications"
+                            data-bs-toggle="tooltip" title="Notifications">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger fee-erp-nav-badge">5</span>
+                    </button>
+                </li>
+                <li class="nav-item d-none d-sm-block">
+                    <button type="button" class="btn btn-light fee-erp-icon-btn position-relative" aria-label="Messages"
+                            data-bs-toggle="tooltip" title="Messages">
+                        <i class="fa-regular fa-envelope"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary fee-erp-nav-badge">3</span>
+                    </button>
+                </li>
+            }
             <li class="nav-item dropdown">
                 <button class="btn btn-light d-flex align-items-center gap-2 py-2 px-2 px-sm-3 rounded-3 fee-erp-user-btn dropdown-toggle"
                         type="button" data-bs-toggle="dropdown" aria-expanded="false" id="feeErpUserMenu">

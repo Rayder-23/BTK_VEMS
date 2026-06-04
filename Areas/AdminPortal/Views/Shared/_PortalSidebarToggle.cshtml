@@ -1,0 +1,20 @@
+@{
+    var toggleId = ViewData["SidebarToggleId"] as string ?? "feeErpSidebarCollapse";
+    var extraClass = ViewData["SidebarToggleClass"] as string ?? "";
+}
+<button type="button"
+        class="portal-sidebar-toggle @extraClass"
+        id="@toggleId"
+        aria-label="Toggle sidebar width"
+        aria-pressed="false"
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="Toggle sidebar">
+    <span class="portal-sidebar-toggle__graphic" aria-hidden="true">
+        <span class="portal-sidebar-toggle__pane portal-sidebar-toggle__pane--nav"></span>
+        <span class="portal-sidebar-toggle__grip">
+            <span class="portal-sidebar-toggle__chevron"></span>
+        </span>
+        <span class="portal-sidebar-toggle__pane portal-sidebar-toggle__pane--content"></span>
+    </span>
+</button>

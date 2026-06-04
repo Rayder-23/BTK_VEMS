@@ -3,7 +3,8 @@ using VEMS.Areas.AdminPortal.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
 
-public class AccountsController : AdminBaseController
+[Route("adminportal/accounts")]
+public sealed class AccountsController : AdminBaseController
 {
     public IActionResult Index()
     {

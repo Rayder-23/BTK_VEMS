@@ -3,59 +3,35 @@
 @using VEMS.Areas.AdminPortal.Services.Examination
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
-    var hrControllers = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "HR", "Employees", "Leaves", "HrAttendance", "Payroll", "Tax", "Allowances", "Deductions"
-    };
 
-    if (string.Equals(controller, "StudentMgmt", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(controller, "StudentMgmt", StringComparison.OrdinalIgnoreCase)
+        || StudentMgmtNavCatalog.IsStudentMgmtController(controller))
     {
-        Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtHomeLayout.cshtml";
-    }
-    else if (StudentMgmtModuleCatalog.TryGetByController(controller) is not null)
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtModuleLayout.cshtml";
+        Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtMgmtLayout.cshtml";
     }
     else if (AdmissionsNavCatalog.IsAdmissionsController(controller))
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_AdmissionsMgmtLayout.cshtml";
     }
-    else if (string.Equals(controller, "ExaminationMgmt", StringComparison.OrdinalIgnoreCase))
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_ExaminationHomeLayout.cshtml";
-    }
-    else if (ExaminationModuleCatalog.TryGetByController(controller) is not null)
+    else if (ExaminationNavCatalog.IsExaminationController(controller))
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_ExaminationMgmtLayout.cshtml";
     }
-    else if (string.Equals(controller, "FeeMgmt", StringComparison.OrdinalIgnoreCase))
+    else if (FeeMgmtNavCatalog.IsFeeMgmtController(controller))
     {
-        Layout = "/Areas/AdminPortal/Views/Shared/_FeeErpHomeLayout.cshtml";
+        Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtMgmtLayout.cshtml";
     }
-    else if (string.Equals(controller, "FeeChallans", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeeChallanDetails", StringComparison.OrdinalIgnoreCase))
+    else if (SettingsNavCatalog.IsSettingsController(controller))
     {
-        Layout = "/Areas/AdminPortal/Views/Shared/_ChallanMgmtLayout.cshtml";
+        Layout = "/Areas/AdminPortal/Views/Shared/_SettingsMgmtLayout.cshtml";
     }
-    else if (string.Equals(controller, "FeeRefFeeHeads", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeeStructures", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeeStructureDetails", StringComparison.OrdinalIgnoreCase))
+    else if (AccountsNavCatalog.IsAccountsController(controller))
     {
-        Layout = "/Areas/AdminPortal/Views/Shared/_FeeStructureMgmtLayout.cshtml";
+        Layout = "/Areas/AdminPortal/Views/Shared/_AccountsMgmtLayout.cshtml";
     }
-    else if (string.Equals(controller, "FeePayments", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeePaymentReceipts", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(controller, "FeeConcessions", StringComparison.OrdinalIgnoreCase))
+    else if (HrNavCatalog.IsHrController(controller))
     {
-        Layout = "/Areas/AdminPortal/Views/Shared/_PaymentsReceiptsMgmtLayout.cshtml";
-    }
-    else if (FeeMgmtModuleCatalog.TryGetByController(controller) is not null)
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_FeeErpLayout.cshtml";
-    }
-    else if (hrControllers.Contains(controller))
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_HrLayout.cshtml";
+        Layout = "/Areas/AdminPortal/Views/Shared/_HrMgmtLayout.cshtml";
     }
     else
     {

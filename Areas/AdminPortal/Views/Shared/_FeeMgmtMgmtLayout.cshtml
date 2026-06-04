@@ -1,19 +1,19 @@
 @{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Examination";
+    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Fee Management";
     ViewData["FeeErpShowSidebarChrome"] = true;
     ViewData["FeeErpHideGlobalSearch"] = true;
     ViewData["FeeErpHideNavbarBrandIcon"] = true;
     ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/examination";
-    ViewData["FeeErpNavbarBrandText"] = "Examination Module";
-    ViewData["FeeErpNavbarBrandIcon"] = "fa-pen-ruler";
+    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/fee";
+    ViewData["FeeErpNavbarBrandText"] = "Fee Management Module";
+    ViewData["FeeErpNavbarBrandIcon"] = "fa-wallet";
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — Examination</title>
+    <title>@ViewData["Title"] — Fee Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -27,32 +27,32 @@
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="fee-erp-shell examination-mgmt-shell">
-    <partial name="_ExaminationMgmtModuleTopBar" />
+<body class="fee-erp-shell fee-mgmt-shell">
+    <partial name="_FeeMgmtModuleTopBar" />
     <partial name="_FeeErpNavbar" model="pageTitle" />
     <div class="fee-erp-canvas">
-        <aside class="fee-erp-sidebar examination-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Examination navigation">
-            <partial name="_ExaminationMgmtMgmtSidebar" />
+        <aside class="fee-erp-sidebar fee-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Fee management navigation">
+            <partial name="_FeeMgmtMgmtSidebar" />
         </aside>
         <div class="offcanvas offcanvas-start fee-erp-offcanvas text-bg-dark" tabindex="-1" id="feeErpSidebarOffcanvas"
              aria-labelledby="feeErpSidebarOffcanvasLabel">
             <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
                 <h5 class="offcanvas-title" id="feeErpSidebarOffcanvasLabel">
-                    <i class="fa-solid fa-pen-ruler me-2 text-info"></i>Examination
+                    <i class="fa-solid fa-wallet me-2 text-info"></i>Fee Management
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body p-0 overflow-auto">
-                <partial name="_ExaminationMgmtMgmtSidebar" />
+                <partial name="_FeeMgmtMgmtSidebar" />
             </div>
         </div>
-        <div class="fee-erp-main examination-mgmt-main">
+        <div class="fee-erp-main fee-mgmt-main">
             <div class="fee-erp-main-inner container-fluid py-4 px-3 px-lg-4">
                 @RenderBody()
             </div>
             <footer class="fee-erp-footer">
                 <div class="container-fluid px-3 px-lg-4 py-3 small text-muted">
-                    <span>&copy; @DateTime.UtcNow.Year VEMS · Examination</span>
+                    <span>&copy; @DateTime.UtcNow.Year VEMS · Fee Management</span>
                 </div>
             </footer>
         </div>
