@@ -4,14 +4,14 @@
     var moduleUrl = Model.IsAvailable
         ? (Model.UrlOverride ?? $"/adminportal/{Model.Controller.ToLowerInvariant()}")
         : "#";
-    var cardClasses = $"erp-module-card h-100 {Model.AccentClass}";
+    var cardClasses = $"erp-module-card erp-module-card--tile h-100 {Model.AccentClass}";
     if (!Model.IsAvailable)
     {
         cardClasses += " erp-module-card--soon";
     }
 }
 
-<div class="col-12 col-md-6 col-lg-3 module-grid-item"
+<div class="col-12 col-sm-6 col-lg-4 module-grid-item"
      data-module-name="@Model.Name"
      data-module-description="@Model.Description"
      data-module-available="@(Model.IsAvailable ? "true" : "false")">
@@ -19,16 +19,20 @@
        href="@moduleUrl"
        @(Model.IsAvailable ? null : Html.Raw("data-soon-module=\"true\""))
        aria-label="@Model.Name module">
-        <div class="erp-module-card__body">
-            <span class="erp-module-card__icon" aria-hidden="true">
-                <i class="bi @Model.IconClass" aria-hidden="true"></i>
+        <div class="erp-module-card__cover" aria-hidden="true">
+            <span class="erp-module-card__cover-icon">
+                <i class="bi @Model.IconClass"></i>
             </span>
+        </div>
+        <div class="erp-module-card__footer">
             <h3 class="erp-module-card__title">@Model.Name</h3>
             @if (!Model.IsAvailable)
             {
                 <span class="erp-module-card__badge">Coming soon</span>
             }
         </div>
-        <span class="erp-module-card__shine" aria-hidden="true"></span>
+        <span class="erp-module-card__corner-icon" aria-hidden="true">
+            <i class="bi bi-arrow-right-short"></i>
+        </span>
     </a>
 </div>

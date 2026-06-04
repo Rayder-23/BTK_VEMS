@@ -2,22 +2,15 @@
 
 @{
     Layout = "/Areas/AdminPortal/Views/Shared/_AdminHomeLayout.cshtml";
-    ViewData["Title"] = "Admin Dashboard";
-    var adminUsername = Context.Session.GetString("AdminUsername") ?? "Admin";
+    ViewData["Title"] = "Admin Portal";
     var moduleCount = Model.Modules.Count;
 }
 
-<div class="erp-dashboard">
-    <nav aria-label="breadcrumb" class="erp-breadcrumb-wrap mb-3">
-        <ol class="breadcrumb erp-breadcrumb mb-0">
-            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-        </ol>
-    </nav>
-
-    <header class="erp-dashboard-hero rounded-4 mb-3">
+<header class="erp-dashboard-hero erp-dashboard-hero--fullwidth">
+    <div class="erp-dashboard-hero__inner">
         <div class="row align-items-center g-3">
             <div class="col-lg-8">
-                <h1 class="erp-dashboard-hero__title mb-0">Welcome back, @adminUsername</h1>
+                <h1 class="erp-dashboard-hero__title mb-0">Admin Portal</h1>
             </div>
             <div class="col-lg-4">
                 <div class="erp-dashboard-hero__meta">
@@ -32,33 +25,12 @@
                 </div>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <section class="erp-stats-section mb-4" aria-label="Key statistics">
-        <div class="row g-3 g-lg-4">
-            @foreach (var stat in Model.Statistics)
-            {
-                <div class="col-12 col-sm-6 col-xl-3">
-                    <article class="erp-stat-card @stat.AccentClass h-100">
-                        <div class="erp-stat-card__icon" aria-hidden="true">
-                            <i class="bi @stat.IconClass" aria-hidden="true"></i>
-                        </div>
-                        <div class="erp-stat-card__content">
-                            <p class="erp-stat-card__label mb-1">@stat.Title</p>
-                            <p class="erp-stat-card__value mb-0">@stat.Value</p>
-                        </div>
-                    </article>
-                </div>
-            }
-        </div>
-    </section>
-
-    <section class="erp-modules-section portal-card" aria-label="Application modules">
-        <div class="erp-modules-section__header">
-            <div>
-                <h2 class="erp-modules-section__title mb-1">Modules</h2>
-                <p class="erp-modules-section__subtitle mb-0">Launch academic, finance, HR, and operations workflows.</p>
-            </div>
+<div class="admin-home-content erp-dashboard">
+    <section class="erp-modules-section" aria-label="Application modules">
+        <div class="erp-modules-section__toolbar mb-3">
             <div class="erp-module-search-wrap">
                 <i class="bi bi-search" aria-hidden="true"></i>
                 <input class="form-control"

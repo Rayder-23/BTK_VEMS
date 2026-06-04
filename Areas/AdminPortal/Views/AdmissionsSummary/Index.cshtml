@@ -1,0 +1,60 @@
+@model VEMS.Areas.AdminPortal.Models.Admissions.AdmissionsSummaryViewModel
+@{
+    ViewData["Title"] = "Summary";
+}
+
+<h1 class="h4 fw-bold mb-3">Summary</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="portal-stat-card accent-cyan h-100">
+            <div class="small text-muted">Total applications</div>
+            <div class="h3 fw-bold mb-0">@Model.TotalApplications</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <section class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3">By application status</h2>
+            <ul class="list-group list-group-flush">
+                @foreach (var row in Model.ByApplicationStatus)
+                {
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>@row.Label</span>
+                        <strong>@row.Count</strong>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+    <div class="col-lg-4">
+        <section class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3">By payment status</h2>
+            <ul class="list-group list-group-flush">
+                @foreach (var row in Model.ByPaymentStatus)
+                {
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>@row.Label</span>
+                        <strong>@row.Count</strong>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+    <div class="col-lg-4">
+        <section class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3">By source channel</h2>
+            <ul class="list-group list-group-flush">
+                @foreach (var row in Model.BySourceChannel)
+                {
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>@row.Label</span>
+                        <strong>@row.Count</strong>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+</div>

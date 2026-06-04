@@ -435,6 +435,88 @@ body.public-site {
   border-block: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Apply page — banner contrasts blue public top bar */
+.application-page-hero {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 55%, #cbd5e1 100%);
+  color: var(--vems-ink);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  padding-block: 1.35rem;
+}
+
+.application-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--vems-ink);
+}
+
+.application-page-lead {
+  font-size: 0.9rem;
+  color: var(--vems-muted);
+}
+
+.application-page-body {
+  padding-block: 2rem;
+}
+
+.application-form-card {
+  border: 1px solid rgba(15, 23, 42, 0.14) !important;
+  border-radius: 1.25rem;
+  background-color: #fff;
+}
+
+.application-form-grid .application-form-row {
+  margin-bottom: 0.35rem;
+}
+
+.application-form-grid .application-form-row:last-child {
+  margin-bottom: 0;
+}
+
+.application-form-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--vems-ink);
+  margin-bottom: 0;
+  text-align: end;
+  padding-right: 0.35rem;
+  line-height: 1.3;
+}
+
+.application-form-field .form-control-sm,
+.application-form-field .form-select-sm {
+  min-height: calc(1.5em + 0.5rem + 2px);
+}
+
+.application-form-field .text-danger.small,
+.application-form-card .field-validation-error {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.application-form-card .input-validation-error,
+.application-form-card .form-select.is-invalid {
+  border-color: var(--bs-danger);
+}
+
+@media (max-width: 991.98px) {
+  .application-form-label {
+    text-align: start;
+    padding-right: 0;
+    margin-bottom: 0.15rem;
+  }
+
+  .application-form-row {
+    margin-bottom: 0.65rem !important;
+  }
+
+  .application-form-row > .application-form-field {
+    margin-bottom: 0.5rem;
+  }
+}
+
 /* --- Footer ----------------------------------------------------------------- */
 .public-footer {
   background: linear-gradient(180deg, #0b1220 0%, #070b13 100%);

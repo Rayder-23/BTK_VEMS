@@ -514,6 +514,169 @@ body.examination-mgmt-shell .examination-mgmt-sidebar-exit:hover {
     font-size: 0.88rem;
 }
 
+/* Admissions module */
+.admissions-module-home-banner {
+    background: linear-gradient(135deg, #0b1426 0%, #0c4a6e 42%, #0891b2 100%);
+    color: #fff;
+}
+
+.admissions-module-home-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 92% 18%, rgba(34, 211, 238, 0.22), transparent 42%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.admissions-module-home-banner__inner {
+    position: relative;
+    z-index: 1;
+}
+
+.admissions-module-home-banner__breadcrumb {
+    --bs-breadcrumb-divider-color: rgba(255, 255, 255, 0.45);
+}
+
+.admissions-module-home-banner__breadcrumb .breadcrumb-item a {
+    color: rgba(255, 255, 255, 0.88);
+    font-weight: 600;
+}
+
+.admissions-module-home-banner__breadcrumb .breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.admissions-module-home-banner__eyebrow {
+    color: rgba(103, 232, 249, 0.95);
+    letter-spacing: 0.06em;
+}
+
+.admissions-module-home-banner__title {
+    font-size: clamp(1.65rem, 3vw, 2.25rem);
+    font-weight: 700;
+}
+
+.admissions-module-home-banner__lead {
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.admissions-module-home-banner__icon-wrap {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admissions-module-home-banner__icon-decor {
+    font-size: 3.25rem;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+body.admissions-mgmt-shell .admissions-mgmt-sidebar {
+    width: 280px;
+}
+
+body.admissions-mgmt-shell .admissions-mgmt-main {
+    margin-left: 280px;
+}
+
+body.admissions-mgmt-shell.fee-erp-sidebar-collapsed .admissions-mgmt-sidebar {
+    width: 76px;
+}
+
+body.admissions-mgmt-shell.fee-erp-sidebar-collapsed .admissions-mgmt-main {
+    margin-left: 76px;
+}
+
+@media (max-width: 991.98px) {
+    body.admissions-mgmt-shell .admissions-mgmt-main {
+        margin-left: 0;
+    }
+}
+
+.portal-stat-card {
+    padding: 1rem 1.15rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
+    box-shadow: 0 0.35rem 1rem rgba(15, 23, 42, 0.05);
+}
+
+.portal-stat-card.accent-cyan { border-left: 4px solid #0891b2; }
+.portal-stat-card.accent-orange { border-left: 4px solid #f97316; }
+.portal-stat-card.accent-green { border-left: 4px solid #22c55e; }
+.portal-stat-card.accent-indigo { border-left: 4px solid #6366f1; }
+.portal-stat-card.accent-teal { border-left: 4px solid #14b8a6; }
+
+.admissions-application-form-card {
+    padding: 0.85rem 1rem !important;
+}
+
+.admissions-application-form-card .portal-card,
+.admissions-application-form-card.portal-card {
+    margin-bottom: 0;
+}
+
+.admissions-admin-form-grid .admissions-admin-form-row {
+    margin-bottom: 0.2rem;
+}
+
+.admissions-admin-form-grid .admissions-admin-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.admissions-admin-form-label {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #334155;
+    margin-bottom: 0;
+    text-align: end;
+    padding-right: 0.25rem;
+    line-height: 1.25;
+}
+
+.admissions-admin-form-field .form-control-sm,
+.admissions-admin-form-field .form-select-sm {
+    min-height: calc(1.4em + 0.4rem + 2px);
+    font-size: 0.8125rem;
+}
+
+.admissions-admin-form-field .text-danger.small {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    line-height: 1.15;
+}
+
+.admissions-admin-form-actions {
+    margin-bottom: 0;
+}
+
+.admissions-admin-form-readonly .admissions-admin-form-label {
+    text-align: start;
+    padding-right: 0;
+}
+
+.admissions-admin-form-readonly .admissions-readonly-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #0d6efd;
+    text-align: start;
+    padding: 0.25rem 0;
+    min-height: 1.75rem;
+    word-break: break-word;
+}
+
+@media (max-width: 991.98px) {
+    .admissions-admin-form-label {
+        text-align: start;
+        padding-right: 0;
+        margin-bottom: 0.1rem;
+    }
+}
+
 @media (max-width: 991.98px) {
     body.examination-mgmt-shell .examination-mgmt-main {
         margin-left: 0 !important;

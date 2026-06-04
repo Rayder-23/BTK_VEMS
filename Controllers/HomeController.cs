@@ -2,25 +2,33 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using VEMS.Models;
 
-namespace VEMS.Controllers
+namespace VEMS.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+
+    public HomeController(ILogger<HomeController> logger)
     {
-        private readonly ILogger<HomeController> _logger;
+        _logger = logger;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
+    public IActionResult Index()
+    {
+        var page = new HomeIndexViewModel
         {
-            _logger = logger;
-        }
+            ApplicationSuccessMessage = TempData["ApplicationSuccessMessage"] as string,
+            ApplicationReferenceNo = TempData["ApplicationReferenceNo"] as string
+        };
 
-        public IActionResult Index() => View("~/Views/Home/Index.cshtml");
+        return View("~/Views/Home/Index.cshtml", page);
+    }
 
-        public IActionResult Privacy() => View("~/Views/Home/Privacy.cshtml");
+    public IActionResult Privacy() => View("~/Views/Home/Privacy.cshtml");
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("~/Views/Shared/Error.cshtml", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View("~/Views/Shared/Error.cshtml", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

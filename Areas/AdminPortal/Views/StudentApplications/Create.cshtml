@@ -1,0 +1,23 @@
+@model VEMS.Areas.AdminPortal.Models.Admissions.StudentApplicationFormViewModel
+@{
+    ViewData["Title"] = "Add Application";
+    ViewData["PageTitle"] = "Add application";
+}
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card admissions-application-form-card">
+    <form method="post" asp-action="Create" id="studentApplicationAdminForm">
+        @Html.AntiForgeryToken()
+        <partial name="_StudentApplicationAdminForm" model="Model" />
+        <div class="admissions-admin-form-actions d-flex flex-wrap gap-2 pt-2 mt-2 border-top">
+            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+            <a class="btn btn-outline-secondary btn-sm" href="/adminportal/admissions/applications">Cancel</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/portals/admissions-admin.js" asp-append-version="true"></script>
+}

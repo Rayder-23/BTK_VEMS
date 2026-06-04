@@ -8,12 +8,10 @@ public class DashboardController : AdminBaseController
 {
     public IActionResult Index()
     {
-        ViewData["Title"] = "Admin Dashboard";
-        ViewData["PageTitle"] = "Dashboard";
+        ViewData["Title"] = "Admin Portal";
 
         var model = new AdminDashboardViewModel
         {
-            Statistics = AdminModuleCatalog.Statistics,
             Modules = AdminModuleCatalog.Modules
         };
 

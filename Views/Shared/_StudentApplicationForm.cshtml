@@ -1,0 +1,164 @@
+@model StudentApplicationPageViewModel
+@using VEMS.Services
+@{
+    var form = Model.Form;
+    var programPickerId = "applicationProgramPicker";
+    var provinceOptions = StudentApplicationListHelper.WithSelectedValue(Model.Provinces, form.Province);
+    var cityOptions = StudentApplicationListHelper.WithSelectedValue(Model.Cities, form.City);
+}
+
+<input type="hidden" asp-for="Form.ProgramCode" id="ProgramCode" />
+<input type="hidden" asp-for="Form.InstTypeCode" id="InstTypeCode" />
+<input type="hidden" asp-for="Form.ProgramName" id="ProgramName" />
+
+<div class="application-form-grid">
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" for="@programPickerId">
+            Program <span class="text-danger">*</span>
+        </label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <select id="@programPickerId" class="form-select form-select-sm @(ViewData.ModelState["Form.ProgramCode"]?.Errors.Count > 0 ? "is-invalid" : "")" aria-required="true">
+                <option value="">— Select —</option>
+                @foreach (var p in Model.Programs)
+                {
+                    var isSelected = string.Equals(form.ProgramName, p.ProgramName, StringComparison.OrdinalIgnoreCase)
+                        || (string.IsNullOrWhiteSpace(form.ProgramName)
+                            && string.Equals(form.ProgramCode, p.ProgramCode, StringComparison.OrdinalIgnoreCase));
+                    var maxLevel = p.TotalGrades ?? p.TotalSemesters ?? (byte)12;
+                    if (isSelected)
+                    {
+                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode" data-max-level="@maxLevel" selected="selected">@p.ProgramName</option>
+                    }
+                    else
+                    {
+                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode" data-max-level="@maxLevel">@p.ProgramName</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="Form.ProgramCode" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.DesiredYear"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.DesiredYear" type="number" min="2020" max="2100" />
+            <span asp-validation-for="Form.DesiredYear" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.DesiredGradeOrSemester"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.DesiredGradeOrSemester" type="number" min="1" max="20" id="DesiredGradeOrSemester" />
+            <span asp-validation-for="Form.DesiredGradeOrSemester" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.FirstName"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.FirstName" autocomplete="given-name" />
+            <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.LastName"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.LastName" autocomplete="family-name" />
+            <span asp-validation-for="Form.LastName" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.FatherName"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.FatherName" />
+            <span asp-validation-for="Form.FatherName" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.DateOfBirth"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.DateOfBirth" type="date" />
+            <span asp-validation-for="Form.DateOfBirth" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.Gender"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <select class="form-select form-select-sm" asp-for="Form.Gender">
+                @foreach (var g in Model.Genders)
+                {
+                    <option value="@g">@(g switch { "M" => "Male", "F" => "Female", "O" => "Other", _ => g })</option>
+                }
+            </select>
+            <span asp-validation-for="Form.Gender" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.BFORM_No"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.BFORM_No" />
+            <span asp-validation-for="Form.BFORM_No" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.NIC_No"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.NIC_No" />
+            <span asp-validation-for="Form.NIC_No" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.MobileNo"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.MobileNo" type="tel" autocomplete="tel" />
+            <span asp-validation-for="Form.MobileNo" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.EmailAddress"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.EmailAddress" type="email" autocomplete="email" />
+            <span asp-validation-for="Form.EmailAddress" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.AddressLine1"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.AddressLine1" autocomplete="street-address" />
+            <span asp-validation-for="Form.AddressLine1" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.City"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <select class="form-select form-select-sm" asp-for="Form.City" asp-items="@(new SelectList(cityOptions, form.City))">
+                <option value="">— Select —</option>
+            </select>
+            <span asp-validation-for="Form.City" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.Province"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <select class="form-select form-select-sm" asp-for="Form.Province" asp-items="@(new SelectList(provinceOptions, form.Province))">
+                <option value="">— Select —</option>
+            </select>
+            <span asp-validation-for="Form.Province" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.Country"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <select class="form-select form-select-sm" asp-for="Form.Country" asp-items="@(new SelectList(Model.Countries, form.Country))"></select>
+            <span asp-validation-for="Form.Country" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.FatherMobile"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.FatherMobile" type="tel" />
+            <span asp-validation-for="Form.FatherMobile" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row application-form-row g-2 align-items-center">
+        <label class="col-6 col-lg-3 application-form-label" asp-for="Form.FatherOccupation"></label>
+        <div class="col-6 col-lg-3 application-form-field">
+            <input class="form-control form-control-sm" asp-for="Form.FatherOccupation" />
+            <span asp-validation-for="Form.FatherOccupation" class="text-danger small"></span>
+        </div>
+        <div class="col-lg-3 d-none d-lg-block"></div>
+        <div class="col-lg-3 d-none d-lg-block"></div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Admissions.AdmissionsPaymentListItem>
+@{
+    ViewData["Title"] = "Payments";
+    var search = ViewData["Search"] as string;
+    var paymentStatus = ViewData["PaymentStatus"] as string;
+    var statusOptions = ViewData["PaymentStatusOptions"] as IReadOnlyList<string> ?? Array.Empty<string>();
+}
+
+<h1 class="h4 fw-bold mb-3">Payments</h1>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card">
+    <form method="get" class="row g-2 align-items-end mb-3">
+        <div class="col-md-5">
+            <label class="form-label" for="search">Search</label>
+            <input type="search" class="form-control form-control-sm" id="search" name="search" value="@search"
+                   placeholder="Application no. or name" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="paymentStatus">Payment status</label>
+            <select class="form-select form-select-sm" id="paymentStatus" name="paymentStatus">
+                <option value="">All</option>
+                @foreach (var s in statusOptions)
+                {
+                    if (string.Equals(paymentStatus, s, StringComparison.OrdinalIgnoreCase))
+                    {
+                        <option value="@s" selected="selected">@s</option>
+                    }
+                    else
+                    {
+                        <option value="@s">@s</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary btn-sm w-100">Filter</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Application no.</th>
+                    <th>Applicant</th>
+                    <th>Payment status</th>
+                    <th>Amount</th>
+                    <th>Payment date</th>
+                    <th>Application status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-muted py-3">No payment records found.</td></tr>
+            }
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td><code>@row.ApplicationNo</code></td>
+                    <td>@row.FullName</td>
+                    <td>@(row.PaymentStatus ?? "—")</td>
+                    <td>@(row.PaymentAmount.HasValue ? row.PaymentAmount.Value.ToString("N2") : "—")</td>
+                    <td>@(row.PaymentDate.HasValue ? row.PaymentDate.Value.ToString("yyyy-MM-dd") : "—")</td>
+                    <td><span class="badge text-bg-secondary">@row.ApplicationStatus</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/admissions/applications/edit/@row.Uid">Edit</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

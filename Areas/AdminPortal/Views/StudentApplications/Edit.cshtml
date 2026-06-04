@@ -1,0 +1,61 @@
+@model VEMS.Areas.AdminPortal.Models.Admissions.StudentApplicationFormViewModel
+@{
+    ViewData["Title"] = "Edit Application";
+    ViewData["PageTitle"] = Model.IsReadOnly
+        ? $"View · {Model.Form.ApplicationNo}"
+        : $"Edit · {Model.Form.ApplicationNo}";
+}
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card admissions-application-form-card">
+    @if (Model.IsReadOnly)
+    {
+        <div class="alert alert-secondary py-2 mb-3" role="status">
+            This applicant was converted to a student. Details are shown in read-only mode.
+        </div>
+
+        <partial name="_StudentApplicationAdminFormReadOnly" model="Model" />
+
+        <div class="admissions-admin-form-actions d-flex flex-wrap gap-2 pt-2 mt-2 border-top">
+            @if (Model.Form.ConvertedStudentID.HasValue)
+            {
+                <a class="btn btn-outline-success btn-sm"
+                   href="/adminportal/students/students/edit/@Model.Form.ConvertedStudentID">
+                    View student #@Model.Form.ConvertedStudentID
+                </a>
+            }
+            <a class="btn btn-outline-secondary btn-sm" href="/adminportal/admissions/applications">Back to applications</a>
+        </div>
+    }
+    else
+    {
+        <form method="post" asp-action="Edit" asp-route-id="@Model.Form.Uid" id="studentApplicationAdminForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Form.Uid" />
+            <partial name="_StudentApplicationAdminForm" model="Model" />
+            <div class="admissions-admin-form-actions d-flex flex-wrap gap-2 pt-2 mt-2 border-top">
+                <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
+                @if (Model.ShowConvertAsStudentButton)
+                {
+                    <button type="submit"
+                            class="btn btn-success btn-sm"
+                            formaction="/adminportal/admissions/applications/convert-as-student/@Model.Form.Uid"
+                            formmethod="post"
+                            onclick="return confirm('Create a student record from this approved application and mark the application as Converted As Student?');">
+                        Convert As Student
+                    </button>
+                }
+                <a class="btn btn-outline-secondary btn-sm" href="/adminportal/admissions/applications">Cancel</a>
+            </div>
+        </form>
+    }
+</section>
+
+@section Scripts {
+    @if (!Model.IsReadOnly)
+    {
+        <partial name="_ValidationScriptsPartial" />
+        <script src="~/js/portals/admissions-admin.js" asp-append-version="true"></script>
+    }
+}

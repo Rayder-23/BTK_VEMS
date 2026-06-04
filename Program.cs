@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Scalar.AspNetCore;    // <-- Scalar UI -->
 using VEMS.Areas.AdminPortal.Services;
+using VEMS.Areas.AdminPortal.Services.Admissions;
 using VEMS.Areas.AdminPortal.Services.Examination;
 using VEMS.Areas.AdminPortal.Services.Fee;
 using VEMS.Areas.StudentPortal.Services;
+using VEMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,10 @@ builder.Services.AddScoped<IFeeConcessionRepository, FeeConcessionRepository>();
 builder.Services.AddScoped<IFeeChallanRepository, FeeChallanRepository>();
 builder.Services.AddScoped<IFeePaymentRepository, FeePaymentRepository>();
 builder.Services.AddScoped<IExaminationBrowseRepository, ExaminationBrowseRepository>();
+builder.Services.AddScoped<IStudentApplicationAdminRepository, StudentApplicationAdminRepository>();
+builder.Services.AddScoped<IConfigurationValuesProvider, ConfigurationValuesProvider>();
+builder.Services.AddScoped<IStudentApplicationRepository, StudentApplicationRepository>();
+builder.Services.AddScoped<IStudentApplicationPageFactory, StudentApplicationPageFactory>();
 
 // <-- Scalar / OpenAPI: AddControllersWithViews above already registers controllers + API explorer. -->
 builder.Services.AddEndpointsApiExplorer();

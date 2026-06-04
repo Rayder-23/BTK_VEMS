@@ -142,6 +142,11 @@ body.portal-shell {
     padding: 1.5rem;
 }
 
+.admin-home-main {
+    padding: 0;
+    width: 100%;
+}
+
 .admin-home-content {
     margin-inline: auto;
     max-width: 1500px;
