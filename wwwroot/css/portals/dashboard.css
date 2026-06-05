@@ -601,6 +601,8 @@ body.admissions-mgmt-shell .admissions-module-topbar__link:hover {
 
 body.admissions-mgmt-shell .fee-erp-navbar {
     top: var(--fee-erp-module-bar-h);
+    background-color: #eff6ff !important;
+    border-bottom-color: #dbeafe !important;
 }
 
 body.admissions-mgmt-shell .fee-erp-sidebar {

@@ -1,0 +1,142 @@
+@using VEMS.Areas.AdminPortal.Models.Fee
+@{
+    ViewData["Title"] = "Bulk Generate Challans";
+    var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+}
+
+<section class="module-page-header accent-teal">
+    <h1 class="h3 fw-bold">Bulk challan generation</h1>
+    <p class="text-muted mb-0">Generate challans for a whole class or selected students in one run.</p>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-4">
+    <h2 class="h6 fw-bold mb-3">Filter</h2>
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+            <label class="form-label" for="bulkProgramId">Program</label>
+            <select id="bulkProgramId" class="form-select">
+                <option value="">— Select program —</option>
+                @foreach (var program in programs)
+                {
+                    <option value="@program.Id">@program.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label class="form-label" for="bulkSemester">Semester</label>
+            <select id="bulkSemester" class="form-select">
+                @foreach (var semester in FeeConstants.Semesters)
+                {
+                    <option value="@semester">@semester</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label class="form-label" for="bulkAcademicYear">Academic year</label>
+            <input id="bulkAcademicYear" class="form-control" type="number" min="1900" max="9999" value="@DateTime.Today.Year" />
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label class="form-label" for="bulkStructureId">Fee structure</label>
+            <select id="bulkStructureId" class="form-select" disabled>
+                <option value="">— Select program first —</option>
+            </select>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label class="form-label" for="bulkIssueDate">Issue date</label>
+            <input id="bulkIssueDate" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label class="form-label" for="bulkDueDate">Due date</label>
+            <input id="bulkDueDate" class="form-control" type="date" value="@DateTime.Today.AddDays(15).ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-12">
+            <button type="button" id="bulkLoadStudentsBtn" class="btn btn-outline-primary">Load students</button>
+            <span id="bulkFilterError" class="text-danger small ms-2 d-none"></span>
+        </div>
+    </div>
+</section>
+
+<section id="bulkStudentSection" class="portal-card mt-4 d-none">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h6 fw-bold mb-0">Eligible students</h2>
+        <span id="bulkSelectionCount" class="small text-muted">0 of 0 students selected</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table admin-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 3rem;">
+                        <input type="checkbox" id="bulkSelectAll" class="form-check-input" aria-label="Select all eligible students" />
+                    </th>
+                    <th>#</th>
+                    <th>Reg no.</th>
+                    <th>Roll no.</th>
+                    <th>Student name</th>
+                    <th>Program</th>
+                    <th>Concession</th>
+                    <th>Already has challan</th>
+                </tr>
+            </thead>
+            <tbody id="bulkStudentTableBody"></tbody>
+        </table>
+    </div>
+</section>
+
+<section id="bulkActionSection" class="portal-card mt-4 d-none">
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" id="bulkGenerateWholeBtn" class="btn btn-primary">Generate for whole class</button>
+        <button type="button" id="bulkGenerateSelectedBtn" class="btn btn-outline-primary">Generate for selected</button>
+        <a class="btn btn-outline-secondary" href="/adminportal/fee/challans">Cancel</a>
+    </div>
+</section>
+
+<section id="bulkResultSection" class="portal-card mt-4 d-none">
+    <h2 class="h6 fw-bold mb-3">Generation summary</h2>
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="portal-stat-card accent-cyan h-100">
+                <div class="small text-muted">Total processed</div>
+                <div class="h4 fw-bold mb-0" id="bulkTotalProcessed">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="portal-stat-card accent-green h-100">
+                <div class="small text-muted">Generated</div>
+                <div class="h4 fw-bold mb-0" id="bulkTotalGenerated">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="portal-stat-card accent-orange h-100">
+                <div class="small text-muted">Skipped</div>
+                <div class="h4 fw-bold mb-0" id="bulkTotalSkipped">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="portal-stat-card accent-red h-100">
+                <div class="small text-muted">Errors</div>
+                <div class="h4 fw-bold mb-0" id="bulkTotalErrors">0</div>
+            </div>
+        </div>
+    </div>
+    <div id="bulkResultMessage" class="alert alert-success d-none" role="status"></div>
+    <div class="table-responsive">
+        <table class="table admin-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Reg no.</th>
+                    <th>Student</th>
+                    <th>Challan no.</th>
+                    <th>Net payable</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="bulkResultTableBody"></tbody>
+        </table>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/fee/bulk-challans.js" asp-append-version="true"></script>
+}

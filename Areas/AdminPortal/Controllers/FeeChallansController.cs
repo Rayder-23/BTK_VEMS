@@ -28,6 +28,16 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
         return View(await _challans.ListAsync(search, cancellationToken));
     }
 
+    [HttpGet("bulk")]
+    public async Task<IActionResult> Bulk(CancellationToken cancellationToken)
+    {
+        ViewData["Title"] = "Bulk Generate Challans";
+        ViewData["PageTitle"] = "Challans · Bulk Generate";
+        ViewData["FeeMgmtModuleKey"] = "Challans";
+        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        return View();
+    }
+
     [HttpGet("create")]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {

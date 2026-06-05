@@ -118,7 +118,8 @@ body.portal-shell {
 }
 
 .portal-navbar {
-    background: rgba(255, 255, 255, .92);
+    /* Slightly lighter to blend better with the portal background */
+    background: rgba(255, 255, 255, .97);
     border-bottom: 1px solid #e2e8f0;
     backdrop-filter: blur(12px);
     min-height: 76px;

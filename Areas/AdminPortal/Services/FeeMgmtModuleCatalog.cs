@@ -46,7 +46,7 @@ public static class FeeMgmtModuleCatalog
         Module("FeeStructureDetails", "FeeStructureDetails", "fee-structure-details", "bi-list-columns", "Line items per fee structure", "accent-orange",
             Sub("Add Detail", "Create"), Sub("All Details", "Index")),
         Module("Challans", "FeeChallans", "challans", "bi-receipt-cutoff", "Student fee challans", "accent-teal",
-            Sub("Generate Challan", "Create"), Sub("All Challans", "Index")),
+            Sub("Generate Challan", "Create"), Sub("Bulk Generate", "Bulk"), Sub("All Challans", "Index")),
         Module("ChallanDetails", "FeeChallanDetails", "challan-details", "bi-receipt", "Challan line items", "accent-cyan",
             Sub("Add Line", "Create"), Sub("All Lines", "Index")),
         Module("Payments", "FeePayments", "payments", "bi-cash-stack", "Fee payment records", "accent-green",

@@ -5,6 +5,8 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $sshKey = 'D:\.ssh\hostinger_vps'
 $sshHost = 'root@93.127.199.220'
+# Bypass broken ~/.ssh/config permissions on Windows (OWNER RIGHTS)
+$sshBase = @('-F', 'NUL', '-i', $sshKey, '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=accept-new')
 $publishDir = Join-Path $repoRoot 'publish\linux-x64'
 $tarball = Join-Path $repoRoot 'vems-linux-x64.tar.gz'
 
@@ -17,9 +19,9 @@ tar -czf $tarball -C 'linux-x64' .
 Pop-Location
 
 Write-Host 'Uploading...'
-scp -i $sshKey $tarball "${sshHost}:/tmp/vems-linux-x64.tar.gz"
-scp -i $sshKey (Join-Path $PSScriptRoot 'nginx-dlpuae.conf') "${sshHost}:/etc/nginx/sites-available/dlpuae"
-scp -i $sshKey (Join-Path $PSScriptRoot 'vems.service') "${sshHost}:/etc/systemd/system/vems.service"
+scp @sshBase $tarball "${sshHost}:/tmp/vems-linux-x64.tar.gz"
+scp @sshBase (Join-Path $PSScriptRoot 'nginx-dlpuae.conf') "${sshHost}:/etc/nginx/sites-available/dlpuae"
+scp @sshBase (Join-Path $PSScriptRoot 'vems.service') "${sshHost}:/etc/systemd/system/vems.service"
 
 Write-Host 'Remote install...'
 $remote = @'
@@ -37,5 +39,5 @@ systemctl restart vems
 systemctl reload nginx
 systemctl is-active vems
 '@
-ssh -i $sshKey $sshHost $remote
+ssh @sshBase $sshHost $remote
 Write-Host 'Done. Verify: https://dlpuae.com'

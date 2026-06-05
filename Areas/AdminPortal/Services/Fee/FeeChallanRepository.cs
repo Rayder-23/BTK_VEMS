@@ -338,6 +338,153 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         }
     }
 
+    public async Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsAsync(
+        int programId,
+        string semester,
+        short academicYear,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT
+                s.Uid AS StudentID,
+                s.RegistrationNo,
+                s.RollNo,
+                LTRIM(RTRIM(s.FirstName + ISNULL(' ' + s.MiddleName, '') + ' ' + s.LastName)) AS StudentName,
+                p.ProgramName,
+                CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM dbo.Concessions c
+                    WHERE c.StudentID = s.Uid
+                      AND c.IsActive = 1
+                      AND c.ValidFrom <= CONVERT(date, SYSUTCDATETIME())
+                      AND (c.ValidTo IS NULL OR c.ValidTo >= CONVERT(date, SYSUTCDATETIME()))
+                ) THEN 1 ELSE 0 END AS HasConcession,
+                CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM dbo.Challans ch
+                    WHERE ch.StudentID = s.Uid
+                      AND ch.Semester = @Semester
+                      AND ch.AcademicYear = @AcademicYear
+                      AND ch.IsActive = 1
+                ) THEN 1 ELSE 0 END AS AlreadyHasChallan
+            FROM dbo.Students s
+            INNER JOIN dbo.ref_Programs p ON s.ProgramID = p.Uid
+            WHERE s.ProgramID = @ProgramId
+              AND s.IsActive = 1
+            ORDER BY s.RegistrationNo;
+            """;
+
+        var list = new List<BulkChallanEligibleStudent>();
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ProgramId", programId);
+        command.Parameters.AddWithValue("@Semester", semester.Trim());
+        command.Parameters.AddWithValue("@AcademicYear", academicYear);
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new BulkChallanEligibleStudent
+            {
+                StudentId = FeeSql.ToInt32(reader, "StudentID"),
+                RegistrationNo = reader["RegistrationNo"] as string ?? "",
+                RollNo = reader["RollNo"] as string,
+                StudentName = reader["StudentName"] as string ?? "",
+                ProgramName = reader["ProgramName"] as string ?? "",
+                HasConcession = FeeSql.ToInt32(reader, "HasConcession") == 1,
+                AlreadyHasChallan = FeeSql.ToInt32(reader, "AlreadyHasChallan") == 1
+            });
+        }
+
+        return list;
+    }
+
+    public async Task<BulkChallanGenerateResponse> BulkGenerateAsync(
+        BulkChallanGenerateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request.ProgramId <= 0)
+        {
+            throw new InvalidOperationException("Program is required.");
+        }
+
+        if (request.StructureId <= 0)
+        {
+            throw new InvalidOperationException("Fee structure is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Semester))
+        {
+            throw new InvalidOperationException("Semester is required.");
+        }
+
+        if (request.AcademicYear is < 1900 or > 9999)
+        {
+            throw new InvalidOperationException("Academic year must be a valid 4-digit year.");
+        }
+
+        if (request.IssueDate > request.DueDate)
+        {
+            throw new InvalidOperationException("Issue date must be on or before due date.");
+        }
+
+        var studentIdsCsv = request.StudentIds is { Count: > 0 }
+            ? string.Join(',', request.StudentIds.Where(id => id > 0).Distinct())
+            : null;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand("dbo.usp_BulkGenerateChallans", connection)
+        {
+            CommandType = System.Data.CommandType.StoredProcedure
+        };
+        command.Parameters.AddWithValue("@ProgramID", request.ProgramId);
+        command.Parameters.AddWithValue("@StructureID", request.StructureId);
+        command.Parameters.AddWithValue("@Semester", request.Semester.Trim());
+        command.Parameters.AddWithValue("@AcademicYear", request.AcademicYear);
+        command.Parameters.AddWithValue("@IssueDate", request.IssueDate.ToDateTime(TimeOnly.MinValue));
+        command.Parameters.AddWithValue("@DueDate", request.DueDate.ToDateTime(TimeOnly.MinValue));
+        command.Parameters.AddWithValue("@CreatedBy", request.CreatedBy);
+        command.Parameters.AddWithValue("@StudentIDs", (object?)studentIdsCsv ?? DBNull.Value);
+
+        var results = new List<BulkChallanGenerateResultItem>();
+        await connection.OpenAsync(cancellationToken);
+        try
+        {
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = FeeSql.ToInt32(reader, "StudentID"),
+                    RegistrationNo = reader["RegistrationNo"] as string ?? "",
+                    StudentName = reader["StudentName"] as string ?? "",
+                    ChallanNo = reader["ChallanNo"] is DBNull ? null : reader["ChallanNo"] as string,
+                    NetPayable = reader["NetPayable"] is DBNull ? null : FeeSql.ToDecimal(reader, "NetPayable"),
+                    Status = reader["Status"] as string ?? ""
+                });
+            }
+        }
+        catch (SqlException ex) when (ex.Number is 2812 or 208)
+        {
+            throw new InvalidOperationException(
+                "Bulk challan stored procedure is not installed. Run Scripts/usp_BulkGenerateChallans.sql on the database.",
+                ex);
+        }
+
+        var generated = results.Count(r => r.Status.Equals("Generated", StringComparison.OrdinalIgnoreCase));
+        var skipped = results.Count(r => r.Status.StartsWith("Skipped", StringComparison.OrdinalIgnoreCase));
+        var errors = results.Count(r => r.Status.StartsWith("Error", StringComparison.OrdinalIgnoreCase));
+
+        return new BulkChallanGenerateResponse
+        {
+            TotalProcessed = results.Count,
+            TotalGenerated = generated,
+            TotalSkipped = skipped,
+            TotalErrors = errors,
+            Results = results
+        };
+    }
+
     private static async Task<string> AllocateChallanNoAsync(
         SqlConnection connection,
         SqlTransaction transaction,

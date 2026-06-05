@@ -73,7 +73,9 @@ body.student-mgmt-portal .breadcrumb-item a {
 
 .sm-module-card__icon {
     align-items: center;
+    background: rgba(100, 116, 139, .12);
     border-radius: .85rem;
+    color: #475569;
     display: inline-flex;
     font-size: 1.35rem;
     height: 48px;
@@ -81,6 +83,15 @@ body.student-mgmt-portal .breadcrumb-item a {
     margin-bottom: .75rem;
     width: 48px;
 }
+
+.sm-module-card__icon.accent-blue { background: rgba(37, 99, 235, .12); color: #2563eb; }
+.sm-module-card__icon.accent-cyan { background: rgba(8, 145, 178, .12); color: #0891b2; }
+.sm-module-card__icon.accent-indigo { background: rgba(79, 70, 229, .12); color: #4f46e5; }
+.sm-module-card__icon.accent-green { background: rgba(22, 163, 74, .12); color: #16a34a; }
+.sm-module-card__icon.accent-purple { background: rgba(124, 58, 237, .12); color: #7c3aed; }
+.sm-module-card__icon.accent-orange { background: rgba(249, 115, 22, .12); color: #f97316; }
+.sm-module-card__icon.accent-red { background: rgba(220, 38, 38, .12); color: #dc2626; }
+.sm-module-card__icon.accent-teal { background: rgba(13, 148, 136, .12); color: #0d9488; }
 
 .sm-module-card__title {
     font-size: 1rem;

@@ -8,6 +8,11 @@ public interface IFeeLookupRepository
     Task<IReadOnlyList<FeeLookupItem>> GetActiveStudentsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeLookupItem>> GetActiveFeeHeadsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeLookupItem>> GetActiveStructuresAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeeLookupItem>> GetActiveStructuresByProgramAsync(
+        int programId,
+        string? semester = null,
+        short? academicYear = null,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeLookupItem>> GetUnpaidChallansAsync(CancellationToken cancellationToken = default);
 }
 
@@ -43,6 +48,14 @@ public interface IFeeChallanRepository
     Task<int> GenerateChallanAsync(ChallanGenerateFormModel model, int createdBy, CancellationToken cancellationToken = default);
     Task<bool> CancelAsync(int challanId, int? updatedBy, CancellationToken cancellationToken = default);
     Task RecalculateStatusAsync(int challanId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsAsync(
+        int programId,
+        string semester,
+        short academicYear,
+        CancellationToken cancellationToken = default);
+    Task<BulkChallanGenerateResponse> BulkGenerateAsync(
+        BulkChallanGenerateRequest request,
+        CancellationToken cancellationToken = default);
 }
 
 public interface IFeePaymentRepository

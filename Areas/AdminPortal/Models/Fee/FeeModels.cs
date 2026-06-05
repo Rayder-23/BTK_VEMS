@@ -307,3 +307,45 @@ public sealed class FeeDashboardTile
     public required string IconClass { get; init; }
     public required string AccentClass { get; init; }
 }
+
+public sealed class BulkChallanEligibleStudent
+{
+    public int StudentId { get; init; }
+    public string RegistrationNo { get; init; } = string.Empty;
+    public string? RollNo { get; init; }
+    public string StudentName { get; init; } = string.Empty;
+    public string ProgramName { get; init; } = string.Empty;
+    public bool HasConcession { get; init; }
+    public bool AlreadyHasChallan { get; init; }
+}
+
+public sealed class BulkChallanGenerateRequest
+{
+    public int ProgramId { get; set; }
+    public int StructureId { get; set; }
+    public string Semester { get; set; } = "Fall";
+    public short AcademicYear { get; set; } = (short)DateTime.Today.Year;
+    public DateOnly IssueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+    public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(15));
+    public int CreatedBy { get; set; }
+    public IReadOnlyList<int>? StudentIds { get; set; }
+}
+
+public sealed class BulkChallanGenerateResultItem
+{
+    public int StudentId { get; init; }
+    public string RegistrationNo { get; init; } = string.Empty;
+    public string StudentName { get; init; } = string.Empty;
+    public string? ChallanNo { get; init; }
+    public decimal? NetPayable { get; init; }
+    public string Status { get; init; } = string.Empty;
+}
+
+public sealed class BulkChallanGenerateResponse
+{
+    public int TotalProcessed { get; init; }
+    public int TotalGenerated { get; init; }
+    public int TotalSkipped { get; init; }
+    public int TotalErrors { get; init; }
+    public IReadOnlyList<BulkChallanGenerateResultItem> Results { get; init; } = [];
+}

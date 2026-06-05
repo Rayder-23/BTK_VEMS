@@ -8,6 +8,17 @@ public static class AdminModuleCatalog
     [
         new()
         {
+            Name = "Admissions",
+            Controller = "AdmissionsMgmt",
+            IconClass = "bi-door-open-fill",
+            Description = "Student applications, tests, payments, and enrollment conversion",
+            AccentClass = "accent-cyan",
+            ImageUrl = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80&auto=format&fit=crop",
+            IsAvailable = true,
+            UrlOverride = "/adminportal/admissions"
+        },
+        new()
+        {
             Name = "Students Management",
             Controller = "StudentMgmt",
             IconClass = "bi-mortarboard-fill",
@@ -119,17 +130,6 @@ public static class AdminModuleCatalog
             AccentClass = "accent-indigo",
             ImageUrl = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80&auto=format&fit=crop",
             IsAvailable = false
-        },
-        new()
-        {
-            Name = "Admissions",
-            Controller = "AdmissionsMgmt",
-            IconClass = "bi-door-open-fill",
-            Description = "Student applications, tests, payments, and enrollment conversion",
-            AccentClass = "accent-cyan",
-            ImageUrl = "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80&auto=format&fit=crop",
-            IsAvailable = true,
-            UrlOverride = "/adminportal/admissions"
         },
         new()
         {

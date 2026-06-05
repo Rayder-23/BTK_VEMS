@@ -53,6 +53,42 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
         return await ReadLookupAsync(sql, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<FeeLookupItem>> GetActiveStructuresByProgramAsync(
+        int programId,
+        string? semester = null,
+        short? academicYear = null,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT fs.Uid,
+                   fs.StructureName + ' (' + fs.Semester + ' ' + CAST(fs.AcademicYear AS varchar(4)) + ')'
+            FROM dbo.FeeStructures fs
+            WHERE fs.IsActive = 1
+              AND fs.ProgramID = @ProgramId
+              AND (@Semester IS NULL OR fs.Semester = @Semester)
+              AND (@AcademicYear IS NULL OR fs.AcademicYear = @AcademicYear)
+            ORDER BY fs.AcademicYear DESC, fs.StructureName;
+            """;
+        var list = new List<FeeLookupItem>();
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ProgramId", programId);
+        command.Parameters.AddWithValue("@Semester", string.IsNullOrWhiteSpace(semester) ? DBNull.Value : semester.Trim());
+        command.Parameters.AddWithValue("@AcademicYear", academicYear.HasValue ? academicYear.Value : DBNull.Value);
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new FeeLookupItem
+            {
+                Id = FeeSql.ToInt32(reader, 0),
+                Name = reader.GetString(1)
+            });
+        }
+
+        return list;
+    }
+
     public async Task<IReadOnlyList<FeeLookupItem>> GetUnpaidChallansAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
