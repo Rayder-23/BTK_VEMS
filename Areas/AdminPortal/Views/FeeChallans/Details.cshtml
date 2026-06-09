@@ -4,46 +4,39 @@
     ViewData["Title"] = $"Challan {h.ChallanNo}";
 }
 
-<section class="module-page-header accent-teal">
-    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-start">
-        <div>
-            <h1 class="h3 fw-bold">@h.ChallanNo</h1>
-            <p class="text-muted mb-0">@h.StudentName (@h.RegistrationNo) · Due @h.DueDate.ToString("yyyy-MM-dd")</p>
+<partial name="_FeeAlerts" />
+
+<section class="portal-card challan-summary-compact challan-summary-compact--admin mb-3">
+    <div class="challan-summary-head">
+        <div class="challan-summary-title">
+            <span class="challan-summary-no">@h.ChallanNo</span>
+            <span class="challan-summary-meta">
+                @h.StudentName (@h.RegistrationNo) · Due @h.DueDate.ToString("yyyy-MM-dd")
+            </span>
         </div>
-        <a class="btn btn-outline-primary rounded-pill no-print" href="/adminportal/fee/challans/print/@h.Uid" target="_blank" rel="noopener">Print voucher</a>
+        <a class="btn btn-sm btn-outline-primary rounded-pill no-print flex-shrink-0" href="/adminportal/fee/challans/print/@h.Uid" target="_blank" rel="noopener">Print voucher</a>
+    </div>
+    <div class="challan-summary-metrics challan-summary-metrics--4">
+        <div class="challan-summary-metric">
+            <span class="challan-summary-label">Net payable</span>
+            <span class="challan-summary-value">@h.NetPayable.ToString("N2")</span>
+        </div>
+        <div class="challan-summary-metric">
+            <span class="challan-summary-label">Paid</span>
+            <span class="challan-summary-value">@h.AmountPaid.ToString("N2")</span>
+        </div>
+        <div class="challan-summary-metric">
+            <span class="challan-summary-label">Balance</span>
+            <span class="challan-summary-value">@((h.NetPayable - h.AmountPaid).ToString("N2"))</span>
+        </div>
+        <div class="challan-summary-metric">
+            <span class="challan-summary-label">Status</span>
+            <span class="challan-summary-value">@h.DisplayStatus</span>
+        </div>
     </div>
 </section>
 
-<partial name="_FeeAlerts" />
-
-<div class="row g-3 mt-1">
-    <div class="col-md-3">
-        <section class="portal-card h-100">
-            <p class="text-muted small mb-1">Net payable</p>
-            <p class="h4 fw-bold mb-0">@h.NetPayable.ToString("N2")</p>
-        </section>
-    </div>
-    <div class="col-md-3">
-        <section class="portal-card h-100">
-            <p class="text-muted small mb-1">Paid</p>
-            <p class="h4 fw-bold mb-0">@h.AmountPaid.ToString("N2")</p>
-        </section>
-    </div>
-    <div class="col-md-3">
-        <section class="portal-card h-100">
-            <p class="text-muted small mb-1">Balance</p>
-            <p class="h4 fw-bold mb-0">@((h.NetPayable - h.AmountPaid).ToString("N2"))</p>
-        </section>
-    </div>
-    <div class="col-md-3">
-        <section class="portal-card h-100">
-            <p class="text-muted small mb-1">Status</p>
-            <p class="h5 fw-bold mb-0">@h.DisplayStatus</p>
-        </section>
-    </div>
-</div>
-
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 fw-bold mb-0">Fee breakdown</h2>
         <div class="d-flex gap-2">

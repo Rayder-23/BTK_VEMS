@@ -1,16 +1,16 @@
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.PaymentListItem>
 @{ ViewData["Title"] = "Payments"; }
 
-<section class="module-page-header accent-green">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1 class="h3 fw-bold mb-0">Payments</h1>
-        <a class="btn btn-primary rounded-pill" href="/adminportal/fee/payments/create">Record payment</a>
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Payments</span>
+        <a class="btn btn-sm btn-primary rounded-pill flex-shrink-0" href="/adminportal/fee/payments/create">Record payment</a>
     </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <table class="table admin-table align-middle">
         <thead>
             <tr><th>Date</th><th>Challan</th><th>Student</th><th>Amount</th><th>Mode</th><th>Receipt</th></tr>

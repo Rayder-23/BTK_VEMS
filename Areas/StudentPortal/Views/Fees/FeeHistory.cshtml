@@ -1,0 +1,55 @@
+@model StudentFeeHistoryPageModel
+@{
+    ViewData["Title"] = "Fee History";
+}
+
+<div class="portal-card">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1 class="h4 fw-bold mb-1">Fee History</h1>
+            <p class="text-muted mb-0">All fee challans issued to your account.</p>
+        </div>
+        <i class="bi bi-clock-history fs-4 text-primary"></i>
+    </div>
+
+    @if (Model.Challans.Count == 0)
+    {
+        <p class="text-muted mb-0">No challans have been issued yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Challan no.</th>
+                        <th>Semester</th>
+                        <th>Year</th>
+                        <th>Issued</th>
+                        <th>Due</th>
+                        <th class="text-end">Net payable</th>
+                        <th class="text-end">Paid</th>
+                        <th class="text-end">Balance</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var challan in Model.Challans)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@challan.ChallanNo</td>
+                            <td>@challan.Semester</td>
+                            <td>@challan.AcademicYear</td>
+                            <td>@challan.IssueDate.ToString("dd MMM yyyy")</td>
+                            <td>@challan.DueDate.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">@challan.NetPayable.ToString("N2")</td>
+                            <td class="text-end">@challan.AmountPaid.ToString("N2")</td>
+                            <td class="text-end">@challan.Balance.ToString("N2")</td>
+                            <td><span class="badge text-bg-light border">@challan.DisplayStatus</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

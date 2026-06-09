@@ -35,6 +35,7 @@ builder.Services
     });
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
 builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
+builder.Services.AddScoped<IStudentChallanRepository, StudentChallanRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentsLoginRepository, StudentsLoginRepository>();

@@ -1,16 +1,16 @@
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.ConcessionListItem>
 @{ ViewData["Title"] = "Concessions"; }
 
-<section class="module-page-header accent-purple">
-    <div class="d-flex justify-content-between">
-        <h1 class="h3 fw-bold">Concessions</h1>
-        <a class="btn btn-primary rounded-pill" href="/adminportal/fee/concessions/create">Add concession</a>
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Concessions</span>
+        <a class="btn btn-sm btn-primary rounded-pill flex-shrink-0" href="/adminportal/fee/concessions/create">Add concession</a>
     </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <table class="table admin-table align-middle">
         <thead>
             <tr><th>Student</th><th>Fee head</th><th>Type</th><th>Value</th><th>Valid</th><th>Active</th><th></th></tr>

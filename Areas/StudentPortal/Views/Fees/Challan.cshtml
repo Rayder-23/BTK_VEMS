@@ -1,0 +1,85 @@
+@model StudentChallanPageModel
+@{
+    ViewData["Title"] = "Challan";
+    var challan = Model.Challan;
+    var monthLabel = DateTime.Today.ToString("MMMM yyyy");
+}
+
+@if (challan is null)
+{
+    <div class="portal-card">
+        <div class="d-flex align-items-start gap-3">
+            <span class="metric-icon flex-shrink-0"><i class="bi bi-receipt"></i></span>
+            <div>
+                <h1 class="h4 fw-bold mb-2">No challan for @monthLabel</h1>
+                <p class="text-muted mb-0">There is no fee challan issued for the current month yet.</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="portal-card challan-summary-compact mb-3">
+        <div class="challan-summary-head">
+            <div class="challan-summary-title">
+                <span class="challan-summary-no">@challan.ChallanNo</span>
+                <span class="challan-summary-meta">
+                    @challan.Semester · @challan.AcademicYear
+                    · Issued @challan.IssueDate.ToString("dd MMM yyyy")
+                    · Due @challan.DueDate.ToString("dd MMM yyyy")
+                </span>
+            </div>
+            <span class="badge rounded-pill text-bg-primary challan-summary-status">@challan.DisplayStatus</span>
+        </div>
+        <div class="challan-summary-metrics">
+            <div class="challan-summary-metric">
+                <span class="challan-summary-label">Net payable</span>
+                <span class="challan-summary-value">@challan.NetPayable.ToString("N2")</span>
+            </div>
+            <div class="challan-summary-metric">
+                <span class="challan-summary-label">Paid</span>
+                <span class="challan-summary-value">@challan.AmountPaid.ToString("N2")</span>
+            </div>
+            <div class="challan-summary-metric">
+                <span class="challan-summary-label">Balance</span>
+                <span class="challan-summary-value">@challan.Balance.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="portal-card">
+        <h2 class="h5 fw-bold mb-3">Fee breakdown</h2>
+        @if (Model.Lines.Count == 0)
+        {
+            <p class="text-muted mb-0">No line items found for this challan.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fee head</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-end">Discount</th>
+                            <th class="text-end">Late fine</th>
+                            <th class="text-end">Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            <tr>
+                                <td>@line.FeeHeadName</td>
+                                <td class="text-end">@line.Amount.ToString("N2")</td>
+                                <td class="text-end">@line.DiscountAmount.ToString("N2")</td>
+                                <td class="text-end">@line.LateFine.ToString("N2")</td>
+                                <td class="text-end fw-semibold">@line.NetAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}

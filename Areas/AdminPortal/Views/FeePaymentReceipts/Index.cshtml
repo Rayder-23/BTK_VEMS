@@ -1,13 +1,15 @@
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.PaymentListItem>
 @{ ViewData["Title"] = "Receipts"; }
 
-<section class="module-page-header accent-indigo">
-    <h1 class="h3 fw-bold">Payment receipts</h1>
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Payment receipts</span>
+    </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <table class="table admin-table align-middle">
         <thead>
             <tr><th>Receipt</th><th>Date</th><th>Challan</th><th>Student</th><th>Amount</th><th></th></tr>

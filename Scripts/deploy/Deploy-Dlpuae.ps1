@@ -25,7 +25,8 @@ scp @sshBase (Join-Path $PSScriptRoot 'vems.service') "${sshHost}:/etc/systemd/s
 
 Write-Host 'Remote install...'
 $remote = @'
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 mkdir -p /var/www/dlpuae /etc/vems
 rm -rf /var/www/dlpuae/*
 tar -xzf /tmp/vems-linux-x64.tar.gz -C /var/www/dlpuae
@@ -38,6 +39,12 @@ systemctl enable vems
 systemctl restart vems
 systemctl reload nginx
 systemctl is-active vems
-'@
-ssh @sshBase $sshHost $remote
+'@ -replace "`r`n", "`n"
+$remoteScript = Join-Path $env:TEMP 'vems-remote-install.sh'
+[System.IO.File]::WriteAllText($remoteScript, $remote, [System.Text.UTF8Encoding]::new($false))
+scp @sshBase $remoteScript "${sshHost}:/tmp/vems-remote-install.sh"
+ssh @sshBase $sshHost 'chmod +x /tmp/vems-remote-install.sh && bash /tmp/vems-remote-install.sh'
+if ($LASTEXITCODE -ne 0) {
+    throw "Remote install failed with exit code $LASTEXITCODE"
+}
 Write-Host 'Done. Verify: https://dlpuae.com'

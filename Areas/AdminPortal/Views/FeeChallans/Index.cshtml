@@ -3,19 +3,19 @@
     var search = ViewData["Search"] as string;
 }
 
-<section class="module-page-header accent-teal">
-    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-        <h1 class="h3 fw-bold mb-0">Challans Management</h1>
-        <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary rounded-pill" href="/adminportal/fee/challans/create">Generate challan</a>
-            <a class="btn btn-outline-primary rounded-pill" href="/adminportal/fee/challans/bulk">Bulk generate</a>
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Challans Management</span>
+        <div class="d-flex flex-wrap gap-2 flex-shrink-0">
+            <a class="btn btn-sm btn-primary rounded-pill" href="/adminportal/fee/challans/create">Generate challan</a>
+            <a class="btn btn-sm btn-outline-primary rounded-pill" href="/adminportal/fee/challans/bulk">Bulk generate</a>
         </div>
     </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <form method="get" class="row g-2 mb-3">
         <div class="col-md-8">
             <input type="search" name="search" value="@search" class="form-control" placeholder="Challan no, registration, student name" />

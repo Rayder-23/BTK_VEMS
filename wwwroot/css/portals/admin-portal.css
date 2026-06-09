@@ -575,6 +575,137 @@ body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__chevron {
     padding: 0 0 1.5rem;
 }
 
+.page-summary-compact,
+.challan-summary-compact {
+    padding: 0.85rem 1rem;
+}
+
+.page-summary-compact .breadcrumb {
+    font-size: 0.75rem;
+    margin-bottom: 0.35rem;
+}
+
+.page-summary-compact .breadcrumb-item a {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.page-summary-head {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+}
+
+.page-summary-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.page-summary-title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.page-summary-meta {
+    color: #64748b;
+    font-size: 0.78rem;
+    line-height: 1.3;
+}
+
+.challan-summary-head {
+    align-items: flex-start;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+}
+
+.challan-summary-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.challan-summary-no {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.challan-summary-meta {
+    color: #64748b;
+    font-size: 0.78rem;
+    line-height: 1.3;
+}
+
+.challan-summary-metrics {
+    border-top: 1px solid #e2e8f0;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    padding-top: 0.65rem;
+}
+
+.challan-summary-metrics--4 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.challan-summary-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.challan-summary-label {
+    color: #64748b;
+    font-size: 0.72rem;
+    line-height: 1.2;
+}
+
+.challan-summary-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+    .challan-summary-head {
+        align-items: center;
+    }
+
+    .challan-summary-title {
+        align-items: baseline;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .challan-summary-metrics,
+    .challan-summary-metrics--4 {
+        gap: 0;
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .challan-summary-metric {
+        border-right: 1px solid #e2e8f0;
+        padding: 0 0.75rem;
+    }
+
+    .challan-summary-metric:first-child {
+        padding-left: 0;
+    }
+
+    .challan-summary-metric:last-child {
+        border-right: 0;
+        padding-right: 0;
+    }
+}
+
 .accent-blue::before {
     background: #2563eb;
 }

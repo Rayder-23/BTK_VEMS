@@ -3,22 +3,22 @@
     ViewData["Title"] = "Fee Structures";
 }
 
-<section class="module-page-header accent-orange">
+<section class="portal-card page-summary-compact mb-3">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-3">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="/adminportal/fee">Fee</a></li>
             <li class="breadcrumb-item active">Fee Structures</li>
         </ol>
     </nav>
-    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-        <h1 class="h3 fw-bold mb-0">Fee Structures</h1>
-        <a class="btn btn-primary rounded-pill" href="/adminportal/fee/fee-structures/create">Add structure</a>
+    <div class="page-summary-head">
+        <span class="page-summary-title">Fee Structures</span>
+        <a class="btn btn-sm btn-primary rounded-pill flex-shrink-0" href="/adminportal/fee/fee-structures/create">Add structure</a>
     </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <div class="table-responsive">
         <table class="table admin-table align-middle">
             <thead>

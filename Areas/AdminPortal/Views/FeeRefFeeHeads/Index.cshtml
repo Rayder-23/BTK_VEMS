@@ -6,31 +6,28 @@
     var showInactive = ViewData["ShowInactive"] as bool? ?? false;
 }
 
-<section class="module-page-header accent-red">
+<section class="portal-card page-summary-compact mb-3">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-3">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
             <li class="breadcrumb-item"><a href="/adminportal/fee">Fee</a></li>
             <li class="breadcrumb-item active">Fee Heads</li>
         </ol>
     </nav>
-    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-        <div class="d-flex align-items-center gap-3">
-            <span class="module-page-icon"><i class="bi bi-tags-fill"></i></span>
-            <div>
-                <h1 class="h3 fw-bold mb-1">Fee Heads</h1>
-                <p class="text-muted mb-0">Manage <code>ref_FeeHeads</code>.</p>
-            </div>
+    <div class="page-summary-head">
+        <div class="page-summary-title-block">
+            <span class="page-summary-title">Fee Heads</span>
+            <span class="page-summary-meta">Manage ref_FeeHeads</span>
         </div>
-        <a class="btn btn-primary rounded-pill px-4" href="/adminportal/fee/fee-heads/create">
-            <i class="bi bi-plus-lg me-2"></i>Add fee head
+        <a class="btn btn-sm btn-primary rounded-pill flex-shrink-0" href="/adminportal/fee/fee-heads/create">
+            <i class="bi bi-plus-lg me-1"></i>Add fee head
         </a>
     </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card mt-3">
     <form method="get" class="row g-2 align-items-end mb-3">
         <div class="col-md-6">
             <label class="form-label" for="search">Search</label>

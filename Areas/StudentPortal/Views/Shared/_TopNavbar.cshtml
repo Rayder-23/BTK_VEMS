@@ -9,7 +9,7 @@
         <span>Courses</span>
     </a>
     <a class="portal-module-link @(currentController == "Fees" ? "active" : "")"
-       asp-area="StudentPortal" asp-controller="Fees" asp-action="CurrentMonth">
+       asp-area="StudentPortal" asp-controller="Fees" asp-action="Challan">
         <i class="bi bi-wallet2"></i>
         <span>Fee</span>
     </a>
@@ -17,5 +17,10 @@
        asp-area="StudentPortal" asp-controller="Results" asp-action="Assignments">
         <i class="bi bi-clipboard-data"></i>
         <span>Results</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Settings" ? "active" : "")"
+       asp-area="StudentPortal" asp-controller="Settings" asp-action="ChangePassword">
+        <i class="bi bi-gear"></i>
+        <span>Settings</span>
     </a>
 </nav>
