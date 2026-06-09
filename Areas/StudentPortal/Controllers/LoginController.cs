@@ -62,6 +62,8 @@ public class LoginController : Controller
             claims.Add(new Claim("StudentId", student.StudentId));
         }
 
+        claims.Add(new Claim("LoginAt", DateTime.UtcNow.ToString("o")));
+
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
         var authenticationProperties = new AuthenticationProperties

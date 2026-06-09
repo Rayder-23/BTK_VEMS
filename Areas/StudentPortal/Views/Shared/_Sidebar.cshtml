@@ -1,15 +1,87 @@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var hasModuleSublinks = currentController is "Courses" or "Fees" or "Results";
 }
 
 <div class="sidebar-inner">
     <a class="portal-brand" asp-area="StudentPortal" asp-controller="Dashboard" asp-action="Index">
         <span class="brand-icon"><i class="bi bi-mortarboard-fill"></i></span>
-        <span>
-            <span class="brand-title">Student Portal</span>
-            <small>Learning workspace</small>
-        </span>
+        <span class="brand-title">Student Portal</span>
     </a>
+
+    @if (hasModuleSublinks)
+    {
+        <div class="portal-menu-section">
+            <p class="portal-menu-heading">
+                @switch (currentController)
+                {
+                    case "Courses":
+                        <span>Courses</span>
+                        break;
+                    case "Fees":
+                        <span>Fee</span>
+                        break;
+                    case "Results":
+                        <span>Results</span>
+                        break;
+                }
+            </p>
+            <nav class="portal-menu" aria-label="Module navigation">
+                @if (currentController == "Courses")
+                {
+                    <a class="portal-menu-link @(currentAction == "AllCourses" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Courses" asp-action="AllCourses">
+                        <i class="bi bi-collection"></i>
+                        <span>All Courses</span>
+                    </a>
+                    <a class="portal-menu-link @(currentAction == "Classes" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Courses" asp-action="Classes">
+                        <i class="bi bi-easel"></i>
+                        <span>Classes</span>
+                    </a>
+                    <a class="portal-menu-link @(currentAction == "Timetable" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Courses" asp-action="Timetable">
+                        <i class="bi bi-calendar3"></i>
+                        <span>Timetable</span>
+                    </a>
+                }
+                else if (currentController == "Fees")
+                {
+                    <a class="portal-menu-link @(currentAction == "CurrentMonth" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Fees" asp-action="CurrentMonth">
+                        <i class="bi bi-calendar-month"></i>
+                        <span>Current Month</span>
+                    </a>
+                    <a class="portal-menu-link @(currentAction == "PreviousFee" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Fees" asp-action="PreviousFee">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Previous Fee</span>
+                    </a>
+                }
+                else if (currentController == "Results")
+                {
+                    <a class="portal-menu-link @(currentAction == "Assignments" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Results" asp-action="Assignments">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Assignments</span>
+                    </a>
+                    <a class="portal-menu-link @(currentAction == "Quizzes" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Results" asp-action="Quizzes">
+                        <i class="bi bi-patch-question"></i>
+                        <span>Quizzes</span>
+                    </a>
+                    <a class="portal-menu-link @(currentAction == "Exams" ? "active" : "")"
+                       asp-area="StudentPortal" asp-controller="Results" asp-action="Exams">
+                        <i class="bi bi-journal-check"></i>
+                        <span>Exams</span>
+                    </a>
+                }
+            </nav>
+        </div>
+
+        <hr class="portal-menu-divider" />
+    }
 
     <nav class="portal-menu" aria-label="Student portal navigation">
         <a class="portal-menu-link @(currentController == "Dashboard" ? "active" : "")"
@@ -22,19 +94,8 @@
             <i class="bi bi-person-circle"></i>
             <span>Profile</span>
         </a>
-        <a class="portal-menu-link" href="#">
-            <i class="bi bi-journal-bookmark"></i>
-            <span>Courses</span>
-        </a>
-        <a class="portal-menu-link" href="#">
-            <i class="bi bi-calendar-check"></i>
-            <span>Attendance</span>
-        </a>
-        <a class="portal-menu-link" href="#">
-            <i class="bi bi-clipboard-data"></i>
-            <span>Results</span>
-        </a>
-        <a class="portal-menu-link" href="#">
+        <a class="portal-menu-link @(currentController == "Settings" ? "active" : "")"
+           asp-area="StudentPortal" asp-controller="Settings" asp-action="Index">
             <i class="bi bi-gear"></i>
             <span>Settings</span>
         </a>

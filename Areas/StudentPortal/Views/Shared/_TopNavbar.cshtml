@@ -1,0 +1,21 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+
+<nav class="portal-module-nav" aria-label="Main modules">
+    <a class="portal-module-link @(currentController == "Courses" ? "active" : "")"
+       asp-area="StudentPortal" asp-controller="Courses" asp-action="AllCourses">
+        <i class="bi bi-journal-bookmark"></i>
+        <span>Courses</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Fees" ? "active" : "")"
+       asp-area="StudentPortal" asp-controller="Fees" asp-action="CurrentMonth">
+        <i class="bi bi-wallet2"></i>
+        <span>Fee</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Results" ? "active" : "")"
+       asp-area="StudentPortal" asp-controller="Results" asp-action="Assignments">
+        <i class="bi bi-clipboard-data"></i>
+        <span>Results</span>
+    </a>
+</nav>
