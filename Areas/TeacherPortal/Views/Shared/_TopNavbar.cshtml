@@ -1,0 +1,31 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+
+<nav class="portal-module-nav" aria-label="Main modules">
+    <a class="portal-module-link @(currentController == "Classes" ? "active" : "")"
+       asp-area="TeacherPortal" asp-controller="Classes" asp-action="Index">
+        <i class="bi bi-easel"></i>
+        <span>Classes</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Students" ? "active" : "")"
+       asp-area="TeacherPortal" asp-controller="Students" asp-action="Index">
+        <i class="bi bi-people"></i>
+        <span>Students</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Attendance" ? "active" : "")"
+       asp-area="TeacherPortal" asp-controller="Attendance" asp-action="Index">
+        <i class="bi bi-calendar-check"></i>
+        <span>Attendance</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Results" ? "active" : "")"
+       asp-area="TeacherPortal" asp-controller="Results" asp-action="Index">
+        <i class="bi bi-clipboard-data"></i>
+        <span>Results</span>
+    </a>
+    <a class="portal-module-link @(currentController == "Settings" ? "active" : "")"
+       asp-area="TeacherPortal" asp-controller="Settings" asp-action="Index">
+        <i class="bi bi-gear"></i>
+        <span>Settings</span>
+    </a>
+</nav>

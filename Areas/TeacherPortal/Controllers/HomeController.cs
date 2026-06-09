@@ -2,12 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace VEMS.Areas.TeacherPortal.Controllers;
 
-[Area("TeacherPortal")]
-public class HomeController : Controller
+public sealed class HomeController : TeacherPortalBaseController
 {
-    public IActionResult Index()
-    {
-        ViewData["Title"] = "Teacher Portal";
-        return View();
-    }
+    public IActionResult Index() => RedirectToAction("Index", "Dashboard");
 }

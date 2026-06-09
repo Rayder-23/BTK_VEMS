@@ -2,50 +2,35 @@
     ViewData["Title"] = "Teacher Dashboard";
 }
 
-<section class="portal-hero rounded-4 p-4 p-lg-5 mb-4">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-8">
-            <p class="text-uppercase fw-semibold small mb-2">Teacher Portal</p>
-            <h1 class="display-6 fw-bold mb-3">Welcome to your teacher dashboard</h1>
-            <p class="lead mb-0">
-                Manage classes, attendance, course content, and student outcomes from one professional workspace.
-            </p>
+<div class="portal-card dashboard-metrics-compact mb-3">
+    <div class="dashboard-metrics-grid">
+        <div class="dashboard-metric">
+            <i class="bi bi-easel dashboard-metric-icon"></i>
+            <div class="dashboard-metric-body">
+                <span class="dashboard-metric-label">Active Classes</span>
+                <span class="dashboard-metric-value">5</span>
+            </div>
         </div>
-        <div class="col-lg-4 text-lg-end">
-            <a class="btn btn-light btn-lg rounded-pill px-4" href="#">
-                <i class="bi bi-plus-circle me-2"></i>Create Lesson
-            </a>
+        <div class="dashboard-metric">
+            <i class="bi bi-people dashboard-metric-icon"></i>
+            <div class="dashboard-metric-body">
+                <span class="dashboard-metric-label">Students</span>
+                <span class="dashboard-metric-value">148</span>
+            </div>
         </div>
-    </div>
-</section>
-
-<div class="row g-4 mb-4">
-    <div class="col-md-6 col-xl-3">
-        <div class="metric-card">
-            <span class="metric-icon"><i class="bi bi-easel"></i></span>
-            <p class="text-muted mb-1">Active Classes</p>
-            <h2 class="fw-bold mb-0">5</h2>
+        <div class="dashboard-metric">
+            <i class="bi bi-calendar-check dashboard-metric-icon"></i>
+            <div class="dashboard-metric-body">
+                <span class="dashboard-metric-label">Attendance Due</span>
+                <span class="dashboard-metric-value">3</span>
+            </div>
         </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="metric-card">
-            <span class="metric-icon"><i class="bi bi-people"></i></span>
-            <p class="text-muted mb-1">Students</p>
-            <h2 class="fw-bold mb-0">148</h2>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="metric-card">
-            <span class="metric-icon"><i class="bi bi-calendar-check"></i></span>
-            <p class="text-muted mb-1">Attendance Due</p>
-            <h2 class="fw-bold mb-0">3</h2>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="metric-card">
-            <span class="metric-icon"><i class="bi bi-clipboard-data"></i></span>
-            <p class="text-muted mb-1">Results Pending</p>
-            <h2 class="fw-bold mb-0">12</h2>
+        <div class="dashboard-metric">
+            <i class="bi bi-clipboard-data dashboard-metric-icon"></i>
+            <div class="dashboard-metric-body">
+                <span class="dashboard-metric-label">Results Pending</span>
+                <span class="dashboard-metric-value">12</span>
+            </div>
         </div>
     </div>
 </div>
@@ -80,9 +65,15 @@
         <div class="portal-card h-100">
             <h2 class="h5 fw-bold mb-3">Quick Actions</h2>
             <div class="d-grid gap-2">
-                <a class="btn btn-outline-primary" href="#"><i class="bi bi-calendar-plus me-2"></i>Mark Attendance</a>
-                <a class="btn btn-outline-primary" href="#"><i class="bi bi-upload me-2"></i>Upload Result</a>
-                <a class="btn btn-outline-primary" href="#"><i class="bi bi-megaphone me-2"></i>Post Announcement</a>
+                <a class="btn btn-outline-primary" asp-area="TeacherPortal" asp-controller="Attendance" asp-action="Index">
+                    <i class="bi bi-calendar-plus me-2"></i>Mark Attendance
+                </a>
+                <a class="btn btn-outline-primary" asp-area="TeacherPortal" asp-controller="Results" asp-action="Index">
+                    <i class="bi bi-upload me-2"></i>Upload Results
+                </a>
+                <a class="btn btn-outline-primary" asp-area="TeacherPortal" asp-controller="Classes" asp-action="Index">
+                    <i class="bi bi-megaphone me-2"></i>My Classes
+                </a>
             </div>
         </div>
     </div>

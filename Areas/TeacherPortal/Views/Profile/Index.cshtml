@@ -1,0 +1,152 @@
+@model VEMS.Areas.AdminPortal.Models.EmployeeFormModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Profile";
+    var loginUsername = ViewData["LoginUsername"] as string;
+    var loginRole = ViewData["LoginRole"] as string;
+    var initials = string.Concat(
+        Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2)
+            .Select(part => part[0]))
+        .ToUpperInvariant();
+
+    string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    string DisplayDate(DateTime? value) => value?.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "—";
+
+    var statusClass = Model.Status switch
+    {
+        "Active" => "text-bg-success",
+        "Inactive" => "text-bg-secondary",
+        "Suspended" => "text-bg-danger",
+        "On-Leave" => "text-bg-warning",
+        "Terminated" => "text-bg-dark",
+        _ => "text-bg-secondary"
+    };
+}
+
+<div class="portal-card teacher-profile-header mb-3">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+        <span class="portal-user-avatar teacher-profile-avatar flex-shrink-0">@initials</span>
+        <div class="flex-grow-1 min-width-0">
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                <h1 class="h4 fw-bold mb-0">@Model.FullName</h1>
+                <span class="badge rounded-pill @statusClass">@Model.Status</span>
+            </div>
+            <p class="text-muted mb-0">
+                @DisplayValue(Model.Designation)
+                @if (!string.IsNullOrWhiteSpace(Model.Department))
+                {
+                    <span>· @Model.Department</span>
+                }
+            </p>
+        </div>
+        <div class="teacher-profile-meta text-muted small">
+            <div><span class="fw-semibold text-body">Employee ID:</span> @Model.EmployeeId</div>
+            @if (!string.IsNullOrWhiteSpace(loginUsername))
+            {
+                <div><span class="fw-semibold text-body">Login:</span> @loginUsername</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(loginRole))
+            {
+                <div><span class="fw-semibold text-body">Portal role:</span> @loginRole</div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3"><i class="bi bi-person-vcard me-2 text-primary"></i>Personal Information</h2>
+            <dl class="teacher-profile-dl mb-0">
+                <div class="teacher-profile-row">
+                    <dt>Full name</dt>
+                    <dd>@Model.FullName</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Father name</dt>
+                    <dd>@DisplayValue(Model.FatherName)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Date of birth</dt>
+                    <dd>@DisplayDate(Model.DOB)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>CNIC</dt>
+                    <dd>@Model.CNIC</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3"><i class="bi bi-envelope me-2 text-primary"></i>Contact</h2>
+            <dl class="teacher-profile-dl mb-0">
+                <div class="teacher-profile-row">
+                    <dt>Email</dt>
+                    <dd><a href="mailto:@Model.Email" class="text-decoration-none">@Model.Email</a></dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Phone</dt>
+                    <dd>@DisplayValue(Model.Phone)</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3"><i class="bi bi-briefcase me-2 text-primary"></i>Employment</h2>
+            <dl class="teacher-profile-dl mb-0">
+                <div class="teacher-profile-row">
+                    <dt>Department</dt>
+                    <dd>@DisplayValue(Model.Department)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Designation</dt>
+                    <dd>@DisplayValue(Model.Designation)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Employee type</dt>
+                    <dd>@DisplayValue(Model.EmployeeType)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Joined date</dt>
+                    <dd>@DisplayDate(Model.JoinedDate)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Status</dt>
+                    <dd><span class="badge rounded-pill @statusClass">@Model.Status</span></dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="portal-card h-100">
+            <h2 class="h6 fw-bold mb-3"><i class="bi bi-mortarboard me-2 text-primary"></i>Academic &amp; Professional</h2>
+            <dl class="teacher-profile-dl mb-0">
+                <div class="teacher-profile-row">
+                    <dt>Qualification</dt>
+                    <dd>@DisplayValue(Model.Qualification)</dd>
+                </div>
+                <div class="teacher-profile-row">
+                    <dt>Specialization</dt>
+                    <dd>@DisplayValue(Model.Specialization)</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <div class="col-12">
+            <div class="portal-card">
+                <h2 class="h6 fw-bold mb-3"><i class="bi bi-journal-text me-2 text-primary"></i>Notes</h2>
+                <p class="mb-0 text-muted">@Model.Notes</p>
+            </div>
+        </div>
+    }
+</div>

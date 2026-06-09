@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace VEMS.Areas.TeacherPortal.Controllers;
 
-[Area("TeacherPortal")]
-public class DashboardController : Controller
+public sealed class DashboardController : TeacherPortalBaseController
 {
     public IActionResult Index()
     {

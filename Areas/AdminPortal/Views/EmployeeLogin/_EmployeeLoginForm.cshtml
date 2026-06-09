@@ -1,0 +1,75 @@
+@model EmployeeLoginFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+@if (Model.Lookups.Roles.Count == 0 || Model.Lookups.Statuses.Count == 0)
+{
+    <div class="alert alert-warning">
+        Configure <strong>EmployeeRoles</strong> and <strong>EmployeeStatus</strong> in
+        <a href="/adminportal/settings">Settings → Configurations</a> before saving logins.
+    </div>
+}
+
+@if (Model.IsEdit)
+{
+    <div class="alert alert-light border mb-3" role="status">
+        <strong>Employee:</strong> @Model.Form.EmployeeDisplayName
+        @if (!string.IsNullOrEmpty(Model.Form.EmployeeCode))
+        {
+            <span class="text-muted">(@Model.Form.EmployeeCode)</span>
+        }
+        <input type="hidden" asp-for="Form.EmployeeUid" />
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        <div class="col-12">
+            <label asp-for="Form.EmployeeUid" class="form-label"></label>
+            <select asp-for="Form.EmployeeUid" class="form-select"
+                    asp-items="@(new SelectList(Model.AvailableEmployees, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">Select employee</option>
+            </select>
+            <span asp-validation-for="Form.EmployeeUid" class="text-danger small"></span>
+            @if (Model.AvailableEmployees.Count == 0)
+            {
+                <p class="text-warning small mt-2 mb-0">All employees already have logins. Add an employee first.</p>
+            }
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <label asp-for="Form.Username" class="form-label"></label>
+        <input asp-for="Form.Username" class="form-control" autocomplete="off" maxlength="50" />
+        <span asp-validation-for="Form.Username" class="text-danger small"></span>
+    </div>
+    <div class="col-12 col-lg-6">
+        <label asp-for="Form.Role" class="form-label"></label>
+        <select asp-for="Form.Role" class="form-select" asp-items="@(new SelectList(Model.Lookups.Roles))">
+            <option value="">Select role</option>
+        </select>
+        <span asp-validation-for="Form.Role" class="text-danger small"></span>
+    </div>
+    <div class="col-12 col-lg-6">
+        <label asp-for="Form.Status" class="form-label"></label>
+        <select asp-for="Form.Status" class="form-select" asp-items="@(new SelectList(Model.Lookups.Statuses))">
+            <option value="">Select status</option>
+        </select>
+        <span asp-validation-for="Form.Status" class="text-danger small"></span>
+    </div>
+    <div class="col-12 col-lg-6">
+        <label asp-for="Form.Password" class="form-label"></label>
+        <input asp-for="Form.Password" class="form-control" type="password" autocomplete="new-password" />
+        <span asp-validation-for="Form.Password" class="text-danger small"></span>
+        @if (Model.IsEdit)
+        {
+            <p class="form-text mb-0">Leave blank to keep the current password.</p>
+        }
+        else
+        {
+            <p class="form-text mb-0">Leave blank to use default password: <strong>@EmployeeLoginFormViewModel.DefaultPassword</strong></p>
+        }
+    </div>
+</div>

@@ -49,6 +49,16 @@ public static class HrModuleCatalog
         },
         new()
         {
+            Key = "EmployeeLogin",
+            Name = "Create Login",
+            Controller = "EmployeeLogin",
+            Segment = "employee-login",
+            IconClass = "bi-key-fill",
+            Description = "Employee portal login accounts",
+            AccentClass = "accent-indigo"
+        },
+        new()
+        {
             Key = "Leaves",
             Name = "Leaves",
             Controller = "Leaves",

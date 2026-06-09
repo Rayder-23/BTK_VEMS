@@ -5,6 +5,8 @@ using VEMS.Areas.AdminPortal.Services.Admissions;
 using VEMS.Areas.AdminPortal.Services.Examination;
 using VEMS.Areas.AdminPortal.Services.Fee;
 using VEMS.Areas.StudentPortal.Services;
+using VEMS.Areas.TeacherPortal;
+using VEMS.Areas.TeacherPortal.Services;
 using VEMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,20 +26,36 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
         options.Cookie.Name = "VEMS.StudentPortal.Auth";
         options.LoginPath = "/studentportal/login";
         options.AccessDeniedPath = "/studentportal/login";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+    })
+    .AddCookie(TeacherPortalAuth.Scheme, options =>
+    {
+        options.Cookie.Name = TeacherPortalAuth.CookieName;
+        options.LoginPath = "/teacherportal/login";
+        options.AccessDeniedPath = "/teacherportal/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
     });
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
+builder.Services.AddScoped<ITeacherLoginRepository, TeacherLoginRepository>();
+builder.Services.AddScoped<ITeacherAccountRepository, TeacherAccountRepository>();
 builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
 builder.Services.AddScoped<IStudentChallanRepository, StudentChallanRepository>();
 builder.Services.AddScoped<IStudentCourseRepository, StudentCourseRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeLoginRepository, EmployeeLoginRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IProgramRepository, ProgramRepository>();

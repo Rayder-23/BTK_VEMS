@@ -14,6 +14,7 @@ public static class HrNavCatalog
     [
         new() { Key = "dashboard", Name = "Dashboard", Url = "/adminportal/hr", IconClass = "fa-gauge-high" },
         new() { Key = "employees", Name = "Employees", Url = "/adminportal/hr/employees", IconClass = "fa-id-badge" },
+        new() { Key = "employee-login", Name = "Create Login", Url = "/adminportal/hr/employee-login", IconClass = "fa-key" },
         new() { Key = "leaves", Name = "Leaves", Url = "/adminportal/hr/leaves", IconClass = "fa-plane" },
         new() { Key = "attendance", Name = "Attendance", Url = "/adminportal/hr/attendance", IconClass = "fa-calendar-check" },
         new() { Key = "payroll", Name = "Payroll", Url = "/adminportal/hr/payroll", IconClass = "fa-money-check-dollar" },
@@ -26,6 +27,7 @@ public static class HrNavCatalog
     {
         "HR",
         "Employees",
+        "EmployeeLogin",
         "Leaves",
         "HrAttendance",
         "Payroll",
@@ -44,6 +46,11 @@ public static class HrNavCatalog
         if (path.Contains("/employees", StringComparison.Ordinal))
         {
             return "employees";
+        }
+
+        if (path.Contains("/employee-login", StringComparison.Ordinal))
+        {
+            return "employee-login";
         }
 
         if (path.Contains("/leaves", StringComparison.Ordinal))
