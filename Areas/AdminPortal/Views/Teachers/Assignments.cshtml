@@ -1,0 +1,116 @@
+@model TeacherAssignmentsPageViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Teacher assignments";
+    var showInactive = ViewData["ShowInactive"] as bool? ?? false;
+    var message = TempData["StatusMessage"] as string;
+
+    string FormatTime(TimeSpan? value) =>
+        value?.ToString(@"hh\:mm", CultureInfo.InvariantCulture) ?? "—";
+}
+
+<section class="module-page-header accent-purple">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Teachers</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Assignments</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+        <div class="d-flex align-items-center gap-3">
+            <span class="module-page-icon"><i class="bi bi-journal-bookmark"></i></span>
+            <div>
+                <h1 class="h3 fw-bold mb-1">Class &amp; course assignments</h1>
+                <p class="text-muted mb-0">
+                    <strong>@Model.Teacher.FullName</strong> (@Model.Teacher.EmployeeCode) ·
+                    <code>dbo.TeacherCourseAssignments</code>
+                </p>
+            </div>
+        </div>
+        <a class="btn btn-primary rounded-pill px-4"
+           asp-action="CreateAssignment" asp-route-teacherId="@Model.Teacher.TeacherId">
+            <i class="bi bi-plus-lg me-2"></i>Assign class &amp; course
+        </a>
+    </div>
+</section>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-4 mb-0" role="alert">@message</div>
+}
+
+<section class="portal-card mt-4">
+    <form method="get" class="row g-2 align-items-end mb-3"
+          asp-action="Assignments" asp-route-teacherId="@Model.Teacher.TeacherId">
+        <div class="col-md-9">
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" name="showInactive" value="true" id="showInactive"
+                       @(showInactive ? "checked" : "") />
+                <label class="form-check-label" for="showInactive">Show inactive assignments</label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary w-100">Apply</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Year</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Room</th>
+                    <th>Active</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Assignments.Count == 0)
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        No assignments yet. Assign a class and course to this teacher.
+                    </td>
+                </tr>
+            }
+            @foreach (var row in Model.Assignments)
+            {
+                <tr>
+                    <td>
+                        <span class="fw-semibold">@row.ClassCode</span>
+                        <div class="small text-muted">@row.ClassName</div>
+                    </td>
+                    <td>
+                        <span class="fw-semibold">@row.CourseCode</span>
+                        <div class="small text-muted">@row.CourseTitle</div>
+                    </td>
+                    <td>@row.Semester</td>
+                    <td>@row.AcademicYear</td>
+                    <td>@(row.DayOfWeek ?? "—")</td>
+                    <td>@FormatTime(row.StartTime) – @FormatTime(row.EndTime)</td>
+                    <td>@(row.RoomNo ?? "—")</td>
+                    <td>@(row.IsActive ? "Yes" : "No")</td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-success"
+                           asp-action="EditAssignment" asp-route-assignmentId="@row.Uid">Edit</a>
+                        @if (row.IsActive)
+                        {
+                            <form asp-action="DeleteAssignment" asp-route-assignmentId="@row.Uid" method="post" class="d-inline"
+                                  onsubmit="return confirm('Deactivate this assignment?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

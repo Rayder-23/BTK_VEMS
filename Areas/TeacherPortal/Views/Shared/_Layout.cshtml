@@ -12,10 +12,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/portals/teacher-portal.css" asp-append-version="true" />
 </head>
-@{
-    var displayName = User.Identity?.Name ?? "Teacher";
-    var avatarLetter = displayName.Length > 0 ? displayName[0].ToString().ToUpperInvariant() : "T";
-}
 <body class="portal-shell teacher-portal">
     <script>
         (function () {
@@ -32,9 +28,6 @@
                     <i class="bi bi-list"></i>
                 </button>
                 <partial name="_TopNavbar" />
-                <div class="portal-navbar-user ms-auto flex-shrink-0">
-                    <span class="portal-user-avatar portal-user-avatar-sm" title="@displayName">@avatarLetter</span>
-                </div>
             </div>
         </nav>
         <partial name="_SubNavbar" />
@@ -67,6 +60,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
+    <script src="~/js/teacher-portal-nav.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

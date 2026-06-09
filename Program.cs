@@ -51,10 +51,13 @@ builder.Services
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
 builder.Services.AddScoped<ITeacherLoginRepository, TeacherLoginRepository>();
 builder.Services.AddScoped<ITeacherAccountRepository, TeacherAccountRepository>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
 builder.Services.AddScoped<IStudentChallanRepository, StudentChallanRepository>();
 builder.Services.AddScoped<IStudentCourseRepository, StudentCourseRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+builder.Services.AddScoped<ITeacherCourseAssignmentRepository, TeacherCourseAssignmentRepository>();
 builder.Services.AddScoped<IEmployeeLoginRepository, EmployeeLoginRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();

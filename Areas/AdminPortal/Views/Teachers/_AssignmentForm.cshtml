@@ -1,0 +1,84 @@
+@model TeacherCourseAssignmentFormPageViewModel
+@using System.Globalization
+
+@{
+    string FormatTime(TimeSpan? value) =>
+        value?.ToString(@"hh\:mm", CultureInfo.InvariantCulture) ?? string.Empty;
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+@if (Model.Lookups.Classes.Count == 0 || Model.Lookups.Courses.Count == 0)
+{
+    <div class="alert alert-warning">
+        Active classes and courses are required before creating assignments.
+    </div>
+}
+
+<div class="row g-3">
+    <input type="hidden" asp-for="Form.Uid" />
+    <input type="hidden" asp-for="Form.TeacherId" />
+    <div class="col-md-6">
+        <label asp-for="Form.ClassId" class="form-label"></label>
+        <select asp-for="Form.ClassId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Classes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select class —</option>
+        </select>
+        <span asp-validation-for="Form.ClassId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.CourseId" class="form-label"></label>
+        <select asp-for="Form.CourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select course —</option>
+        </select>
+        <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.Semester" class="form-label"></label>
+        <select asp-for="Form.Semester" class="form-select" asp-items="@(new SelectList(Model.Lookups.Semesters))">
+            <option value="">— Select semester —</option>
+        </select>
+        <span asp-validation-for="Form.Semester" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.AcademicYear" class="form-label"></label>
+        <input asp-for="Form.AcademicYear" class="form-control" type="number" min="2000" max="2100" />
+        <span asp-validation-for="Form.AcademicYear" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.DayOfWeek" class="form-label"></label>
+        <select asp-for="Form.DayOfWeek" class="form-select" asp-items="@(new SelectList(Model.Lookups.DaysOfWeek))">
+            <option value="">— None —</option>
+        </select>
+        <span asp-validation-for="Form.DayOfWeek" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.RoomNo" class="form-label"></label>
+        <input asp-for="Form.RoomNo" class="form-control" />
+        <span asp-validation-for="Form.RoomNo" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.StartTime" class="form-label"></label>
+        <input name="Form.StartTime" class="form-control" type="time"
+               value="@FormatTime(Model.Form.StartTime)" />
+        <span asp-validation-for="Form.StartTime" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.EndTime" class="form-label"></label>
+        <input name="Form.EndTime" class="form-control" type="time"
+               value="@FormatTime(Model.Form.EndTime)" />
+        <span asp-validation-for="Form.EndTime" class="text-danger small"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Form.Remarks" class="form-label"></label>
+        <textarea asp-for="Form.Remarks" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+    </div>
+    <div class="col-12">
+        <div class="form-check">
+            <input asp-for="Form.IsActive" class="form-check-input" />
+            <label asp-for="Form.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+</div>

@@ -15,9 +15,20 @@ public sealed class SettingsController : TeacherPortalBaseController
         _accounts = accounts;
     }
 
-    public IActionResult Index()
+    public IActionResult Index() => RedirectToAction(nameof(GeneralSettings));
+
+    [HttpGet]
+    public IActionResult GeneralSettings()
     {
-        return RedirectToAction(nameof(ChangePassword));
+        ViewData["Title"] = "General Settings";
+        return View("ChangeTheme");
+    }
+
+    [HttpGet]
+    public IActionResult UserSettings()
+    {
+        ViewData["Title"] = "User Settings";
+        return View();
     }
 
     [HttpGet]
@@ -38,7 +49,7 @@ public sealed class SettingsController : TeacherPortalBaseController
         var loginUid = ResolveLoginUid();
         if (loginUid is null)
         {
-            return RedirectToAction("Index", "Login");
+            return RedirectToAction("Index", "Login", new { area = "TeacherPortal" });
         }
 
         if (!ModelState.IsValid)
@@ -79,9 +90,4 @@ public sealed class SettingsController : TeacherPortalBaseController
         return View();
     }
 
-    private int? ResolveLoginUid()
-    {
-        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.TryParse(claim, out var loginUid) ? loginUid : null;
-    }
 }

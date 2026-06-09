@@ -9,6 +9,7 @@
     var hideGlobalSearch = ViewData["FeeErpHideGlobalSearch"] as bool? == true;
     var hideNavbarBrandIcon = ViewData["FeeErpHideNavbarBrandIcon"] as bool? == true;
     var hideNavAlerts = ViewData["FeeErpHideNavAlerts"] as bool? == true;
+    var mobileNavClass = ViewData["FeeErpMobileNavClass"] as string ?? "d-lg-none";
     var brandHref = ViewData["FeeErpNavbarBrandHref"] as string ?? "/adminportal/fee";
     var brandText = ViewData["FeeErpNavbarBrandText"] as string ?? "Fee Management System";
     var brandIcon = ViewData["FeeErpNavbarBrandIcon"] as string ?? "fa-wallet";
@@ -22,7 +23,7 @@
 
         @if (showSidebarChrome)
         {
-            <button class="btn btn-outline-secondary d-lg-none fee-erp-icon-btn" type="button"
+            <button class="btn btn-outline-secondary @mobileNavClass fee-erp-icon-btn" type="button"
                     data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
                     aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
                 <i class="fa-solid fa-bars"></i>

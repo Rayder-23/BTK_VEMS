@@ -743,6 +743,13 @@ body.student-mgmt-shell .student-mgmt-sidebar-inner .fee-erp-nav-list .nav-item 
 
 body.student-mgmt-shell .student-mgmt-sidebar {
     width: var(--student-mgmt-sidebar-w);
+    display: flex;
+}
+
+@media (max-width: 575.98px) {
+    body.student-mgmt-shell .fee-erp-canvas > .student-mgmt-sidebar {
+        display: none !important;
+    }
 }
 
 body.student-mgmt-shell .student-mgmt-main {
@@ -767,7 +774,7 @@ body.student-mgmt-shell.fee-erp-sidebar-collapsed .student-mgmt-main {
     margin-left: 76px;
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 575.98px) {
     body.student-mgmt-shell .student-mgmt-main {
         margin-left: 0;
     }

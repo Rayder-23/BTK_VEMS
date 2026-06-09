@@ -32,7 +32,9 @@ public sealed class StudentMgmtModule
 
     public required IReadOnlyList<StudentMgmtSubNavItem> SubNav { get; init; }
 
-    public string Url => $"/adminportal/students/{Segment}";
+    public string Url => string.Equals(Controller, "Teachers", StringComparison.OrdinalIgnoreCase)
+        ? "/adminportal/teachers"
+        : $"/adminportal/students/{Segment}";
 }
 
 public static class StudentMgmtModuleCatalog
@@ -49,6 +51,8 @@ public static class StudentMgmtModuleCatalog
             Sub("Add Course", "Create"), Sub("All Courses", "Index")),
         Module("Programs", "StudentPrograms", "programs", "bi-mortarboard-fill", "Academic programs catalog", "accent-pink",
             Sub("Add Program", "Create"), Sub("All Programs", "Index"), Sub("Program Courses", "Courses")),
+        Module("Teachers", "Teachers", "teachers", "bi-person-workspace", "Faculty records and class or course assignments", "accent-indigo",
+            Sub("Add Teacher", "Create"), Sub("All Teachers", "Index")),
         Module("Attendance", "StudentAttendance", "attendance", "bi-calendar-check-fill", "Daily attendance records", "accent-purple",
             Sub("Mark Attendance", "Create"), Sub("All Records", "Index")),
         Module("Results", "StudentResults", "results", "bi-clipboard-data-fill", "Exams and student results", "accent-orange",

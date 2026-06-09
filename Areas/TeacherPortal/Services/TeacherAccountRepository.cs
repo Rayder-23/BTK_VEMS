@@ -24,6 +24,18 @@ public sealed class TeacherAccountRepository : ITeacherAccountRepository
         return result is null or DBNull ? null : result.ToString();
     }
 
+    public async Task<int?> GetEmployeeUidByLoginUidAsync(int loginUid, CancellationToken cancellationToken = default)
+    {
+        const string sql = "SELECT EmployeeId FROM dbo.EmployeeLogin WHERE Uid = @LoginUid;";
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@LoginUid", loginUid);
+        await connection.OpenAsync(cancellationToken);
+        var result = await command.ExecuteScalarAsync(cancellationToken);
+        return result is null or DBNull ? null : Convert.ToInt32(result);
+    }
+
     public async Task<bool> UpdatePasswordAsync(int loginUid, string passwordHash, CancellationToken cancellationToken = default)
     {
         const string sql = """

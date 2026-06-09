@@ -7,6 +7,8 @@
     ViewData["FeeErpNavbarBrandHref"] = "/adminportal/students";
     ViewData["FeeErpNavbarBrandText"] = "Student Management Module";
     ViewData["FeeErpNavbarBrandIcon"] = "fa-user-graduate";
+    ViewData["FeeErpMobileNavClass"] = "d-sm-none";
+    ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +34,7 @@
     <partial name="_StudentMgmtModuleTopBar" />
     <partial name="_FeeErpNavbar" model="pageTitle" />
     <div class="fee-erp-canvas">
-        <aside class="fee-erp-sidebar student-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Student management navigation">
+        <aside class="fee-erp-sidebar student-mgmt-sidebar flex-column" id="feeErpSidebar" aria-label="Student management navigation">
             <partial name="_StudentMgmtMgmtSidebar" />
         </aside>
         <div class="offcanvas offcanvas-start fee-erp-offcanvas text-bg-dark" tabindex="-1" id="feeErpSidebarOffcanvas"

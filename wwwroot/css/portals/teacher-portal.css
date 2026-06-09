@@ -4,8 +4,8 @@
     --portal-bg: #f7f5fb;
     --portal-sidebar-bg: #1e1b4b;
     --portal-sidebar-text: #ddd6fe;
-    --teacher-sidebar-start: #1e1b4b;
-    --teacher-sidebar-end: #312e81;
+    --teacher-sidebar-bg: #1e1b4b;
+    --teacher-topbar-bg: #1e1b4b;
     --teacher-nav-hover: rgba(255, 255, 255, 0.08);
     --teacher-nav-active: rgba(124, 58, 237, 0.35);
     --teacher-nav-accent: #a78bfa;
@@ -39,7 +39,7 @@ body.portal-shell.teacher-portal {
 
 .portal-sidebar,
 .teacher-portal-sidebar {
-    background: linear-gradient(180deg, var(--teacher-sidebar-start) 0%, var(--teacher-sidebar-end) 100%);
+    background: var(--teacher-sidebar-bg);
     box-shadow: 4px 0 24px rgba(15, 23, 42, 0.12);
     color: #e2e8f0;
     flex-shrink: 0;
@@ -54,7 +54,7 @@ body.portal-shell.teacher-portal {
 }
 
 .portal-offcanvas {
-    background: linear-gradient(180deg, var(--teacher-sidebar-start) 0%, var(--teacher-sidebar-end) 100%);
+    background: var(--teacher-sidebar-bg);
     color: #e2e8f0;
 }
 
@@ -107,11 +107,14 @@ body.teacher-portal .fee-erp-nav-list .fee-erp-nav-link {
     background: transparent;
     border: 0;
     color: #ddd6fe;
+    cursor: pointer;
     display: flex;
     font-weight: 500;
     gap: 0.75rem;
+    position: relative;
     text-decoration: none;
     transition: background-color 0.2s ease, color 0.2s ease;
+    z-index: 1;
 }
 
 body.teacher-portal .fee-erp-nav-link:hover {
@@ -130,7 +133,7 @@ body.teacher-portal .teacher-portal-sidebar-hint {
 }
 
 .portal-navbar-primary {
-    background: linear-gradient(180deg, var(--teacher-sidebar-start) 0%, var(--teacher-sidebar-end) 100%);
+    background: var(--teacher-topbar-bg);
     border-bottom: 1px solid rgba(255, 255, 255, .1);
     min-height: 45px;
     padding: .2rem 0;
@@ -147,25 +150,60 @@ body.teacher-portal .teacher-portal-sidebar-hint {
 
 .portal-module-nav {
     display: flex;
-    gap: .35rem;
+    flex: 1;
+    gap: .25rem;
+    min-width: 0;
     overflow-x: auto;
     padding: 0;
     scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.portal-module-nav::-webkit-scrollbar {
+    height: 4px;
+}
+
+.portal-module-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
 }
 
 .portal-module-link {
     align-items: center;
-    border-radius: .65rem;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
     color: var(--portal-sidebar-text);
     display: inline-flex;
     flex-shrink: 0;
-    font-size: .85rem;
-    font-weight: 600;
-    gap: .4rem;
-    padding: .38rem .85rem;
+    font-size: .82rem;
+    font-weight: 500;
+    gap: .35rem;
+    padding: .45rem .55rem;
     text-decoration: none;
-    transition: background-color .2s ease, color .2s ease;
+    transition: color .15s ease, border-color .15s ease;
     white-space: nowrap;
+}
+
+.portal-module-link i {
+    font-size: .9rem;
+    opacity: .85;
+}
+
+@media (min-width: 1200px) {
+    .portal-module-link {
+        font-size: .85rem;
+        padding: .45rem .65rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .portal-module-link span {
+        max-width: 5.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .portal-navbar-user {
@@ -173,10 +211,20 @@ body.teacher-portal .teacher-portal-sidebar-hint {
     display: flex;
 }
 
-.portal-module-link:hover,
-.portal-module-link.active {
-    background: rgba(124, 58, 237, .25);
+.portal-module-link:hover {
+    background: transparent;
+    border-bottom-color: rgba(167, 139, 250, .45);
     color: #fff;
+    text-decoration: none;
+}
+
+.portal-module-link.active {
+    background: transparent;
+    border-bottom-color: var(--teacher-nav-accent);
+    box-shadow: none;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .portal-subheader {

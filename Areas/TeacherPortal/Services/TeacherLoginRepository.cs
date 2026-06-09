@@ -1,5 +1,4 @@
 using Microsoft.Data.SqlClient;
-using VEMS.Areas.StudentPortal.Services;
 using VEMS.Services;
 
 namespace VEMS.Areas.TeacherPortal.Services;
@@ -28,6 +27,17 @@ public sealed class TeacherLoginRepository : ITeacherLoginRepository
     {
         var trimmedUsername = username.Trim();
 
+        var employeeRoles = await _configurations.GetValuesAsync(EmployeeRolesKey, cancellationToken);
+        var employeeStatuses = await _configurations.GetValuesAsync(EmployeeStatusKey, cancellationToken);
+
+        var teacherRole = employeeRoles.FirstOrDefault(
+            value => string.Equals(value, TeacherRoleName, StringComparison.OrdinalIgnoreCase))
+            ?? TeacherRoleName;
+
+        var activeStatus = employeeStatuses.FirstOrDefault(
+            value => string.Equals(value, ActiveStatusName, StringComparison.OrdinalIgnoreCase))
+            ?? ActiveStatusName;
+
         const string sql = """
             SELECT TOP (1)
                 el.Uid,
@@ -35,17 +45,20 @@ public sealed class TeacherLoginRepository : ITeacherLoginRepository
                 el.Username,
                 el.PasswordHash,
                 el.Role,
-                el.Status,
                 e.EmployeeId AS EmployeeCode,
                 e.FullName
             FROM dbo.EmployeeLogin el
             INNER JOIN dbo.Employee e ON e.Uid = el.EmployeeId
-            WHERE el.Username = @username;
+            WHERE el.Username = @Username
+              AND el.Role = @Role
+              AND el.Status = @Status;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@username", trimmedUsername);
+        command.Parameters.AddWithValue("@Username", trimmedUsername);
+        command.Parameters.AddWithValue("@Role", teacherRole);
+        command.Parameters.AddWithValue("@Status", activeStatus);
 
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -56,33 +69,9 @@ public sealed class TeacherLoginRepository : ITeacherLoginRepository
         }
 
         var storedHash = reader["PasswordHash"] as string ?? string.Empty;
-        if (!StudentPasswordHasher.VerifyPassword(password, storedHash))
+        if (!EmployeePasswordVerifier.VerifyPassword(password, storedHash))
         {
             return TeacherLoginValidationResult.Failure(TeacherLoginFailureReason.InvalidCredentials);
-        }
-
-        var role = reader["Role"] as string ?? string.Empty;
-        var status = reader["Status"] as string ?? string.Empty;
-
-        var employeeRoles = await _configurations.GetValuesAsync(EmployeeRolesKey, cancellationToken);
-        var employeeStatuses = await _configurations.GetValuesAsync(EmployeeStatusKey, cancellationToken);
-
-        var teacherRole = employeeRoles.FirstOrDefault(
-            value => string.Equals(value, TeacherRoleName, StringComparison.OrdinalIgnoreCase))
-            ?? TeacherRoleName;
-
-        if (!string.Equals(role, teacherRole, StringComparison.OrdinalIgnoreCase))
-        {
-            return TeacherLoginValidationResult.Failure(TeacherLoginFailureReason.NotTeacherRole);
-        }
-
-        var activeStatus = employeeStatuses.FirstOrDefault(
-            value => string.Equals(value, ActiveStatusName, StringComparison.OrdinalIgnoreCase))
-            ?? ActiveStatusName;
-
-        if (!string.Equals(status, activeStatus, StringComparison.OrdinalIgnoreCase))
-        {
-            return TeacherLoginValidationResult.Failure(TeacherLoginFailureReason.InactiveAccount);
         }
 
         return TeacherLoginValidationResult.Success(new TeacherLoginUser
@@ -92,7 +81,7 @@ public sealed class TeacherLoginRepository : ITeacherLoginRepository
             Username = reader["Username"] as string ?? trimmedUsername,
             DisplayName = reader["FullName"] as string ?? trimmedUsername,
             EmployeeCode = reader["EmployeeCode"] as string ?? string.Empty,
-            Role = role
+            Role = reader["Role"] as string ?? teacherRole
         });
     }
 }

@@ -53,16 +53,7 @@ public sealed class LoginController : Controller
 
         if (result.FailureReason is not null)
         {
-            var message = result.FailureReason switch
-            {
-                TeacherLoginFailureReason.NotTeacherRole =>
-                    "You do not have teacher role.",
-                TeacherLoginFailureReason.InactiveAccount =>
-                    "Your account is not active. Contact administration.",
-                _ => "Invalid username or password."
-            };
-
-            ModelState.AddModelError(string.Empty, message);
+            ModelState.AddModelError(string.Empty, TeacherLoginMessages.LoginFailed);
             return View(model);
         }
 

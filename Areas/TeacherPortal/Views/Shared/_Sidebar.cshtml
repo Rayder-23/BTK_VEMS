@@ -1,147 +1,70 @@
+@using VEMS.Areas.TeacherPortal.Services
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
-    var hasModuleSublinks = currentController is "Classes" or "Students" or "Attendance" or "Results" or "Settings";
-    string? moduleHeading = currentController switch
-    {
-        "Classes" => "Classes",
-        "Students" => "Students",
-        "Attendance" => "Attendance",
-        "Results" => "Results",
-        "Settings" => "Settings",
-        _ => null
-    };
+    var activeModule = TeacherNavCatalog.GetModuleForRoute(currentController, currentAction);
+    var moduleEntryLink = TeacherNavCatalog.GetModuleEntryLink(activeModule);
+    var moduleLinks = activeModule.Links;
 }
 
 <div class="fee-erp-sidebar-inner d-flex flex-column h-100 teacher-portal-sidebar-inner">
     <div class="fee-erp-sidebar-brand px-3 py-4 border-bottom border-light border-opacity-10">
-        <a asp-area="TeacherPortal" asp-controller="Dashboard" asp-action="Index"
+        <a asp-area="TeacherPortal"
+           asp-controller="@moduleEntryLink.Controller"
+           asp-action="@moduleEntryLink.Action"
            class="text-decoration-none text-white d-flex align-items-center gap-3">
             <span class="fee-erp-sidebar-logo rounded-3 d-inline-flex align-items-center justify-content-center">
-                <i class="bi bi-easel2-fill"></i>
+                <i class="bi @activeModule.IconClass"></i>
             </span>
             <div class="fee-erp-sidebar-brand-text">
-                <span class="d-block fw-bold small text-uppercase tracking-wide opacity-75">VEMS</span>
-                <span class="d-block fw-semibold">Teacher Portal</span>
+                <span class="d-block fw-bold small text-uppercase tracking-wide opacity-75">VEMS LMS</span>
+                <span class="d-block fw-semibold">@activeModule.Label</span>
             </div>
         </a>
     </div>
 
-    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Teacher portal navigation">
-        @if (hasModuleSublinks && moduleHeading is not null)
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="@activeModule.Label navigation">
+        @if (moduleLinks.Count > 0)
         {
-            <p class="teacher-portal-nav-heading px-2 mb-2 text-uppercase">@moduleHeading</p>
-            <ul class="nav flex-column fee-erp-nav-list teacher-portal-module-nav mb-2">
-                @if (currentController == "Classes")
+            <p class="teacher-portal-nav-heading px-2 mb-2 text-uppercase">@activeModule.Label</p>
+            <ul class="nav flex-column fee-erp-nav-list teacher-portal-module-nav mb-0">
+                @foreach (var link in moduleLinks)
                 {
+                    var isActive = TeacherNavCatalog.IsLinkActive(link, currentController, currentAction);
                     <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Index" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Classes" asp-action="Index">
-                            <i class="bi bi-collection"></i>
-                            <span class="fee-erp-nav-label">My Classes</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Timetable" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Classes" asp-action="Timetable">
-                            <i class="bi bi-calendar3"></i>
-                            <span class="fee-erp-nav-label">Timetable</span>
-                        </a>
-                    </li>
-                }
-                else if (currentController == "Students")
-                {
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Index" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Students" asp-action="Index">
-                            <i class="bi bi-people"></i>
-                            <span class="fee-erp-nav-label">Class Roster</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Advising" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Students" asp-action="Advising">
-                            <i class="bi bi-chat-dots"></i>
-                            <span class="fee-erp-nav-label">Advising</span>
-                        </a>
-                    </li>
-                }
-                else if (currentController == "Attendance")
-                {
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Index" || currentAction == "Mark" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Attendance" asp-action="Index">
-                            <i class="bi bi-check2-square"></i>
-                            <span class="fee-erp-nav-label">Mark Attendance</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Records" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Attendance" asp-action="Records">
-                            <i class="bi bi-journal-text"></i>
-                            <span class="fee-erp-nav-label">Records</span>
-                        </a>
-                    </li>
-                }
-                else if (currentController == "Results")
-                {
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Index" || currentAction == "Grades" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Results" asp-action="Index">
-                            <i class="bi bi-award"></i>
-                            <span class="fee-erp-nav-label">Grades</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Assignments" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Results" asp-action="Assignments">
-                            <i class="bi bi-file-earmark-text"></i>
-                            <span class="fee-erp-nav-label">Assignments</span>
-                        </a>
-                    </li>
-                }
-                else if (currentController == "Settings")
-                {
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "Index" || currentAction == "ChangePassword" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Settings" asp-action="ChangePassword">
-                            <i class="bi bi-shield-lock"></i>
-                            <span class="fee-erp-nav-label">Change Password</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="fee-erp-nav-link @(currentAction == "ChangeTheme" ? "active" : "")"
-                           asp-area="TeacherPortal" asp-controller="Settings" asp-action="ChangeTheme">
-                            <i class="bi bi-palette"></i>
-                            <span class="fee-erp-nav-label">Change Theme</span>
+                        <a class="fee-erp-nav-link @(isActive ? "active" : "") portal-sidebar-link"
+                           asp-area="TeacherPortal"
+                           asp-controller="@link.Controller"
+                           asp-action="@link.Action">
+                            <i class="bi @link.IconClass"></i>
+                            <span class="fee-erp-nav-label">@link.Label</span>
                         </a>
                     </li>
                 }
             </ul>
         }
 
-        <ul class="nav flex-column fee-erp-nav-list teacher-portal-main-nav">
-            <li class="nav-item">
-                <a class="fee-erp-nav-link @(currentController == "Dashboard" ? "active" : "")"
-                   asp-area="TeacherPortal" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi bi-speedometer2"></i>
-                    <span class="fee-erp-nav-label">Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="fee-erp-nav-link @(currentController == "Profile" ? "active" : "")"
-                   asp-area="TeacherPortal" asp-controller="Profile" asp-action="Index">
-                    <i class="bi bi-person-circle"></i>
-                    <span class="fee-erp-nav-label">Profile</span>
-                </a>
-            </li>
+        <ul class="nav flex-column fee-erp-nav-list teacher-portal-main-nav @(moduleLinks.Count > 0 ? "mt-3" : "")">
+            @foreach (var link in TeacherNavCatalog.PermanentSidebarLinks)
+            {
+                var isActive = TeacherNavCatalog.IsPermanentSidebarLinkActive(link, currentController, currentAction);
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link @(isActive ? "active" : "") portal-sidebar-link"
+                       asp-area="TeacherPortal"
+                       asp-controller="@link.Controller"
+                       asp-action="@link.Action">
+                        <i class="bi @link.IconClass"></i>
+                        <span class="fee-erp-nav-label">@link.Label</span>
+                    </a>
+                </li>
+            }
         </ul>
     </nav>
 
     <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10">
         <div class="small text-white-50 px-1 teacher-portal-sidebar-hint">
             <i class="bi bi-info-circle me-1 opacity-75"></i>
-            Manage classes, attendance, and results from your faculty workspace.
+            Use the top bar to switch modules. Dashboard and profile are always available below.
         </div>
     </div>
 </div>

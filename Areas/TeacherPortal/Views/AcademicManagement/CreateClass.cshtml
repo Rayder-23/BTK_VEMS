@@ -1,0 +1,29 @@
+@model ClassFormPageViewModel
+@{
+    ViewData["Title"] = "Add Class";
+}
+
+<div class="portal-card mb-3">
+    <h1 class="h5 fw-bold mb-1">Add class</h1>
+    <p class="text-muted mb-0 small">Create a new row in <code>dbo.Classes</code>.</p>
+</div>
+
+<div class="portal-card">
+    <form method="post" novalidate
+          asp-area="TeacherPortal" asp-controller="AcademicManagement" asp-action="CreateClass">
+        @Html.AntiForgeryToken()
+        <partial name="_ClassForm" model="Model" />
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i>Save class
+            </button>
+            <a class="btn btn-outline-secondary"
+               asp-area="TeacherPortal" asp-controller="AcademicManagement" asp-action="Classes">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

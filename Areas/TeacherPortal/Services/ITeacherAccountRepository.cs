@@ -4,5 +4,7 @@ public interface ITeacherAccountRepository
 {
     Task<string?> GetPasswordHashByLoginUidAsync(int loginUid, CancellationToken cancellationToken = default);
 
+    Task<int?> GetEmployeeUidByLoginUidAsync(int loginUid, CancellationToken cancellationToken = default);
+
     Task<bool> UpdatePasswordAsync(int loginUid, string passwordHash, CancellationToken cancellationToken = default);
 }

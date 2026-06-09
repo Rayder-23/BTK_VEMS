@@ -72,6 +72,17 @@ public static class AdminModuleCatalog
         },
         new()
         {
+            Name = "Teachers",
+            Controller = "Teachers",
+            IconClass = "bi-person-workspace",
+            Description = "Faculty profiles, programs, and teacher records",
+            AccentClass = "accent-purple",
+            ImageUrl = "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80&auto=format&fit=crop",
+            IsAvailable = true,
+            UrlOverride = "/adminportal/teachers"
+        },
+        new()
+        {
             Name = "Examination",
             Controller = "ExaminationMgmt",
             IconClass = "bi-pencil-square",

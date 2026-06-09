@@ -6,7 +6,7 @@ public sealed class DashboardController : TeacherPortalBaseController
 {
     public IActionResult Index()
     {
-        ViewData["Title"] = "Teacher Dashboard";
+        ViewData["Title"] = "Home";
         return View();
     }
 }
