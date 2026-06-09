@@ -1,6 +1,149 @@
+@model StudentAllCoursesPageModel
 @{
     ViewData["Title"] = "All Courses";
-    ViewData["Description"] = "Browse your enrolled programs and course materials.";
+    var primaryEnrollment = Model.Enrollments.FirstOrDefault();
 }
 
-<partial name="_PlaceholderPage" />
+<div class="portal-card challan-summary-compact mb-3">
+    <div class="challan-summary-head">
+        <div class="challan-summary-title">
+            <span class="challan-summary-no">All Courses</span>
+            @if (!string.IsNullOrWhiteSpace(Model.ProgramName))
+            {
+                <span class="student-program-title d-block mt-1">@Model.ProgramName</span>
+                <span class="challan-summary-meta">
+                    @if (!string.IsNullOrWhiteSpace(Model.ProgramCode))
+                    {
+                        <span>@Model.ProgramCode</span>
+                        <span> · </span>
+                    }
+                    @if (primaryEnrollment is not null)
+                    {
+                        <span>Year @primaryEnrollment.AcademicYear · Semester @primaryEnrollment.GradeOrSemester</span>
+                    }
+                    else if (Model.AdmissionYear.HasValue)
+                    {
+                        <span>Admission @Model.AdmissionYear</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.RollNo))
+                    {
+                        <span> · Roll @Model.RollNo</span>
+                    }
+                </span>
+            }
+            else
+            {
+                <span class="challan-summary-meta d-block mt-1">No program assigned to your student record.</span>
+            }
+        </div>
+        <span class="badge rounded-pill text-bg-light border challan-summary-status">
+            @(Model.Courses.Count > 0 ? $"{Model.Courses.Count} course(s)" : "No courses")
+        </span>
+    </div>
+</div>
+
+<div class="portal-card">
+    @if (string.IsNullOrWhiteSpace(Model.ProgramName) && Model.Enrollments.Count == 0)
+    {
+        <p class="text-muted mb-0">You do not have an active enrollment. Assigned courses will appear here once enrolled.</p>
+    }
+    else if (Model.Courses.Count == 0)
+    {
+        <p class="text-muted mb-0">No courses are assigned for your current program and semester yet.</p>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 fw-bold mb-0">Assigned courses</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0 student-courses-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Credits</th>
+                        <th>Type</th>
+                        <th>Mandatory</th>
+                        <th class="text-end">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var course in Model.Courses)
+                {
+                    var collapseId = $"course-detail-{course.Uid}";
+                    <tr>
+                        <td class="fw-semibold">@course.CourseCode</td>
+                        <td>
+                            <div>@course.CourseTitle</div>
+                            @if (!string.IsNullOrWhiteSpace(course.ShortName))
+                            {
+                                <div class="small text-muted">@course.ShortName</div>
+                            }
+                        </td>
+                        <td>@(course.SemesterNo?.ToString() ?? course.GradeOrSemester.ToString())</td>
+                        <td>@course.CreditHours</td>
+                        <td>@course.CourseType</td>
+                        <td>@(course.IsMandatory ? "Yes" : "No")</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="false"
+                                    aria-controls="@collapseId">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="collapse-row">
+                        <td colspan="7" class="p-0 border-0">
+                            <div class="collapse" id="@collapseId">
+                                <div class="border-top bg-light bg-opacity-50 p-3 mx-0 mb-2 rounded-bottom">
+                                    <div class="row g-3 small">
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Program</span>
+                                            <span>@course.ProgramName</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Level</span>
+                                            <span>@course.CourseLevel</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Theory hours</span>
+                                            <span>@course.TheoryHours</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Lab hours</span>
+                                            <span>@course.LabHours</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Academic year</span>
+                                            <span>@course.AcademicYear</span>
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(course.Description))
+                                        {
+                                            <div class="col-12">
+                                                <span class="text-muted d-block">Description</span>
+                                                <span>@course.Description</span>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(course.Objectives))
+                                        {
+                                            <div class="col-12">
+                                                <span class="text-muted d-block">Objectives</span>
+                                                <span>@course.Objectives</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,93 @@
+@model VEMS.Areas.AdminPortal.Models.ProgramFormPageViewModel
+@using VEMS.Areas.AdminPortal.Models
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+@if (Model.Lookups.ProgramStatuses.Count == 0)
+{
+    <div class="alert alert-warning">
+        Configure <strong>ProgramStatus</strong> in
+        <a href="/adminportal/settings">Settings → Configurations</a> before saving programs.
+    </div>
+}
+
+<div class="row g-3">
+    <input type="hidden" asp-for="Form.Uid" />
+    <div class="col-md-4">
+        <label asp-for="Form.InstTypeId" class="form-label"></label>
+        <select asp-for="Form.InstTypeId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.InstitutionTypes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select institution type —</option>
+        </select>
+        <span asp-validation-for="Form.InstTypeId" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.ProgramCode" class="form-label"></label>
+        <input asp-for="Form.ProgramCode" class="form-control" />
+        <span asp-validation-for="Form.ProgramCode" class="text-danger"></span>
+    </div>
+    <div class="col-md-5">
+        <label asp-for="Form.ProgramName" class="form-label"></label>
+        <input asp-for="Form.ProgramName" class="form-control" />
+        <span asp-validation-for="Form.ProgramName" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.ShortName" class="form-label"></label>
+        <input asp-for="Form.ShortName" class="form-control" />
+        <span asp-validation-for="Form.ShortName" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.ProgramLevel" class="form-label"></label>
+        <select asp-for="Form.ProgramLevel" class="form-select" asp-items="@(new SelectList(Model.Lookups.ProgramLevels))">
+            <option value="">— Optional —</option>
+        </select>
+        <span asp-validation-for="Form.ProgramLevel" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.ProgramType" class="form-label"></label>
+        <select asp-for="Form.ProgramType" class="form-select" asp-items="@(new SelectList(Model.Lookups.ProgramTypes))">
+            <option value="">— Optional —</option>
+        </select>
+        <span asp-validation-for="Form.ProgramType" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.DegreeLevel" class="form-label"></label>
+        <select asp-for="Form.DegreeLevel" class="form-select" asp-items="@(new SelectList(Model.Lookups.DegreeLevels))">
+            <option value="">— Optional —</option>
+        </select>
+        <span asp-validation-for="Form.DegreeLevel" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.DurationYears" class="form-label"></label>
+        <input asp-for="Form.DurationYears" class="form-control" type="number" min="1" max="10" />
+        <span asp-validation-for="Form.DurationYears" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.TotalSemesters" class="form-label"></label>
+        <input asp-for="Form.TotalSemesters" class="form-control" type="number" min="1" max="255" />
+        <span asp-validation-for="Form.TotalSemesters" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.TotalGrades" class="form-label"></label>
+        <input asp-for="Form.TotalGrades" class="form-control" type="number" min="1" max="255" />
+        <span asp-validation-for="Form.TotalGrades" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.TotalCreditHours" class="form-label"></label>
+        <input asp-for="Form.TotalCreditHours" class="form-control" type="number" min="1" max="32767" />
+        <span asp-validation-for="Form.TotalCreditHours" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.Status" class="form-label"></label>
+        <select asp-for="Form.Status" class="form-select" asp-items="@(new SelectList(Model.Lookups.ProgramStatuses))">
+            <option value="">— Select status —</option>
+        </select>
+        <span asp-validation-for="Form.Status" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <div class="form-check mt-4">
+            <input asp-for="Form.IsActive" class="form-check-input" />
+            <label asp-for="Form.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+</div>

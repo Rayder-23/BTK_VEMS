@@ -1,0 +1,35 @@
+@model VEMS.Areas.AdminPortal.Models.ProgramFormPageViewModel
+@{
+    ViewData["Title"] = "Add Program";
+}
+
+<section class="portal-card page-summary-compact mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/adminportal/students">Student Management</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/students/programs">Programs</a></li>
+            <li class="breadcrumb-item active">Add</li>
+        </ol>
+    </nav>
+    <div class="page-summary-head">
+        <div class="page-summary-title-block">
+            <span class="page-summary-title">Add program</span>
+            <span class="page-summary-meta">New row in dbo.ref_Programs</span>
+        </div>
+    </div>
+</section>
+
+<section class="portal-card">
+    <form method="post" asp-action="Create">
+        @Html.AntiForgeryToken()
+        <partial name="_ProgramForm" model="Model" />
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-outline-secondary" href="/adminportal/students/programs">Cancel</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

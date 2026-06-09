@@ -455,6 +455,13 @@ body.student-portal[data-student-theme="dark"] .student-theme-option-body {
     line-height: 1.2;
 }
 
+.student-program-title {
+    color: #0f172a;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
 .challan-summary-meta {
     color: #64748b;
     font-size: 0.78rem;

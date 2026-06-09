@@ -47,6 +47,8 @@ public static class StudentMgmtModuleCatalog
             Sub("Add Login", "Create"), Sub("All Logins", "Index")),
         Module("Courses", "StudentCourses", "courses", "bi-journal-bookmark-fill", "Courses and academic programs", "accent-green",
             Sub("Add Course", "Create"), Sub("All Courses", "Index")),
+        Module("Programs", "StudentPrograms", "programs", "bi-mortarboard-fill", "Academic programs catalog", "accent-pink",
+            Sub("Add Program", "Create"), Sub("All Programs", "Index"), Sub("Program Courses", "Courses")),
         Module("Attendance", "StudentAttendance", "attendance", "bi-calendar-check-fill", "Daily attendance records", "accent-purple",
             Sub("Mark Attendance", "Create"), Sub("All Records", "Index")),
         Module("Results", "StudentResults", "results", "bi-clipboard-data-fill", "Exams and student results", "accent-orange",

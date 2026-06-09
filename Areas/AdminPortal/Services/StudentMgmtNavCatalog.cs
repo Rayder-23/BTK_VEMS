@@ -17,6 +17,7 @@ public static class StudentMgmtNavCatalog
         new() { Key = "students", Name = "Students", Url = "/adminportal/students/students", IconClass = "fa-users" },
         new() { Key = "login", Name = "Create Login", Url = "/adminportal/students/login", IconClass = "fa-key" },
         new() { Key = "courses", Name = "Courses", Url = "/adminportal/students/courses", IconClass = "fa-book" },
+        new() { Key = "programs", Name = "Programs", Url = "/adminportal/students/programs", IconClass = "fa-graduation-cap" },
         new() { Key = "attendance", Name = "Attendance", Url = "/adminportal/students/attendance", IconClass = "fa-calendar-check" },
         new() { Key = "results", Name = "Results", Url = "/adminportal/students/results", IconClass = "fa-clipboard-list" },
         new() { Key = "fee", Name = "Fee", Url = "/adminportal/students/fee", IconClass = "fa-coins" },
@@ -30,6 +31,7 @@ public static class StudentMgmtNavCatalog
         "Students",
         "StudentLogin",
         "StudentCourses",
+        "StudentPrograms",
         "StudentAttendance",
         "StudentResults",
         "StudentFee",
@@ -57,6 +59,11 @@ public static class StudentMgmtNavCatalog
         if (path.Contains("/courses", StringComparison.Ordinal))
         {
             return "courses";
+        }
+
+        if (path.Contains("/programs", StringComparison.Ordinal))
+        {
+            return "programs";
         }
 
         if (path.Contains("/attendance", StringComparison.Ordinal))

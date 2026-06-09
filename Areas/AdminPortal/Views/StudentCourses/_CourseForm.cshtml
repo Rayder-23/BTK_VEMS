@@ -1,0 +1,104 @@
+@model VEMS.Areas.AdminPortal.Models.CourseFormPageViewModel
+@using VEMS.Areas.AdminPortal.Models
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+@if (Model.Lookups.CourseTypes.Count == 0 || Model.Lookups.CourseLevels.Count == 0)
+{
+    <div class="alert alert-warning">
+        Configure <strong>CourseType</strong> and <strong>CourseLevel</strong> in
+        <a href="/adminportal/settings">Settings → Configurations</a> before saving courses.
+    </div>
+}
+
+<div class="row g-3">
+    <input type="hidden" asp-for="Form.Uid" />
+    <div class="col-md-3">
+        <label asp-for="Form.CourseCode" class="form-label"></label>
+        <input asp-for="Form.CourseCode" class="form-control" />
+        <span asp-validation-for="Form.CourseCode" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.CourseTitle" class="form-label"></label>
+        <input asp-for="Form.CourseTitle" class="form-control" />
+        <span asp-validation-for="Form.CourseTitle" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.ShortName" class="form-label"></label>
+        <input asp-for="Form.ShortName" class="form-control" />
+        <span asp-validation-for="Form.ShortName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.ProgramId" class="form-label"></label>
+        <select asp-for="Form.ProgramId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select program —</option>
+        </select>
+        <span asp-validation-for="Form.ProgramId" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.CourseType" class="form-label"></label>
+        <select asp-for="Form.CourseType" class="form-select" asp-items="@(new SelectList(Model.Lookups.CourseTypes))">
+            <option value="">— Select type —</option>
+        </select>
+        <span asp-validation-for="Form.CourseType" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.CourseLevel" class="form-label"></label>
+        <select asp-for="Form.CourseLevel" class="form-select" asp-items="@(new SelectList(Model.Lookups.CourseLevels))">
+            <option value="">— Select level —</option>
+        </select>
+        <span asp-validation-for="Form.CourseLevel" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.CreditHours" class="form-label"></label>
+        <input asp-for="Form.CreditHours" class="form-control" type="number" min="1" max="6" />
+        <div class="form-text">Allowed: 1–6 credit hours.</div>
+        <span asp-validation-for="Form.CreditHours" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.TheoryHours" class="form-label"></label>
+        <input asp-for="Form.TheoryHours" class="form-control" type="number" min="0" max="255" />
+        <span asp-validation-for="Form.TheoryHours" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.LabHours" class="form-label"></label>
+        <input asp-for="Form.LabHours" class="form-control" type="number" min="0" max="255" />
+        <span asp-validation-for="Form.LabHours" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="Form.SemesterNo" class="form-label"></label>
+        <input asp-for="Form.SemesterNo" class="form-control" type="number" min="1" max="12" />
+        <span asp-validation-for="Form.SemesterNo" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.PrerequisiteCourseId" class="form-label"></label>
+        <select asp-for="Form.PrerequisiteCourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.PrerequisiteCourses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— None —</option>
+        </select>
+        <span asp-validation-for="Form.PrerequisiteCourseId" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <div class="form-check mt-4">
+            <input asp-for="Form.IsMandatory" class="form-check-input" />
+            <label asp-for="Form.IsMandatory" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-check mt-4">
+            <input asp-for="Form.IsActive" class="form-check-input" />
+            <label asp-for="Form.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Form.Description" class="form-label"></label>
+        <textarea asp-for="Form.Description" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Form.Description" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <label asp-for="Form.Objectives" class="form-label"></label>
+        <textarea asp-for="Form.Objectives" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Form.Objectives" class="text-danger"></span>
+    </div>
+</div>
