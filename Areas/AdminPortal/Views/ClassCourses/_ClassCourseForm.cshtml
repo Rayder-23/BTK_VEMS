@@ -1,0 +1,42 @@
+@model ClassCourseFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="row g-3">
+    <input type="hidden" asp-for="Form.Uid" />
+    <div class="col-md-6">
+        <label asp-for="Form.ClassId" class="form-label"></label>
+        <select asp-for="Form.ClassId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Classes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select class —</option>
+        </select>
+        <span asp-validation-for="Form.ClassId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.CourseId" class="form-label"></label>
+        <select asp-for="Form.CourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select course —</option>
+        </select>
+        <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.TeacherId" class="form-label"></label>
+        <select asp-for="Form.TeacherId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— None —</option>
+        </select>
+        <span asp-validation-for="Form.TeacherId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input asp-for="Form.IsActive" class="form-check-input" />
+            <label asp-for="Form.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Form.Remarks" class="form-label"></label>
+        <textarea asp-for="Form.Remarks" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+    </div>
+</div>

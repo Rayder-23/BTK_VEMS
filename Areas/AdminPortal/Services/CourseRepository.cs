@@ -160,7 +160,8 @@ public sealed class CourseRepository : ICourseRepository
             }
         }
 
-        var courseTypes = await _configurations.GetValuesAsync("CourseType", cancellationToken);
+        var courseTypes = CourseFieldCatalog.ResolveCourseTypes(
+            await _configurations.GetValuesAsync("CourseType", cancellationToken));
         var courseLevels = await _configurations.GetValuesAsync("CourseLevel", cancellationToken);
 
         return new CourseLookups

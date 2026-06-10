@@ -16,6 +16,13 @@ tbl AS (
     INNER JOIN sys.schemas s ON s.schema_id = t.schema_id
     WHERE s.name = N'dbo' AND t.is_ms_shipped = 0 AND t.name <> N'sysdiagrams'
 ),
+def_cols AS (
+    SELECT
+        dc.parent_object_id,
+        dc.parent_column_id,
+        dc.definition
+    FROM sys.default_constraints dc
+),
 col_fmt AS (
     SELECT
         t.table_seq,
@@ -37,11 +44,13 @@ col_fmt AS (
             ELSE typ.name
           END
         + CASE WHEN c.is_nullable = 1 THEN N' NULL' ELSE N' NOT NULL' END
-        + CASE WHEN pk.object_id IS NOT NULL THEN N' PK' ELSE N'' END AS col_line
+        + CASE WHEN pk.object_id IS NOT NULL THEN N' PK' ELSE N'' END
+        + CASE WHEN dc.definition IS NOT NULL THEN N' DEFAULT ' + dc.definition ELSE N'' END AS col_line
     FROM tbl t
     INNER JOIN sys.columns c ON c.object_id = t.object_id
     INNER JOIN sys.types typ ON typ.user_type_id = c.user_type_id
     LEFT JOIN pk_cols pk ON pk.object_id = c.object_id AND pk.column_id = c.column_id
+    LEFT JOIN def_cols dc ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id
 )
 INSERT INTO @lines (sort_key, line)
 SELECT CAST(t.table_seq AS bigint) * 100000 + 0, N'Table: dbo.' + t.tname

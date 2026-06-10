@@ -1,0 +1,83 @@
+@model VEMS.Areas.TeacherPortal.Models.ClassFormPageViewModel
+@using VEMS.Areas.TeacherPortal.Models
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+@if (Model.Lookups.Programs.Count == 0)
+{
+    <div class="alert alert-warning">
+        No active programs found. Add programs before creating classes.
+    </div>
+}
+
+<div class="row g-3">
+    <input type="hidden" asp-for="Form.Uid" />
+    <div class="col-md-6">
+        <label asp-for="Form.ClassName" class="form-label"></label>
+        <input asp-for="Form.ClassName" class="form-control" />
+        <span asp-validation-for="Form.ClassName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.ClassCode" class="form-label"></label>
+        <input asp-for="Form.ClassCode" class="form-control" />
+        <span asp-validation-for="Form.ClassCode" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.ProgramId" class="form-label"></label>
+        <select asp-for="Form.ProgramId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Programs, nameof(ClassLookupItem.Id), nameof(ClassLookupItem.Name)))">
+            <option value="">— Select program —</option>
+        </select>
+        <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.AcademicYear" class="form-label"></label>
+        <input asp-for="Form.AcademicYear" class="form-control" type="number" min="2000" max="2100" />
+        <span asp-validation-for="Form.AcademicYear" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.SemesterNo" class="form-label"></label>
+        <input asp-for="Form.SemesterNo" class="form-control" type="number" min="1" max="12" />
+        <span asp-validation-for="Form.SemesterNo" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.Semester" class="form-label"></label>
+        <select asp-for="Form.Semester" class="form-select" asp-items="@(new SelectList(Model.Lookups.Semesters))">
+            <option value="">— Select semester —</option>
+        </select>
+        <span asp-validation-for="Form.Semester" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.Section" class="form-label"></label>
+        <input asp-for="Form.Section" class="form-control" placeholder="e.g. A" />
+        <span asp-validation-for="Form.Section" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.Shift" class="form-label"></label>
+        <select asp-for="Form.Shift" class="form-select" asp-items="@(new SelectList(Model.Lookups.Shifts))">
+            <option value="">— None —</option>
+        </select>
+        <span asp-validation-for="Form.Shift" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.RoomNo" class="form-label"></label>
+        <input asp-for="Form.RoomNo" class="form-control" />
+        <span asp-validation-for="Form.RoomNo" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.MaxStrength" class="form-label"></label>
+        <input asp-for="Form.MaxStrength" class="form-control" type="number" min="1" />
+        <span asp-validation-for="Form.MaxStrength" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input asp-for="Form.IsActive" class="form-check-input" />
+            <label asp-for="Form.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Form.Remarks" class="form-label"></label>
+        <textarea asp-for="Form.Remarks" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+    </div>
+</div>

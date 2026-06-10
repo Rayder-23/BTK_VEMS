@@ -1,0 +1,93 @@
+@model IReadOnlyList<ProgramEnrollmentListItem>
+@{
+    ViewData["Title"] = "Program enrollments";
+    var search = ViewData["Search"] as string;
+    var message = TempData["StatusMessage"] as string;
+}
+
+<section class="module-page-header accent-cyan">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/students">Student Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Program Enrollments</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+        <div class="d-flex align-items-center gap-3">
+            <span class="module-page-icon"><i class="bi bi-person-lines-fill"></i></span>
+            <div>
+                <h1 class="h3 fw-bold mb-1">Program enrollments</h1>
+                <p class="text-muted mb-0">Student program periods in <code>dbo.StudentEnrollments</code>.</p>
+            </div>
+        </div>
+        <a class="btn btn-primary rounded-pill px-4" asp-action="Create">
+            <i class="bi bi-plus-lg me-2"></i>Add enrollment
+        </a>
+    </div>
+</section>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-4 mb-0" role="alert">@message</div>
+}
+
+<section class="portal-card mt-4">
+    <form method="get" class="row g-2 align-items-end mb-3" asp-action="Index">
+        <div class="col-md-9">
+            <label class="form-label" for="search">Search</label>
+            <input type="search" class="form-control" id="search" name="search" value="@search"
+                   placeholder="Registration no., student name, roll no., program" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Program</th>
+                    <th>Year / Sem</th>
+                    <th>Roll no.</th>
+                    <th>Status</th>
+                    <th>Fee</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-muted py-4">No program enrollments found.</td></tr>
+            }
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@row.StudentName</div>
+                        <div class="small text-muted">@row.RegistrationNo</div>
+                    </td>
+                    <td>@row.ProgramName</td>
+                    <td>@row.AcademicYear · Sem @row.GradeOrSemester</td>
+                    <td>@row.RollNo</td>
+                    <td>@row.EnrollmentStatus</td>
+                    <td>@row.FeeStatus</td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@row.Uid">Edit</a>
+                        @if (!string.Equals(row.EnrollmentStatus, "Withdrawn", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <form method="post" asp-action="Withdraw" asp-route-id="@row.Uid" class="d-inline"
+                                  onsubmit="return confirm('Mark this program enrollment as withdrawn?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Withdraw</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

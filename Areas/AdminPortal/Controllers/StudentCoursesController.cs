@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
 using VEMS.Areas.AdminPortal.Services;
 
@@ -70,9 +71,24 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
             return View(model);
         }
 
-        var newId = await _courses.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
-        TempData["StatusMessage"] = $"Course created (id {newId}).";
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            var newId = await _courses.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            TempData["StatusMessage"] = $"Course created (id {newId}).";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            ApplyUniqueConstraintError(ex, model);
+            model.Lookups = await _courses.GetLookupsAsync(null, cancellationToken);
+            return View(model);
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ApplyCheckConstraintError(ex, model);
+            model.Lookups = await _courses.GetLookupsAsync(null, cancellationToken);
+            return View(model);
+        }
     }
 
     [HttpGet("edit/{id:int}")]
@@ -120,14 +136,29 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
             return View(model);
         }
 
-        var ok = await _courses.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
-        if (!ok)
+        try
         {
-            return NotFound();
-        }
+            var ok = await _courses.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            if (!ok)
+            {
+                return NotFound();
+            }
 
-        TempData["StatusMessage"] = "Course updated.";
-        return RedirectToAction(nameof(Index));
+            TempData["StatusMessage"] = "Course updated.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            ApplyUniqueConstraintError(ex, model);
+            model.Lookups = await _courses.GetLookupsAsync(id, cancellationToken);
+            return View(model);
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ApplyCheckConstraintError(ex, model);
+            model.Lookups = await _courses.GetLookupsAsync(id, cancellationToken);
+            return View(model);
+        }
     }
 
     [HttpPost("delete/{id:int}")]
@@ -148,11 +179,10 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
             ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
         }
 
-        var matchedType = lookups.CourseTypes.FirstOrDefault(t =>
-            string.Equals(t, form.CourseType, StringComparison.OrdinalIgnoreCase));
+        var matchedType = CourseFieldCatalog.ResolveCourseType(form.CourseType);
         if (matchedType is null)
         {
-            ModelState.AddModelError(nameof(form.CourseType), "Select a valid course type from Configurations.");
+            ModelState.AddModelError(nameof(form.CourseType), "Select a valid course type.");
         }
         else
         {
@@ -170,6 +200,11 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
             form.CourseLevel = matchedLevel;
         }
 
+        if (form.SemesterNo is < 1 or > 12)
+        {
+            ModelState.AddModelError(nameof(form.SemesterNo), "Semester no. must be between 1 and 12.");
+        }
+
         if (form.PrerequisiteCourseId.HasValue
             && lookups.PrerequisiteCourses.All(c => c.Id != form.PrerequisiteCourseId.Value))
         {
@@ -185,11 +220,47 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
     private static CourseFormModel CreateDefaultForm(CourseLookups lookups) => new()
     {
         ProgramId = lookups.Programs.FirstOrDefault()?.Id ?? 0,
-        CourseType = lookups.CourseTypes.FirstOrDefault() ?? string.Empty,
+        CourseType = lookups.CourseTypes.FirstOrDefault() ?? CourseFieldCatalog.AllowedCourseTypes[0],
         CourseLevel = lookups.CourseLevels.FirstOrDefault() ?? string.Empty,
         CreditHours = 3,
         IsActive = true
     };
+
+    private void ApplyUniqueConstraintError(SqlException ex, CourseFormPageViewModel model)
+    {
+        if (ex.Message.Contains("CourseCode", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.CourseCode), "Course code already exists.");
+            return;
+        }
+
+        ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
+    }
+
+    private void ApplyCheckConstraintError(SqlException ex, CourseFormPageViewModel model)
+    {
+        var message = ex.Message;
+
+        if (message.Contains("CK_Courses_CourseType", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.CourseType), "Select a valid course type from the list.");
+            return;
+        }
+
+        if (message.Contains("CK_Courses_CreditHours", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.CreditHours), "Credit hours must be between 1 and 6.");
+            return;
+        }
+
+        if (message.Contains("CK_Courses_SemesterNo", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.SemesterNo), "Semester no. must be between 1 and 12.");
+            return;
+        }
+
+        ModelState.AddModelError(string.Empty, "One or more values are not allowed by database rules.");
+    }
 
     private int ResolveActorId() => ResolveStaffLoginUid() ?? 1;
 }

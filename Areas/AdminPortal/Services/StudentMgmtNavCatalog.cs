@@ -15,8 +15,12 @@ public static class StudentMgmtNavCatalog
         new() { Key = "dashboard", Name = "Dashboard", Url = "/adminportal/students", IconClass = "fa-gauge-high" },
         new() { Key = "overview", Name = "Overview", Url = "/adminportal/students/dashboard", IconClass = "fa-chart-line" },
         new() { Key = "students", Name = "Students", Url = "/adminportal/students/students", IconClass = "fa-users" },
+        new() { Key = "program-enrollments", Name = "Program Enrollment", Url = "/adminportal/students/program-enrollments", IconClass = "fa-id-card" },
         new() { Key = "login", Name = "Create Login", Url = "/adminportal/students/login", IconClass = "fa-key" },
         new() { Key = "courses", Name = "Courses", Url = "/adminportal/students/courses", IconClass = "fa-book" },
+        new() { Key = "classes", Name = "Classes", Url = "/adminportal/students/classes", IconClass = "fa-chalkboard" },
+        new() { Key = "class-courses", Name = "Class Courses", Url = "/adminportal/students/class-courses", IconClass = "fa-layer-group" },
+        new() { Key = "course-enrollments", Name = "Course Enrollments", Url = "/adminportal/students/course-enrollments", IconClass = "fa-user-check" },
         new() { Key = "programs", Name = "Programs", Url = "/adminportal/students/programs", IconClass = "fa-graduation-cap" },
         new() { Key = "teachers", Name = "Teachers", Url = "/adminportal/teachers", IconClass = "fa-chalkboard-user" },
         new() { Key = "attendance", Name = "Attendance", Url = "/adminportal/students/attendance", IconClass = "fa-calendar-check" },
@@ -30,8 +34,12 @@ public static class StudentMgmtNavCatalog
         "StudentMgmt",
         "StudentDashboard",
         "Students",
+        "ProgramEnrollments",
         "StudentLogin",
         "StudentCourses",
+        "Classes",
+        "ClassCourses",
+        "StudentCourseEnrollments",
         "StudentPrograms",
         "StudentAttendance",
         "StudentResults",
@@ -52,9 +60,29 @@ public static class StudentMgmtNavCatalog
             return "students";
         }
 
+        if (path.Contains("/program-enrollments", StringComparison.Ordinal))
+        {
+            return "program-enrollments";
+        }
+
         if (path.Contains("/login", StringComparison.Ordinal))
         {
             return "login";
+        }
+
+        if (path.Contains("/class-courses", StringComparison.Ordinal))
+        {
+            return "class-courses";
+        }
+
+        if (path.Contains("/classes", StringComparison.Ordinal))
+        {
+            return "classes";
+        }
+
+        if (path.Contains("/course-enrollments", StringComparison.Ordinal))
+        {
+            return "course-enrollments";
         }
 
         if (path.Contains("/courses", StringComparison.Ordinal))

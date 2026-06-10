@@ -1,0 +1,102 @@
+@model IReadOnlyList<VEMS.Areas.TeacherPortal.Models.ClassListItem>
+@{
+    ViewData["Title"] = "Classes";
+    var search = ViewData["Search"] as string;
+    var showInactive = ViewData["ShowInactive"] as bool? ?? false;
+    var message = TempData["StatusMessage"] as string;
+}
+
+<section class="module-page-header accent-purple">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/students">Student Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Classes</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+        <div class="d-flex align-items-center gap-3">
+            <span class="module-page-icon"><i class="bi bi-door-open-fill"></i></span>
+            <div>
+                <h1 class="h3 fw-bold mb-1">Classes</h1>
+                <p class="text-muted mb-0">Teaching classes in <code>dbo.Classes</code>.</p>
+            </div>
+        </div>
+        <a class="btn btn-primary rounded-pill px-4" asp-action="Create">
+            <i class="bi bi-plus-lg me-2"></i>Add class
+        </a>
+    </div>
+</section>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-4 mb-0" role="alert">@message</div>
+}
+
+<section class="portal-card mt-4">
+    <form method="get" class="row g-2 align-items-end mb-3" asp-action="Index">
+        <div class="col-md-6">
+            <label class="form-label" for="search">Search</label>
+            <input type="search" class="form-control" id="search" name="search" value="@search"
+                   placeholder="Name, code, program, section" />
+        </div>
+        <div class="col-md-3">
+            <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" name="showInactive" value="true" id="showInactive"
+                       @(showInactive ? "checked" : "") />
+                <label class="form-check-label" for="showInactive">Show inactive</label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Class name</th>
+                    <th>Program</th>
+                    <th>Year / Sem</th>
+                    <th>Section</th>
+                    <th>Shift</th>
+                    <th>Strength</th>
+                    <th>Active</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="9" class="text-center text-muted py-4">No classes found.</td></tr>
+            }
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td class="fw-semibold">@row.ClassCode</td>
+                    <td>@row.ClassName</td>
+                    <td>@row.ProgramName</td>
+                    <td>@row.AcademicYear · @row.Semester @row.SemesterNo</td>
+                    <td>@(row.Section ?? "—")</td>
+                    <td>@(row.Shift ?? "—")</td>
+                    <td>@row.MaxStrength</td>
+                    <td>@(row.IsActive ? "Yes" : "No")</td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@row.Uid">Edit</a>
+                        @if (row.IsActive)
+                        {
+                            <form method="post" asp-action="Delete" asp-route-id="@row.Uid" class="d-inline"
+                                  onsubmit="return confirm('Deactivate this class?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

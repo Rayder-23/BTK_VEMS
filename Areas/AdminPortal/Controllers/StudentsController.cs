@@ -66,9 +66,37 @@ public sealed class StudentsController : StudentMgmtBaseController
             return View(model);
         }
 
-        var newId = await _students.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
-        TempData["StatusMessage"] = $"Student created (id {newId}).";
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            var newId = await _students.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            TempData["StatusMessage"] = $"Student created (id {newId}) with program enrollment.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            if (ex.Message.Contains("RollNo", StringComparison.OrdinalIgnoreCase)
+                || ex.Message.Contains("UQ_Enrollments", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError("Form.RollNo", "Roll number already exists for this program, year, and semester.");
+            }
+            else if (ex.Message.Contains("RegistrationNo", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError("Form.RegistrationNo", "Registration number already exists.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
+            }
+
+            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ModelState.AddModelError(string.Empty, "Student or program enrollment could not be saved because a related reference is invalid.");
+            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
     }
 
     [HttpGet("edit/{id:int}")]

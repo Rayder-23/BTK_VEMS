@@ -1,0 +1,67 @@
+@model StudentCourseEnrollmentFormPageViewModel
+@{
+    ViewData["Title"] = "Enroll student";
+}
+
+<section class="module-page-header accent-orange">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/students">Student Management</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Course Enrollments</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Enroll</li>
+        </ol>
+    </nav>
+    <h1 class="h3 fw-bold mb-0">Enroll student in class course</h1>
+    <p class="text-muted mb-0 mt-2">Creates a row in <code>dbo.StudentCourseEnrollments</code>.</p>
+</section>
+
+<section class="portal-card mt-4">
+    <form asp-action="Create" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <partial name="_EnrollmentForm" model="Model" />
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const studentSelect = document.getElementById('studentSelect');
+            const enrollmentSelect = document.getElementById('enrollmentSelect');
+            if (!studentSelect || !enrollmentSelect) return;
+
+            async function loadEnrollments(studentId, selectedId) {
+                enrollmentSelect.innerHTML = '<option value="">— Select program enrollment —</option>';
+                if (!studentId) return;
+
+                const response = await fetch(`/adminportal/students/course-enrollments/lookups?studentId=${studentId}`);
+                if (!response.ok) return;
+
+                const items = await response.json();
+                items.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    if (selectedId && Number(selectedId) === Number(item.id)) {
+                        option.selected = true;
+                    }
+                    enrollmentSelect.appendChild(option);
+                });
+            }
+
+            studentSelect.addEventListener('change', () => {
+                loadEnrollments(studentSelect.value, null);
+            });
+
+            if (studentSelect.value) {
+                loadEnrollments(studentSelect.value, enrollmentSelect.value);
+            }
+        })();
+    </script>
+}

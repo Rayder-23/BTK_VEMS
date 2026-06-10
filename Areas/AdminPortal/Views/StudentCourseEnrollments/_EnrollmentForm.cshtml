@@ -1,0 +1,55 @@
+@model StudentCourseEnrollmentFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="row g-3">
+    <input type="hidden" asp-for="Form.Uid" />
+    <div class="col-md-6">
+        <label asp-for="Form.StudentId" class="form-label"></label>
+        <select asp-for="Form.StudentId" class="form-select" id="studentSelect"
+                asp-items="@(new SelectList(Model.Lookups.Students, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select student —</option>
+        </select>
+        <span asp-validation-for="Form.StudentId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.EnrollmentId" class="form-label"></label>
+        <select asp-for="Form.EnrollmentId" class="form-select" id="enrollmentSelect"
+                asp-items="@(new SelectList(Model.Lookups.ProgramEnrollments, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select program enrollment —</option>
+        </select>
+        <span asp-validation-for="Form.EnrollmentId" class="text-danger small"></span>
+        <p class="form-text mb-0">Active program enrollment for the selected student.</p>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.ClassCourseId" class="form-label"></label>
+        <select asp-for="Form.ClassCourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.ClassCourses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select class / course —</option>
+        </select>
+        <span asp-validation-for="Form.ClassCourseId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.EnrollmentType" class="form-label"></label>
+        <select asp-for="Form.EnrollmentType" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.EnrollmentTypes))"></select>
+        <span asp-validation-for="Form.EnrollmentType" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.Status" class="form-label"></label>
+        <select asp-for="Form.Status" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Statuses))"></select>
+        <span asp-validation-for="Form.Status" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check mb-2">
+            <input asp-for="Form.IsActive" class="form-check-input" />
+            <label asp-for="Form.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Form.Remarks" class="form-label"></label>
+        <textarea asp-for="Form.Remarks" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+    </div>
+</div>

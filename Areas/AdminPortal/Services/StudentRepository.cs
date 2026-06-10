@@ -132,67 +132,22 @@ public sealed class StudentRepository : IStudentRepository
     {
         ValidateRequiredDates(model);
 
-        const string sql = """
-            INSERT INTO dbo.Students (
-                RegistrationNo,
-                ProgramID,
-                AdmissionYear,
-                AdmissionDate,
-                FirstName,
-                MiddleName,
-                LastName,
-                FatherName,
-                DateOfBirth,
-                Gender,
-                AddressLine1,
-                AddressLine2,
-                CountryID,
-                ProvinceID,
-                CityID,
-                PostalCode,
-                RollNo,
-                NIC_No,
-                BFORM_No,
-                Nationality,
-                IsActive,
-                StatusRemark,
-                CreatedBy
-            )
-            OUTPUT INSERTED.Uid
-            VALUES (
-                @RegistrationNo,
-                @ProgramID,
-                @AdmissionYear,
-                @AdmissionDate,
-                @FirstName,
-                @MiddleName,
-                @LastName,
-                @FatherName,
-                @DateOfBirth,
-                @Gender,
-                @AddressLine1,
-                @AddressLine2,
-                @CountryID,
-                @ProvinceID,
-                @CityID,
-                @PostalCode,
-                @RollNo,
-                @NIC_No,
-                @BFORM_No,
-                @Nationality,
-                @IsActive,
-                @StatusRemark,
-                @CreatedBy
-            );
-            """;
-
         await using var connection = new SqlConnection(_connectionString);
-        await using var command = new SqlCommand(sql, connection);
-        AddWriteParameters(command, model);
-        command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await connection.OpenAsync(cancellationToken);
-        var result = await command.ExecuteScalarAsync(cancellationToken);
-        return Convert.ToInt32(result);
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            var studentId = await InsertStudentAsync(connection, transaction, model, createdBy, cancellationToken);
+            await InsertInitialEnrollmentAsync(connection, transaction, studentId, model, createdBy, cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return studentId;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task<bool> UpdateAsync(StudentFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
@@ -331,6 +286,127 @@ public sealed class StudentRepository : IStudentRepository
 
     private static int ToInt32(SqlDataReader reader, int ordinal) =>
         Convert.ToInt32(reader.GetValue(ordinal));
+
+    private static async Task<int> InsertStudentAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        StudentFormModel model,
+        int createdBy,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            INSERT INTO dbo.Students (
+                RegistrationNo,
+                ProgramID,
+                AdmissionYear,
+                AdmissionDate,
+                FirstName,
+                MiddleName,
+                LastName,
+                FatherName,
+                DateOfBirth,
+                Gender,
+                AddressLine1,
+                AddressLine2,
+                CountryID,
+                ProvinceID,
+                CityID,
+                PostalCode,
+                RollNo,
+                NIC_No,
+                BFORM_No,
+                Nationality,
+                IsActive,
+                StatusRemark,
+                CreatedBy
+            )
+            OUTPUT INSERTED.Uid
+            VALUES (
+                @RegistrationNo,
+                @ProgramID,
+                @AdmissionYear,
+                @AdmissionDate,
+                @FirstName,
+                @MiddleName,
+                @LastName,
+                @FatherName,
+                @DateOfBirth,
+                @Gender,
+                @AddressLine1,
+                @AddressLine2,
+                @CountryID,
+                @ProvinceID,
+                @CityID,
+                @PostalCode,
+                @RollNo,
+                @NIC_No,
+                @BFORM_No,
+                @Nationality,
+                @IsActive,
+                @StatusRemark,
+                @CreatedBy
+            );
+            """;
+
+        await using var command = new SqlCommand(sql, connection, transaction);
+        AddWriteParameters(command, model);
+        command.Parameters.AddWithValue("@CreatedBy", createdBy);
+        var result = await command.ExecuteScalarAsync(cancellationToken);
+        return Convert.ToInt32(result);
+    }
+
+    private static async Task InsertInitialEnrollmentAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        int studentId,
+        StudentFormModel model,
+        int createdBy,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            INSERT INTO dbo.StudentEnrollments (
+                StudentID,
+                ProgramID,
+                AcademicYear,
+                GradeOrSemester,
+                SectionID,
+                RollNo,
+                EnrollmentDate,
+                EnrollmentStatus,
+                FeeStatus,
+                CreatedBy
+            )
+            VALUES (
+                @StudentID,
+                @ProgramID,
+                @AcademicYear,
+                @GradeOrSemester,
+                @SectionID,
+                @RollNo,
+                @EnrollmentDate,
+                @EnrollmentStatus,
+                @FeeStatus,
+                @CreatedBy
+            );
+            """;
+
+        var rollNo = string.IsNullOrWhiteSpace(model.RollNo)
+            ? model.RegistrationNo.Trim()
+            : model.RollNo.Trim();
+
+        await using var command = new SqlCommand(sql, connection, transaction);
+        command.Parameters.AddWithValue("@StudentID", studentId);
+        command.Parameters.AddWithValue("@ProgramID", model.ProgramId);
+        command.Parameters.AddWithValue("@AcademicYear", model.AdmissionYear);
+        command.Parameters.AddWithValue("@GradeOrSemester", (byte)1);
+        command.Parameters.AddWithValue("@SectionID", 1);
+        command.Parameters.AddWithValue("@RollNo", rollNo);
+        command.Parameters.AddWithValue("@EnrollmentDate", model.AdmissionDate!.Value.Date);
+        command.Parameters.AddWithValue("@EnrollmentStatus", "Active");
+        command.Parameters.AddWithValue("@FeeStatus", "Pending");
+        command.Parameters.AddWithValue("@CreatedBy", createdBy);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
 
     private static void ValidateRequiredDates(StudentFormModel model)
     {
