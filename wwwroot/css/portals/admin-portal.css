@@ -569,6 +569,16 @@ body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__chevron {
     background: #fff7f7;
 }
 
+.admin-table.admin-table-compact thead th {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.65rem;
+}
+
+.admin-table.admin-table-compact tbody td {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.65rem;
+}
+
 .admin-footer {
     color: #64748b;
     font-size: .9rem;

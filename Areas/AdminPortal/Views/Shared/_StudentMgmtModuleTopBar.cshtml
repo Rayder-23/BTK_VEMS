@@ -1,12 +1,29 @@
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeModuleKey = StudentMgmtNavCatalog.ResolveModuleKey(path, action);
+}
 <header class="fee-erp-module-topbar student-mgmt-module-topbar" aria-label="Student management module">
-    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center justify-content-between gap-3">
-        <a href="/adminportal/students" class="student-mgmt-module-topbar__brand text-decoration-none d-flex align-items-center gap-2">
+    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center gap-2 gap-lg-3">
+        <a href="/adminportal/students" class="student-mgmt-module-topbar__brand text-decoration-none d-inline-flex align-items-center" aria-label="Student management home">
             <span class="student-mgmt-module-topbar__logo rounded-2 d-inline-flex align-items-center justify-content-center">
                 <i class="fa-solid fa-user-graduate" aria-hidden="true"></i>
             </span>
-            <span class="student-mgmt-module-topbar__title fw-semibold">Students</span>
         </a>
-        <a class="student-mgmt-module-topbar__link small text-decoration-none" href="/adminportal">
+
+        <nav class="student-mgmt-module-nav portal-module-nav flex-grow-1" aria-label="Module navigation">
+            @foreach (var module in StudentMgmtNavCatalog.TopBarModules)
+            {
+                var isActive = string.Equals(module.Key, activeModuleKey, StringComparison.OrdinalIgnoreCase);
+                <a class="portal-module-link @(isActive ? "active" : "")" href="@module.DefaultUrl" title="@module.Name">
+                    <i class="fa-solid @module.IconClass" aria-hidden="true"></i>
+                    <span>@module.Name</span>
+                </a>
+            }
+        </nav>
+
+        <a class="student-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal
         </a>
     </div>

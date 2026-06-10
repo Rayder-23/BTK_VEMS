@@ -2,73 +2,89 @@
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<div class="row g-3">
-    <input type="hidden" asp-for="Form.Uid" />
-    <div class="col-md-3">
-        <label asp-for="Form.EmployeeCode" class="form-label"></label>
-        <input asp-for="Form.EmployeeCode" class="form-control" />
-        <span asp-validation-for="Form.EmployeeCode" class="text-danger small"></span>
+<input type="hidden" asp-for="Form.Uid" />
+
+<div class="student-mgmt-admin-form-grid">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.EmployeeCode"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.EmployeeCode" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.EmployeeCode" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FirstName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.FirstName" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
+        </div>
     </div>
-    <div class="col-md-3">
-        <label asp-for="Form.FirstName" class="form-label"></label>
-        <input asp-for="Form.FirstName" class="form-control" />
-        <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.LastName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.LastName" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.LastName" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.JoiningDate"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.JoiningDate" class="form-control form-control-sm" type="date" />
+            <span asp-validation-for="Form.JoiningDate" class="text-danger small"></span>
+        </div>
     </div>
-    <div class="col-md-3">
-        <label asp-for="Form.LastName" class="form-label"></label>
-        <input asp-for="Form.LastName" class="form-control" />
-        <span asp-validation-for="Form.LastName" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Designation"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.Designation" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Designations))">
+                <option value="">— None —</option>
+            </select>
+            <span asp-validation-for="Form.Designation" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Qualification"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Qualification" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.Qualification" class="text-danger small"></span>
+        </div>
     </div>
-    <div class="col-md-3">
-        <label asp-for="Form.JoiningDate" class="form-label"></label>
-        <input asp-for="Form.JoiningDate" class="form-control" type="date" />
-        <span asp-validation-for="Form.JoiningDate" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Specialization"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Specialization" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.Specialization" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ProgramId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— None —</option>
+            </select>
+            <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
+        </div>
     </div>
-    <div class="col-md-4">
-        <label asp-for="Form.Designation" class="form-label"></label>
-        <select asp-for="Form.Designation" class="form-select"
-                asp-items="@(new SelectList(Model.Lookups.Designations))">
-            <option value="">— None —</option>
-        </select>
-        <span asp-validation-for="Form.Designation" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Email"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Email" class="form-control form-control-sm" type="email" />
+            <span asp-validation-for="Form.Email" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Phone"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Phone" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.Phone" class="text-danger small"></span>
+        </div>
     </div>
-    <div class="col-md-4">
-        <label asp-for="Form.Qualification" class="form-label"></label>
-        <input asp-for="Form.Qualification" class="form-control" />
-        <span asp-validation-for="Form.Qualification" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-start">
+        <label class="col-12 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Remarks"></label>
+        <div class="col-12 col-lg-9 student-mgmt-admin-form-field">
+            <textarea asp-for="Form.Remarks" class="form-control form-control-sm" rows="2"></textarea>
+            <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+        </div>
     </div>
-    <div class="col-md-4">
-        <label asp-for="Form.Specialization" class="form-label"></label>
-        <input asp-for="Form.Specialization" class="form-control" />
-        <span asp-validation-for="Form.Specialization" class="text-danger small"></span>
-    </div>
-    <div class="col-md-6">
-        <label asp-for="Form.ProgramId" class="form-label"></label>
-        <select asp-for="Form.ProgramId" class="form-select"
-                asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-            <option value="">— None —</option>
-        </select>
-        <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
-    </div>
-    <div class="col-md-3">
-        <label asp-for="Form.Email" class="form-label"></label>
-        <input asp-for="Form.Email" class="form-control" type="email" />
-        <span asp-validation-for="Form.Email" class="text-danger small"></span>
-    </div>
-    <div class="col-md-3">
-        <label asp-for="Form.Phone" class="form-label"></label>
-        <input asp-for="Form.Phone" class="form-control" />
-        <span asp-validation-for="Form.Phone" class="text-danger small"></span>
-    </div>
-    <div class="col-12">
-        <label asp-for="Form.Remarks" class="form-label"></label>
-        <textarea asp-for="Form.Remarks" class="form-control" rows="2"></textarea>
-        <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
-    </div>
-    <div class="col-12">
-        <div class="form-check">
-            <input asp-for="Form.IsActive" class="form-check-input" />
-            <label asp-for="Form.IsActive" class="form-check-label"></label>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="Form.IsActive" class="form-check-input" />
+                <label asp-for="Form.IsActive" class="form-check-label"></label>
+            </div>
         </div>
     </div>
 </div>

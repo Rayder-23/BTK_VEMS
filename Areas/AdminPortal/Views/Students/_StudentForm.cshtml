@@ -2,212 +2,148 @@
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
-<div class="row g-2 student-form-grid">
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.RegistrationNo" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.RegistrationNo" class="form-control form-control-sm" autocomplete="off" />
-                <span asp-validation-for="Form.RegistrationNo" class="text-danger small"></span>
+<div class="student-mgmt-admin-form-grid">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.RegistrationNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.RegistrationNo" class="form-control form-control-sm" autocomplete="off" />
+            <span asp-validation-for="Form.RegistrationNo" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ProgramId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">Select program</option>
+            </select>
+            <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AdmissionYear"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.AdmissionYear" class="form-control form-control-sm" type="number" />
+            <span asp-validation-for="Form.AdmissionYear" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AdmissionDate"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.AdmissionDate" class="form-control form-control-sm" type="date" />
+            <span asp-validation-for="Form.AdmissionDate" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.RollNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.RollNo" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.RollNo" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FirstName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.FirstName" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.MiddleName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.MiddleName" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.MiddleName" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.LastName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.LastName" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.LastName" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FatherName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.FatherName" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.FatherName" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.DateOfBirth"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.DateOfBirth" class="form-control form-control-sm" type="date"
+                   max="@DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="Form.DateOfBirth" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Gender"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.Gender" class="form-select form-select-sm">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
+            <span asp-validation-for="Form.Gender" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Nationality"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Nationality" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.Nationality" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AddressLine1"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.AddressLine1" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.AddressLine1" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AddressLine2"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.AddressLine2" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.AddressLine2" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.CountryId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.CountryId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Countries, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))"></select>
+            <span asp-validation-for="Form.CountryId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProvinceId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ProvinceId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Provinces, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))"></select>
+            <span asp-validation-for="Form.ProvinceId" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.CityId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.CityId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Cities, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))"></select>
+            <span asp-validation-for="Form.CityId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.PostalCode"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.PostalCode" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.PostalCode" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.NIC_No"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.NIC_No" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.NIC_No" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.BFORM_No"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.BFORM_No" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.BFORM_No" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="Form.IsActive" class="form-check-input" />
+                <label asp-for="Form.IsActive" class="form-check-label small"></label>
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.ProgramId" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <select asp-for="Form.ProgramId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-                    <option value="">Select program</option>
-                </select>
-                <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.AdmissionYear" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.AdmissionYear" class="form-control form-control-sm" type="number" />
-                <span asp-validation-for="Form.AdmissionYear" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.AdmissionDate" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.AdmissionDate" class="form-control form-control-sm" type="date" />
-                <span asp-validation-for="Form.AdmissionDate" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.RollNo" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.RollNo" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.RollNo" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.FirstName" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.FirstName" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.MiddleName" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.MiddleName" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.MiddleName" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.LastName" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.LastName" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.LastName" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.FatherName" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.FatherName" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.FatherName" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.DateOfBirth" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.DateOfBirth" class="form-control form-control-sm" type="date"
-                       max="@DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd")" />
-                <span asp-validation-for="Form.DateOfBirth" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.Gender" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <select asp-for="Form.Gender" class="form-select form-select-sm">
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                    <option value="O">Other</option>
-                </select>
-                <span asp-validation-for="Form.Gender" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.Nationality" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.Nationality" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.Nationality" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.AddressLine1" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.AddressLine1" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.AddressLine1" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.AddressLine2" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.AddressLine2" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.AddressLine2" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.CountryId" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <select asp-for="Form.CountryId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Countries, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))"></select>
-                <span asp-validation-for="Form.CountryId" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.ProvinceId" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <select asp-for="Form.ProvinceId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Provinces, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))"></select>
-                <span asp-validation-for="Form.ProvinceId" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.CityId" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <select asp-for="Form.CityId" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Cities, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))"></select>
-                <span asp-validation-for="Form.CityId" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.PostalCode" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.PostalCode" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.PostalCode" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.NIC_No" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.NIC_No" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.NIC_No" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.BFORM_No" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <input asp-for="Form.BFORM_No" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.BFORM_No" class="text-danger small"></span>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6">
-        <div class="row g-2 align-items-center">
-            <label asp-for="Form.IsActive" class="col-4 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8">
-                <div class="form-check mb-0">
-                    <input asp-for="Form.IsActive" class="form-check-input" />
-                    <label asp-for="Form.IsActive" class="form-check-label small"></label>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="row g-2">
-            <label asp-for="Form.StatusRemark" class="col-4 col-lg-2 col-form-label col-form-label-sm text-lg-end fw-semibold"></label>
-            <div class="col-8 col-lg-10">
-                <textarea asp-for="Form.StatusRemark" class="form-control form-control-sm" rows="2"></textarea>
-                <span asp-validation-for="Form.StatusRemark" class="text-danger small"></span>
-            </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-start">
+        <label class="col-12 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.StatusRemark"></label>
+        <div class="col-12 col-lg-9 student-mgmt-admin-form-field">
+            <textarea asp-for="Form.StatusRemark" class="form-control form-control-sm" rows="2"></textarea>
+            <span asp-validation-for="Form.StatusRemark" class="text-danger small"></span>
         </div>
     </div>
 </div>

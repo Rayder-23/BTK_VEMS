@@ -47,14 +47,12 @@
     </form>
 
     <div class="table-responsive">
-        <table class="table admin-table align-middle">
+        <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
             <thead>
                 <tr>
                     <th>Code</th>
                     <th>Title</th>
                     <th>Program</th>
-                    <th>Credits</th>
-                    <th>Type</th>
                     <th>Level</th>
                     <th>Active</th>
                     <th class="text-end">Actions</th>
@@ -63,7 +61,7 @@
             <tbody>
             @if (Model.Count == 0)
             {
-                <tr><td colspan="8" class="text-center text-muted py-4">No courses found.</td></tr>
+                <tr><td colspan="6" class="text-center text-muted py-3">No courses found.</td></tr>
             }
             @foreach (var row in Model)
             {
@@ -71,8 +69,6 @@
                     <td>@row.CourseCode</td>
                     <td>@row.CourseTitle</td>
                     <td>@row.ProgramName</td>
-                    <td>@row.CreditHours</td>
-                    <td>@row.CourseType</td>
                     <td>@row.CourseLevel</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
                     <td class="text-end">

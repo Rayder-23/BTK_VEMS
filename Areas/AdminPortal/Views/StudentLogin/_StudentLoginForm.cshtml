@@ -13,61 +13,68 @@
         <input type="hidden" asp-for="Form.StudentId" />
     </div>
 }
-else
-{
-    <div class="row g-3">
-        <div class="col-12">
-            <label asp-for="Form.StudentId" class="form-label"></label>
-            <select asp-for="Form.StudentId" class="form-select"
-                    asp-items="@(new SelectList(Model.AvailableStudents, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-                <option value="">Select student</option>
+
+<div class="student-mgmt-admin-form-grid">
+    @if (!Model.IsEdit)
+    {
+        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.StudentId"></label>
+            <div class="col-6 col-lg-9 student-mgmt-admin-form-field">
+                <select asp-for="Form.StudentId" class="form-select form-select-sm"
+                        asp-items="@(new SelectList(Model.AvailableStudents, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                    <option value="">Select student</option>
+                </select>
+                <span asp-validation-for="Form.StudentId" class="text-danger small"></span>
+                @if (Model.AvailableStudents.Count == 0)
+                {
+                    <p class="text-warning small mt-1 mb-0">All students already have logins. Add a student first.</p>
+                }
+            </div>
+        </div>
+    }
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Username"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Username" class="form-control form-control-sm" autocomplete="off" />
+            <span asp-validation-for="Form.Username" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Email"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Email" class="form-control form-control-sm" type="email" autocomplete="off" />
+            <span asp-validation-for="Form.Email" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Status"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.Status" class="form-select form-select-sm">
+                <option value="Active">Active</option>
+                <option value="Locked">Locked</option>
+                <option value="Inactive">Inactive</option>
             </select>
-            <span asp-validation-for="Form.StudentId" class="text-danger small"></span>
-            @if (Model.AvailableStudents.Count == 0)
+            <span asp-validation-for="Form.Status" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Password"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.Password" class="form-control form-control-sm" type="password" autocomplete="new-password" />
+            <span asp-validation-for="Form.Password" class="text-danger small"></span>
+            @if (Model.IsEdit)
             {
-                <p class="text-warning small mt-2 mb-0">All students already have logins. Add a student first.</p>
+                <p class="form-text mb-0">Leave blank to keep the current password.</p>
+            }
+            else
+            {
+                <p class="form-text mb-0">Leave blank to use default password: <strong>@StudentLoginFormViewModel.DefaultPassword</strong></p>
             }
         </div>
     </div>
-}
-
-<div class="row g-3">
-    <div class="col-12 col-lg-6">
-        <label asp-for="Form.Username" class="form-label"></label>
-        <input asp-for="Form.Username" class="form-control" autocomplete="off" />
-        <span asp-validation-for="Form.Username" class="text-danger small"></span>
-    </div>
-    <div class="col-12 col-lg-6">
-        <label asp-for="Form.Email" class="form-label"></label>
-        <input asp-for="Form.Email" class="form-control" type="email" autocomplete="off" />
-        <span asp-validation-for="Form.Email" class="text-danger small"></span>
-    </div>
-    <div class="col-12 col-lg-6">
-        <label asp-for="Form.Status" class="form-label"></label>
-        <select asp-for="Form.Status" class="form-select">
-            <option value="Active">Active</option>
-            <option value="Locked">Locked</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        <span asp-validation-for="Form.Status" class="text-danger small"></span>
-    </div>
-    <div class="col-12 col-lg-6">
-        <label asp-for="Form.Password" class="form-label"></label>
-        <input asp-for="Form.Password" class="form-control" type="password" autocomplete="new-password" />
-        <span asp-validation-for="Form.Password" class="text-danger small"></span>
-        @if (Model.IsEdit)
-        {
-            <p class="form-text mb-0">Leave blank to keep the current password.</p>
-        }
-        else
-        {
-            <p class="form-text mb-0">Leave blank to use default password: <strong>@StudentLoginFormViewModel.DefaultPassword</strong></p>
-        }
-    </div>
-    <div class="col-12">
-        <div class="form-check">
-            <input asp-for="Form.MustChangePassword" class="form-check-input" type="checkbox" />
-            <label asp-for="Form.MustChangePassword" class="form-check-label"></label>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.MustChangePassword"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="Form.MustChangePassword" class="form-check-input" type="checkbox" />
+                <label asp-for="Form.MustChangePassword" class="form-check-label"></label>
+            </div>
         </div>
     </div>
 </div>

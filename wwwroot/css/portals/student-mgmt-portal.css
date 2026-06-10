@@ -124,6 +124,48 @@ body.student-mgmt-home .student-mgmt-home-content {
     padding: 1.5rem 1rem 2.5rem;
 }
 
+.portal-module-nav {
+    display: flex;
+    flex: 1;
+    gap: .25rem;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 0;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.portal-module-nav::-webkit-scrollbar {
+    height: 4px;
+}
+
+.portal-module-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+}
+
+.portal-module-link {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: .82rem;
+    font-weight: 500;
+    gap: .35rem;
+    padding: .45rem .55rem;
+    text-decoration: none;
+    transition: color .15s ease, border-color .15s ease;
+    white-space: nowrap;
+}
+
+.portal-module-link i {
+    font-size: .9rem;
+    opacity: .85;
+}
+
 body.student-mgmt-home .home-brand-icon {
     align-items: center;
     background: #2563eb;
@@ -134,4 +176,59 @@ body.student-mgmt-home .home-brand-icon {
     height: 40px;
     justify-content: center;
     width: 40px;
+}
+
+.student-mgmt-admin-form-grid .student-mgmt-admin-form-row {
+    margin-bottom: 0.2rem;
+}
+
+.student-mgmt-admin-form-grid .student-mgmt-admin-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.student-mgmt-admin-form-label {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #334155;
+    margin-bottom: 0;
+    text-align: start;
+    padding-right: 0;
+    line-height: 1.25;
+}
+
+.student-mgmt-admin-form-field {
+    text-align: start;
+}
+
+.student-mgmt-admin-form-field .form-control-sm,
+.student-mgmt-admin-form-field .form-select-sm,
+.student-mgmt-admin-form-field .form-control,
+.student-mgmt-admin-form-field .form-select {
+    min-height: calc(1.4em + 0.4rem + 2px);
+    font-size: 0.8125rem;
+    color: #2563eb;
+    text-align: start;
+}
+
+.student-mgmt-admin-form-field .form-control-sm::placeholder,
+.student-mgmt-admin-form-field .form-control::placeholder {
+    color: rgba(37, 99, 235, 0.55);
+}
+
+.student-mgmt-admin-form-field .form-check-label {
+    color: #2563eb;
+    font-size: 0.8125rem;
+}
+
+.student-mgmt-admin-form-field .text-danger.small {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    line-height: 1.15;
+}
+
+.student-mgmt-admin-form-field .form-text {
+    font-size: 0.72rem;
+    margin-top: 0.1rem;
+    text-align: start;
 }

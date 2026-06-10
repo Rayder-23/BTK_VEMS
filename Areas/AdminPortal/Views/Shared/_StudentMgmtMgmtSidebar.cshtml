@@ -3,10 +3,36 @@
     var path = Context.Request.Path.Value ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     var activeKey = StudentMgmtNavCatalog.ResolveActiveKey(path, action);
+    var activeModule = StudentMgmtNavCatalog.GetModuleForRoute(path, action);
 }
 <div class="fee-erp-sidebar-inner d-flex flex-column h-100 student-mgmt-sidebar-inner">
     <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Student management navigation">
-        <ul class="nav flex-column gap-1 fee-erp-nav-list">
+        @if (activeModule is not null && activeModule.Links.Count > 0)
+        {
+            <p class="student-mgmt-nav-heading px-2 mb-2 text-uppercase">@activeModule.Name</p>
+            <ul class="nav flex-column gap-1 fee-erp-nav-list student-mgmt-module-nav mb-2">
+                @foreach (var link in activeModule.Links)
+                {
+                    <li class="nav-item">
+                        <a class="fee-erp-nav-link @(activeKey == link.Key ? "active" : "")" href="@link.Url">
+                            <i class="fa-fw fa-solid @link.IconClass"></i>
+                            <span class="fee-erp-nav-label">@link.Name</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+        <ul class="nav flex-column gap-1 fee-erp-nav-list student-mgmt-placeholder-nav @(activeModule is not null ? "mt-1" : "")">
+            @foreach (var item in StudentMgmtNavCatalog.SidebarPlaceholderNav)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link student-mgmt-nav-blank" href="@item.Url" aria-hidden="true" tabindex="-1">&nbsp;</a>
+                </li>
+            }
+        </ul>
+
+        <ul class="nav flex-column gap-1 fee-erp-nav-list student-mgmt-main-nav mt-1">
             @foreach (var item in StudentMgmtNavCatalog.SidebarNav)
             {
                 <li class="nav-item">

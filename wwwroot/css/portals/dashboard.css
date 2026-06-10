@@ -712,6 +712,39 @@ body.student-mgmt-shell .student-mgmt-module-topbar__link:hover {
     color: #fff;
 }
 
+body.student-mgmt-shell .student-mgmt-module-nav {
+    min-width: 0;
+}
+
+body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link {
+    color: rgba(226, 232, 240, 0.9);
+}
+
+body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link:hover {
+    border-bottom-color: rgba(147, 197, 253, 0.45);
+    color: #fff;
+}
+
+body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link.active {
+    border-bottom-color: #60a5fa;
+    color: #fff;
+    font-weight: 600;
+}
+
+body.student-mgmt-shell .student-mgmt-nav-heading {
+    color: #93c5fd;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+body.student-mgmt-shell .student-mgmt-nav-blank {
+    cursor: default;
+    min-height: 2.25rem;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
 body.student-mgmt-shell .fee-erp-navbar {
     top: var(--fee-erp-module-bar-h);
 }

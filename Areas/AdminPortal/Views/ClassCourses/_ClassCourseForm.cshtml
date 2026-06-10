@@ -2,41 +2,49 @@
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<div class="row g-3">
-    <input type="hidden" asp-for="Form.Uid" />
-    <div class="col-md-6">
-        <label asp-for="Form.ClassId" class="form-label"></label>
-        <select asp-for="Form.ClassId" class="form-select"
-                asp-items="@(new SelectList(Model.Lookups.Classes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-            <option value="">— Select class —</option>
-        </select>
-        <span asp-validation-for="Form.ClassId" class="text-danger small"></span>
-    </div>
-    <div class="col-md-6">
-        <label asp-for="Form.CourseId" class="form-label"></label>
-        <select asp-for="Form.CourseId" class="form-select"
-                asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-            <option value="">— Select course —</option>
-        </select>
-        <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
-    </div>
-    <div class="col-md-6">
-        <label asp-for="Form.TeacherId" class="form-label"></label>
-        <select asp-for="Form.TeacherId" class="form-select"
-                asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-            <option value="">— None —</option>
-        </select>
-        <span asp-validation-for="Form.TeacherId" class="text-danger small"></span>
-    </div>
-    <div class="col-md-6 d-flex align-items-end">
-        <div class="form-check mb-2">
-            <input asp-for="Form.IsActive" class="form-check-input" />
-            <label asp-for="Form.IsActive" class="form-check-label"></label>
+<input type="hidden" asp-for="Form.Uid" />
+
+<div class="student-mgmt-admin-form-grid">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ClassId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Classes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select class —</option>
+            </select>
+            <span asp-validation-for="Form.ClassId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.CourseId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.CourseId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select course —</option>
+            </select>
+            <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
         </div>
     </div>
-    <div class="col-12">
-        <label asp-for="Form.Remarks" class="form-label"></label>
-        <textarea asp-for="Form.Remarks" class="form-control" rows="2"></textarea>
-        <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TeacherId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.TeacherId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— None —</option>
+            </select>
+            <span asp-validation-for="Form.TeacherId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="Form.IsActive" class="form-check-input" />
+                <label asp-for="Form.IsActive" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-start">
+        <label class="col-12 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Remarks"></label>
+        <div class="col-12 col-lg-9 student-mgmt-admin-form-field">
+            <textarea asp-for="Form.Remarks" class="form-control form-control-sm" rows="2"></textarea>
+            <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+        </div>
     </div>
 </div>
