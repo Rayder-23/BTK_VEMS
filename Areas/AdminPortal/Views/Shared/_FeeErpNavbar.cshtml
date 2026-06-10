@@ -1,7 +1,7 @@
 @model string
 @using VEMS.Areas.AdminPortal.Controllers
 @{
-    var adminUsername = Context.Session.GetString(LoginController.AdminSessionKey) ?? "Admin";
+    var adminUsername = User.Identity?.Name ?? "Admin";
     var displayName = string.IsNullOrWhiteSpace(adminUsername) ? "Admin" : adminUsername;
     var avatarLetter = char.ToUpperInvariant(displayName.Trim()[0]);
     const string roleLabel = "Administrator";

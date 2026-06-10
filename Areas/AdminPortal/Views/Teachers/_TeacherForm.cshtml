@@ -26,7 +26,10 @@
     </div>
     <div class="col-md-4">
         <label asp-for="Form.Designation" class="form-label"></label>
-        <input asp-for="Form.Designation" class="form-control" />
+        <select asp-for="Form.Designation" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Designations))">
+            <option value="">— None —</option>
+        </select>
         <span asp-validation-for="Form.Designation" class="text-danger small"></span>
     </div>
     <div class="col-md-4">

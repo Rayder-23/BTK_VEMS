@@ -13,4 +13,8 @@ public interface IEmployeeRepository
     Task<bool> UpdateAsync(EmployeeFormModel model, CancellationToken cancellationToken = default);
 
     Task<bool> DeleteAsync(int uid, CancellationToken cancellationToken = default);
+
+    Task<bool> EmployeeIdExistsAsync(string employeeId, int? excludeUid = null, CancellationToken cancellationToken = default);
+
+    Task<bool> CnicExistsAsync(string cnic, int? excludeUid = null, CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Scalar.AspNetCore;    // <-- Scalar UI -->
+using VEMS.Areas.AdminPortal;
 using VEMS.Areas.AdminPortal.Services;
 using VEMS.Areas.AdminPortal.Services.Admissions;
 using VEMS.Areas.AdminPortal.Services.Examination;
@@ -47,10 +48,19 @@ builder.Services
         options.AccessDeniedPath = "/teacherportal/login";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+    })
+    .AddCookie(AdminPortalAuth.Scheme, options =>
+    {
+        options.Cookie.Name = AdminPortalAuth.CookieName;
+        options.LoginPath = "/adminportal/login";
+        options.AccessDeniedPath = "/adminportal/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
     });
 builder.Services.AddScoped<IStudentLoginRepository, StudentLoginRepository>();
 builder.Services.AddScoped<ITeacherLoginRepository, TeacherLoginRepository>();
 builder.Services.AddScoped<ITeacherAccountRepository, TeacherAccountRepository>();
+builder.Services.AddScoped<ITeacherAcademicRepository, TeacherAcademicRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
 builder.Services.AddScoped<IStudentChallanRepository, StudentChallanRepository>();

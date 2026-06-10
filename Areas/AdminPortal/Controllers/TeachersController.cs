@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
 using VEMS.Areas.AdminPortal.Services;
 
@@ -75,9 +76,24 @@ public sealed class TeachersController : AdminBaseController
             return View(model);
         }
 
-        var newId = await _teachers.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
-        TempData["StatusMessage"] = $"Teacher created (id {newId}).";
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            var newId = await _teachers.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            TempData["StatusMessage"] = $"Teacher created (id {newId}).";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            ApplyUniqueConstraintError(ex, model);
+            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ApplyCheckConstraintError(ex, model);
+            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
     }
 
     [HttpGet("edit/{id:int}")]
@@ -132,14 +148,29 @@ public sealed class TeachersController : AdminBaseController
             return View(model);
         }
 
-        var ok = await _teachers.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
-        if (!ok)
+        try
         {
-            return NotFound();
-        }
+            var ok = await _teachers.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            if (!ok)
+            {
+                return NotFound();
+            }
 
-        TempData["StatusMessage"] = "Teacher updated.";
-        return RedirectToAction(nameof(Index));
+            TempData["StatusMessage"] = "Teacher updated.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            ApplyUniqueConstraintError(ex, model);
+            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ApplyCheckConstraintError(ex, model);
+            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
     }
 
     [HttpPost("delete/{id:int}")]
@@ -331,14 +362,60 @@ public sealed class TeachersController : AdminBaseController
             return;
         }
 
-        if (form.ProgramId.HasValue)
+        var lookups = await _teachers.GetLookupsAsync(cancellationToken);
+
+        if (form.ProgramId.HasValue && lookups.Programs.All(p => p.Id != form.ProgramId.Value))
         {
-            var lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            if (lookups.Programs.All(p => p.Id != form.ProgramId.Value))
+            ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
+        }
+
+        if (string.IsNullOrWhiteSpace(form.Designation))
+        {
+            form.Designation = null;
+        }
+        else
+        {
+            var matchedDesignation = lookups.Designations.FirstOrDefault(d =>
+                string.Equals(d, form.Designation, StringComparison.OrdinalIgnoreCase));
+            if (matchedDesignation is null)
             {
-                ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
+                ModelState.AddModelError(nameof(form.Designation), "Select a valid designation.");
+            }
+            else
+            {
+                form.Designation = matchedDesignation;
             }
         }
+    }
+
+    private void ApplyUniqueConstraintError(SqlException ex, TeacherFormPageViewModel model)
+    {
+        var message = ex.Message;
+
+        if (message.Contains("EmployeeCode", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.EmployeeCode), "Employee code already exists.");
+            return;
+        }
+
+        if (message.Contains("Email", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.Email), "Email already exists.");
+            return;
+        }
+
+        ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
+    }
+
+    private void ApplyCheckConstraintError(SqlException ex, TeacherFormPageViewModel model)
+    {
+        if (ex.Message.Contains("CK_Teachers_Designation", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.Designation), "Select a valid designation from the list.");
+            return;
+        }
+
+        ModelState.AddModelError(string.Empty, "One or more values are not allowed by database rules.");
     }
 
     private async Task ValidateAssignmentFormAsync(

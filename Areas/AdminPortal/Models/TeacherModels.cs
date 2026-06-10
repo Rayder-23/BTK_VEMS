@@ -28,6 +28,8 @@ public sealed class TeacherListItemViewModel
 public sealed class TeacherLookups
 {
     public IReadOnlyList<StudentLookupItem> Programs { get; init; } = [];
+
+    public IReadOnlyList<string> Designations { get; init; } = [];
 }
 
 public sealed class TeacherFormPageViewModel

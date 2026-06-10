@@ -1,11 +1,14 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VEMS.Areas.AdminPortal.Controllers;
+using VEMS.Areas.AdminPortal;
 using VEMS.Areas.AdminPortal.Models.Fee;
 using VEMS.Areas.AdminPortal.Services.Fee;
 
 namespace VEMS.Controllers.Api;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = AdminPortalAuth.Scheme)]
 [Route("api/challans")]
 public sealed class ChallansController : ControllerBase
 {
@@ -25,11 +28,6 @@ public sealed class ChallansController : ControllerBase
         [FromQuery] short academicYear,
         CancellationToken cancellationToken)
     {
-        if (!IsAdminSignedIn())
-        {
-            return Unauthorized();
-        }
-
         if (programId <= 0)
         {
             return BadRequest(new { message = "Program is required." });
@@ -56,11 +54,6 @@ public sealed class ChallansController : ControllerBase
         [FromQuery] short? academicYear,
         CancellationToken cancellationToken)
     {
-        if (!IsAdminSignedIn())
-        {
-            return Unauthorized();
-        }
-
         if (programId <= 0)
         {
             return BadRequest(new { message = "Program is required." });
@@ -75,11 +68,6 @@ public sealed class ChallansController : ControllerBase
         [FromBody] BulkChallanApiRequest body,
         CancellationToken cancellationToken)
     {
-        if (!IsAdminSignedIn())
-        {
-            return Unauthorized();
-        }
-
         if (body.ProgramId <= 0)
         {
             return BadRequest(new { message = "Program is required." });
@@ -148,13 +136,10 @@ public sealed class ChallansController : ControllerBase
         }
     }
 
-    private bool IsAdminSignedIn() =>
-        !string.IsNullOrWhiteSpace(HttpContext.Session.GetString(LoginController.AdminSessionKey));
-
     private int ResolveActorId()
     {
-        var uid = HttpContext.Session.GetInt32(AdminBaseController.StaffLoginUidSessionKey);
-        return uid is > 0 ? uid.Value : 1;
+        var claim = User.FindFirst(AdminPortalAuth.EmployeeLoginUidClaim)?.Value;
+        return int.TryParse(claim, out var uid) && uid > 0 ? uid : 1;
     }
 
     public sealed class BulkChallanApiRequest

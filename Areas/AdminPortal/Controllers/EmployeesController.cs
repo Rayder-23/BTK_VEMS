@@ -49,9 +49,22 @@ public sealed class EmployeesController : HrBaseController
             return View(model);
         }
 
-        var newId = await _employees.InsertAsync(model, cancellationToken);
-        TempData["StatusMessage"] = $"Employee created (internal id {newId}).";
-        return RedirectToAction(nameof(Index));
+        if (!await ValidateUniqueFieldsAsync(model, excludeUid: null, cancellationToken))
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var newId = await _employees.InsertAsync(model, cancellationToken);
+            TempData["StatusMessage"] = $"Employee created (internal id {newId}).";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            ApplyUniqueConstraintError(ex, model);
+            return View(model);
+        }
     }
 
     [HttpGet("edit/{id:int}")]
@@ -86,14 +99,27 @@ public sealed class EmployeesController : HrBaseController
             return View(model);
         }
 
-        var ok = await _employees.UpdateAsync(model, cancellationToken);
-        if (!ok)
+        if (!await ValidateUniqueFieldsAsync(model, excludeUid: model.Uid, cancellationToken))
         {
-            return NotFound();
+            return View(model);
         }
 
-        TempData["StatusMessage"] = "Employee updated.";
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            var ok = await _employees.UpdateAsync(model, cancellationToken);
+            if (!ok)
+            {
+                return NotFound();
+            }
+
+            TempData["StatusMessage"] = "Employee updated.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            ApplyUniqueConstraintError(ex, model);
+            return View(model);
+        }
     }
 
     [HttpPost("delete/{id:int}")]
@@ -113,5 +139,48 @@ public sealed class EmployeesController : HrBaseController
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<bool> ValidateUniqueFieldsAsync(
+        EmployeeFormModel model,
+        int? excludeUid,
+        CancellationToken cancellationToken)
+    {
+        var isValid = true;
+
+        if (await _employees.EmployeeIdExistsAsync(model.EmployeeId, excludeUid, cancellationToken))
+        {
+            ModelState.AddModelError(nameof(model.EmployeeId), "Employee ID already exists.");
+            isValid = false;
+        }
+
+        if (await _employees.CnicExistsAsync(model.CNIC, excludeUid, cancellationToken))
+        {
+            ModelState.AddModelError(nameof(model.CNIC), "CNIC already exists.");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    private void ApplyUniqueConstraintError(SqlException ex, EmployeeFormModel model)
+    {
+        var message = ex.Message;
+
+        if (message.Contains("UQ_Employee_CNIC", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("(CNIC)", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.CNIC), "CNIC already exists.");
+            return;
+        }
+
+        if (message.Contains("UQ_Employee_EmployeeId", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("(EmployeeId)", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.EmployeeId), "Employee ID already exists.");
+            return;
+        }
+
+        ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
     }
 }

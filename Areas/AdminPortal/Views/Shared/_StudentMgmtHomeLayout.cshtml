@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 @{
-    var adminUsername = Context.Session.GetString("AdminUsername") ?? "Admin";
+    var adminUsername = User.Identity?.Name ?? "Admin";
 }
 <html lang="en">
 <head>

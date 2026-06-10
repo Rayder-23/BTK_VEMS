@@ -1,6 +1,6 @@
 @model string
 @{
-    var adminUsername = Context.Session.GetString("AdminUsername") ?? "Admin";
+    var adminUsername = User.Identity?.Name ?? "Admin";
     ViewData["SidebarToggleId"] = "studentMgmtSidebarToggle";
     ViewData["SidebarToggleClass"] = "d-none d-lg-inline-flex me-3";
 }

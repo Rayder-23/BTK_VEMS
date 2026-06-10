@@ -124,7 +124,11 @@ public sealed class TeacherRepository : ITeacherRepository
             });
         }
 
-        return new TeacherLookups { Programs = programs };
+        return new TeacherLookups
+        {
+            Programs = programs,
+            Designations = TeacherDesignationCatalog.Allowed
+        };
     }
 
     public async Task<bool> EmployeeCodeExistsAsync(string employeeCode, int? excludeUid, CancellationToken cancellationToken = default)

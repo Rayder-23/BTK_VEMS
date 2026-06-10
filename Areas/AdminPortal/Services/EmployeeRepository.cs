@@ -195,6 +195,40 @@ public sealed class EmployeeRepository : IEmployeeRepository
         return rows > 0;
     }
 
+    public async Task<bool> EmployeeIdExistsAsync(string employeeId, int? excludeUid = null, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT COUNT(1)
+            FROM dbo.Employee
+            WHERE EmployeeId = @EmployeeId
+              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@EmployeeId", employeeId.Trim());
+        command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
+        await connection.OpenAsync(cancellationToken);
+        return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
+    }
+
+    public async Task<bool> CnicExistsAsync(string cnic, int? excludeUid = null, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT COUNT(1)
+            FROM dbo.Employee
+            WHERE CNIC = @CNIC
+              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@CNIC", cnic.Trim());
+        command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
+        await connection.OpenAsync(cancellationToken);
+        return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
+    }
+
     private static void AddWriteParameters(SqlCommand command, EmployeeFormModel model)
     {
         command.Parameters.AddWithValue("@EmployeeId", model.EmployeeId.Trim());
