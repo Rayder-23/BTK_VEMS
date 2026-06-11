@@ -32,12 +32,12 @@
     <script>
         (function () {
             const programSelect = document.getElementById('programSelect');
-            const sectionSelect = document.getElementById('sectionSelect');
-            if (!programSelect || !sectionSelect) return;
+            const classSelect = document.getElementById('classSelect');
+            if (!programSelect || !classSelect) return;
 
-            async function loadSections(programId, selectedId) {
-                const current = selectedId || sectionSelect.value;
-                sectionSelect.innerHTML = '<option value="">— Select section —</option>';
+            async function loadClasses(programId, selectedId) {
+                const current = selectedId || classSelect.value;
+                classSelect.innerHTML = '<option value="">— Select class —</option>';
                 if (!programId) return;
 
                 const response = await fetch(`/adminportal/students/program-enrollments/lookups?programId=${programId}`);
@@ -51,16 +51,16 @@
                     if (current && Number(current) === Number(item.id)) {
                         option.selected = true;
                     }
-                    sectionSelect.appendChild(option);
+                    classSelect.appendChild(option);
                 });
             }
 
             programSelect.addEventListener('change', () => {
-                loadSections(programSelect.value, null);
+                loadClasses(programSelect.value, null);
             });
 
             if (programSelect.value) {
-                loadSections(programSelect.value, sectionSelect.value);
+                loadClasses(programSelect.value, classSelect.value);
             }
         })();
     </script>

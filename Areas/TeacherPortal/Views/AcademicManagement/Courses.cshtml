@@ -48,8 +48,8 @@
                     <th>Title</th>
                     <th>Program</th>
                     <th>Credits</th>
-                    <th>Type</th>
-                    <th>Level</th>
+                    <th>Semester</th>
+                    <th>Mandatory</th>
                     <th>Active</th>
                 </tr>
             </thead>
@@ -65,8 +65,8 @@
                     <td>@row.CourseTitle</td>
                     <td>@row.ProgramName</td>
                     <td>@row.CreditHours</td>
-                    <td>@row.CourseType</td>
-                    <td>@row.CourseLevel</td>
+                    <td>@(row.SemesterNo?.ToString() ?? "—")</td>
+                    <td>@(row.IsMandatory ? "Yes" : "No")</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
                 </tr>
             }

@@ -14,11 +14,9 @@ public interface IProgramRepository
 
     Task<ProgramFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
 
-    Task<ProgramLookups> GetLookupsAsync(CancellationToken cancellationToken = default);
-
     Task<bool> ProgramCodeExistsAsync(string programCode, int? excludeUid, CancellationToken cancellationToken = default);
 
-    Task<int> InsertAsync(ProgramFormModel model, int? createdBy, CancellationToken cancellationToken = default);
+    Task<int> InsertAsync(ProgramFormModel model, CancellationToken cancellationToken = default);
 
     Task<bool> UpdateAsync(ProgramFormModel model, CancellationToken cancellationToken = default);
 

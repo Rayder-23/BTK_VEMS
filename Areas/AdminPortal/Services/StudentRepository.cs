@@ -367,26 +367,27 @@ public sealed class StudentRepository : IStudentRepository
             INSERT INTO dbo.StudentEnrollments (
                 StudentID,
                 ProgramID,
+                ClassID,
+                RollNo,
                 AcademicYear,
                 GradeOrSemester,
-                SectionID,
-                RollNo,
                 EnrollmentDate,
                 EnrollmentStatus,
-                FeeStatus,
-                CreatedBy
+                IsActive
             )
             VALUES (
                 @StudentID,
                 @ProgramID,
+                COALESCE(
+                    (SELECT TOP 1 Uid FROM dbo.Classes WHERE ProgramID = @ProgramID AND IsActive = 1 ORDER BY Uid),
+                    1
+                ),
+                @RollNo,
                 @AcademicYear,
                 @GradeOrSemester,
-                @SectionID,
-                @RollNo,
                 @EnrollmentDate,
                 @EnrollmentStatus,
-                @FeeStatus,
-                @CreatedBy
+                1
             );
             """;
 
@@ -399,12 +400,9 @@ public sealed class StudentRepository : IStudentRepository
         command.Parameters.AddWithValue("@ProgramID", model.ProgramId);
         command.Parameters.AddWithValue("@AcademicYear", model.AdmissionYear);
         command.Parameters.AddWithValue("@GradeOrSemester", (byte)1);
-        command.Parameters.AddWithValue("@SectionID", 1);
         command.Parameters.AddWithValue("@RollNo", rollNo);
         command.Parameters.AddWithValue("@EnrollmentDate", model.AdmissionDate!.Value.Date);
         command.Parameters.AddWithValue("@EnrollmentStatus", "Active");
-        command.Parameters.AddWithValue("@FeeStatus", "Pending");
-        command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 

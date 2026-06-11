@@ -65,16 +65,10 @@
         <div class="row g-3 small">
             <div class="col-md-2"><span class="text-muted">Code</span><div class="fw-semibold">@summary.ProgramCode</div></div>
             <div class="col-md-4"><span class="text-muted">Name</span><div class="fw-semibold">@summary.ProgramName</div></div>
-            <div class="col-md-3"><span class="text-muted">Institution type</span><div>@summary.InstitutionTypeName</div></div>
-            <div class="col-md-1"><span class="text-muted">Status</span><div>@summary.Status</div></div>
+            <div class="col-md-2"><span class="text-muted">Short name</span><div>@(summary.ShortName ?? "—")</div></div>
+            <div class="col-md-2"><span class="text-muted">Duration</span><div>@(summary.DurationYears.HasValue ? $"{summary.DurationYears} yr(s)" : "—")</div></div>
             <div class="col-md-1"><span class="text-muted">Active</span><div>@(summary.IsActive ? "Yes" : "No")</div></div>
-            <div class="col-md-2"><span class="text-muted">Degree level</span><div>@(summary.DegreeLevel ?? "—")</div></div>
-            <div class="col-md-2"><span class="text-muted">Short name</span><div>@(program.ShortName ?? "—")</div></div>
-            <div class="col-md-2"><span class="text-muted">Program level</span><div>@(program.ProgramLevel ?? "—")</div></div>
-            <div class="col-md-2"><span class="text-muted">Program type</span><div>@(program.ProgramType ?? "—")</div></div>
-            <div class="col-md-2"><span class="text-muted">Duration</span><div>@(program.DurationYears.HasValue ? $"{program.DurationYears} yr(s)" : "—")</div></div>
-            <div class="col-md-2"><span class="text-muted">Semesters</span><div>@(program.TotalSemesters?.ToString() ?? "—")</div></div>
-            <div class="col-md-2"><span class="text-muted">Credit hours</span><div>@(program.TotalCreditHours?.ToString() ?? "—")</div></div>
+            <div class="col-md-2"><span class="text-muted">Created</span><div>@summary.CreatedAt.ToString("yyyy-MM-dd")</div></div>
         </div>
     </section>
 
@@ -89,8 +83,8 @@
                         <th>Code</th>
                         <th>Title</th>
                         <th>Credits</th>
-                        <th>Type</th>
-                        <th>Level</th>
+                        <th>Semester</th>
+                        <th>Mandatory</th>
                         <th>Active</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -106,8 +100,8 @@
                         <td>@row.CourseCode</td>
                         <td>@row.CourseTitle</td>
                         <td>@row.CreditHours</td>
-                        <td>@row.CourseType</td>
-                        <td>@row.CourseLevel</td>
+                        <td>@(row.SemesterNo?.ToString() ?? "—")</td>
+                        <td>@(row.IsMandatory ? "Yes" : "No")</td>
                         <td>@(row.IsActive ? "Yes" : "No")</td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-success" href="/adminportal/students/courses/edit/@row.Uid">Edit</a>

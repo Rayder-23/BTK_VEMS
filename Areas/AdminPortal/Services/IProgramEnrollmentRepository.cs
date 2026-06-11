@@ -22,14 +22,6 @@ public interface IProgramEnrollmentRepository
         int? excludeUid,
         CancellationToken cancellationToken = default);
 
-    Task<bool> RollNoExistsAsync(
-        int programId,
-        short academicYear,
-        byte gradeOrSemester,
-        string rollNo,
-        int? excludeUid,
-        CancellationToken cancellationToken = default);
-
     Task<int> InsertAsync(ProgramEnrollmentFormModel model, int createdBy, CancellationToken cancellationToken = default);
 
     Task<bool> UpdateAsync(ProgramEnrollmentFormModel model, int? updatedBy, CancellationToken cancellationToken = default);

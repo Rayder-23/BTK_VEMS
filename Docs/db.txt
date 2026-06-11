@@ -1,8 +1,8 @@
 Virtual Education Management System - Database Schema
-Generated: 2026-06-10 (from live database using ConnectionStrings:DefaultConnection in appsettings.Development.json)
+Generated: 2026-06-11 (from live database using ConnectionStrings:DefaultConnection in appsettings.Development.json)
 
-Version: 2.2  (Increment 'Version' by 0.1 at every change)
-UpdatedAt: 2026-06-10  (Update 'UpdatedAt' timestamp at every change)
+Version: 2.9  (Increment 'Version' by 0.1 at every change)
+UpdatedAt: 2026-06-11  (Update 'UpdatedAt' timestamp at every change)
 
 READ @Database.md, @DBworkflows.md and @database-rules.mdc for implementation details.
 IF UPDATING this file, make sure to UPDATE @Database.md aswell while following its formatting.
@@ -71,16 +71,12 @@ Table: dbo.ClassCourses
   - CourseID: int NOT NULL
   - TeacherID: int NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - Remarks: nvarchar(200) NULL
-  - CreatedBy: int NOT NULL
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
-  - UpdatedBy: int NULL
-  - UpdatedAt: datetime2(7) NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.Classes
   - Uid: int NOT NULL PK
-  - ClassName: nvarchar(100) NOT NULL
-  - ClassCode: varchar(30) NOT NULL
   - ProgramID: int NOT NULL
+  - ClassCode: varchar(30) NOT NULL
+  - ClassName: nvarchar(100) NOT NULL
   - SemesterNo: tinyint NOT NULL
   - Semester: nvarchar(20) NOT NULL
   - AcademicYear: smallint NOT NULL
@@ -89,11 +85,7 @@ Table: dbo.Classes
   - RoomNo: nvarchar(30) NULL
   - MaxStrength: smallint NOT NULL DEFAULT ((40))
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - Remarks: nvarchar(300) NULL
-  - CreatedBy: int NOT NULL
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
-  - UpdatedBy: int NULL
-  - UpdatedAt: datetime2(7) NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.ClassStudents
   - Uid: int NOT NULL PK
   - ClassID: int NOT NULL
@@ -132,25 +124,15 @@ Table: dbo.Configurations
   - UpdatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.Courses
   - Uid: int NOT NULL PK
+  - ProgramID: int NOT NULL
   - CourseCode: varchar(20) NOT NULL
   - CourseTitle: nvarchar(150) NOT NULL
   - ShortName: nvarchar(50) NULL
-  - ProgramID: int NOT NULL
-  - CreditHours: tinyint NOT NULL
-  - TheoryHours: tinyint NOT NULL DEFAULT ((0))
-  - LabHours: tinyint NOT NULL DEFAULT ((0))
-  - CourseType: nvarchar(20) NOT NULL DEFAULT ('Theory')
-  - CourseLevel: nvarchar(20) NOT NULL DEFAULT ('Undergraduate')
+  - CreditHours: tinyint NOT NULL DEFAULT ((3))
   - SemesterNo: tinyint NULL
   - IsMandatory: bit NOT NULL DEFAULT ((1))
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - Description: nvarchar(500) NULL
-  - Objectives: nvarchar(500) NULL
-  - PrerequisiteCourseID: int NULL
-  - CreatedBy: int NOT NULL
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
-  - UpdatedBy: int NULL
-  - UpdatedAt: datetime2(7) NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.Employee
   - Uid: int NOT NULL PK
   - EmployeeId: varchar(20) NOT NULL
@@ -360,22 +342,12 @@ Table: dbo.ref_InstitutionTypes
   - IsActive: bit NOT NULL DEFAULT ((1))
 Table: dbo.ref_Programs
   - Uid: int NOT NULL PK
-  - InstTypeId: int NOT NULL
   - ProgramCode: nvarchar(10) NOT NULL
   - ProgramName: nvarchar(100) NOT NULL
-  - TotalSemesters: tinyint NULL
-  - TotalGrades: tinyint NULL
-  - IsActive: bit NOT NULL DEFAULT ((1))
-  - ProgramLevel: nvarchar(50) NULL
-  - ProgramType: nvarchar(50) NULL
-  - Status: nvarchar(50) NOT NULL DEFAULT ('Active')
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
-  - UpdatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
   - ShortName: nvarchar(50) NULL
-  - DegreeLevel: nvarchar(50) NULL
   - DurationYears: tinyint NULL
-  - TotalCreditHours: smallint NULL
-  - CreatedBy: int NULL
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.ref_Provinces
   - Uid: int NOT NULL PK
   - CountryID: int NOT NULL
@@ -473,19 +445,14 @@ Table: dbo.StudentEnrollments
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
   - ProgramID: int NOT NULL
+  - ClassID: int NOT NULL
+  - RollNo: nvarchar(30) NOT NULL
   - AcademicYear: smallint NOT NULL
   - GradeOrSemester: tinyint NOT NULL
-  - SectionID: int NOT NULL
-  - RollNo: nvarchar(30) NOT NULL
-  - EnrollmentDate: date NOT NULL
-  - CompletionDate: date NULL
+  - EnrollmentDate: date NOT NULL DEFAULT (getdate())
   - EnrollmentStatus: nvarchar(20) NOT NULL DEFAULT ('Active')
-  - FeeStatus: nvarchar(20) NOT NULL DEFAULT ('Pending')
-  - Remarks: nvarchar(300) NULL
-  - CreatedBy: int NOT NULL
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
-  - UpdatedBy: int NULL
-  - UpdatedAt: datetime2(7) NULL
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.StudentGrades
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL

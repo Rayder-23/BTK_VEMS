@@ -40,11 +40,13 @@
             </div>
         </div>
     </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-start">
-        <label class="col-12 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Remarks"></label>
-        <div class="col-12 col-lg-9 student-mgmt-admin-form-field">
-            <textarea asp-for="Form.Remarks" class="form-control form-control-sm" rows="2"></textarea>
-            <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
+    @if (Model.Form.CreatedAt.HasValue)
+    {
+        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.CreatedAt"></label>
+            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+                <input class="form-control form-control-sm" value="@Model.Form.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm")" readonly disabled />
+            </div>
         </div>
-    </div>
+    }
 </div>

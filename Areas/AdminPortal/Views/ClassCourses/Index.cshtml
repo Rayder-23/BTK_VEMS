@@ -60,7 +60,7 @@
                     <th>Course</th>
                     <th>Teacher</th>
                     <th>Active</th>
-                    <th>Remarks</th>
+                    <th>Created</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -82,7 +82,7 @@
                     </td>
                     <td>@(row.TeacherName ?? "—")</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
-                    <td>@(row.Remarks ?? "—")</td>
+                    <td>@row.CreatedAt.ToString("yyyy-MM-dd")</td>
                     <td class="text-end text-nowrap">
                         <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@row.Uid">Edit</a>
                         @if (row.IsActive)

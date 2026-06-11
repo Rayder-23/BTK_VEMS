@@ -52,7 +52,7 @@ public sealed class ClassesController : StudentMgmtBaseController
         ViewData["Title"] = "Add class";
         ViewData["PageTitle"] = "Classes · Add";
 
-        await ValidateFormAsync(model.Form, null, cancellationToken);
+        await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
             model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
@@ -68,7 +68,7 @@ public sealed class ClassesController : StudentMgmtBaseController
 
         try
         {
-            var newId = await _classes.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            var newId = await _classes.InsertAsync(model.Form, cancellationToken);
             TempData["StatusMessage"] = $"Class created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
@@ -80,7 +80,7 @@ public sealed class ClassesController : StudentMgmtBaseController
         }
         catch (SqlException ex) when (ex.Number == 547)
         {
-            ApplyCheckConstraintError(ex, model);
+            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
             model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -117,7 +117,7 @@ public sealed class ClassesController : StudentMgmtBaseController
             return NotFound();
         }
 
-        await ValidateFormAsync(model.Form, id, cancellationToken);
+        await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
             model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
@@ -133,7 +133,7 @@ public sealed class ClassesController : StudentMgmtBaseController
 
         try
         {
-            var ok = await _classes.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            var ok = await _classes.UpdateAsync(model.Form, cancellationToken);
             if (!ok)
             {
                 return NotFound();
@@ -150,7 +150,7 @@ public sealed class ClassesController : StudentMgmtBaseController
         }
         catch (SqlException ex) when (ex.Number == 547)
         {
-            ApplyCheckConstraintError(ex, model);
+            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
             model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -160,12 +160,12 @@ public sealed class ClassesController : StudentMgmtBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var ok = await _classes.DeactivateAsync(id, ResolveStaffLoginUid(), cancellationToken);
+        var ok = await _classes.DeactivateAsync(id, cancellationToken);
         TempData["StatusMessage"] = ok ? "Class deactivated." : "Class not found.";
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task ValidateFormAsync(ClassFormModel form, int? classUid, CancellationToken cancellationToken)
+    private async Task ValidateFormAsync(ClassFormModel form, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -211,37 +211,4 @@ public sealed class ClassesController : StudentMgmtBaseController
         MaxStrength = 40,
         IsActive = true
     };
-
-    private void ApplyCheckConstraintError(SqlException ex, ClassFormPageViewModel model)
-    {
-        var message = ex.Message;
-
-        if (message.Contains("CK_Classes_Semester", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.Semester), "Select a valid semester.");
-            return;
-        }
-
-        if (message.Contains("CK_Classes_Shift", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.Shift), "Select a valid shift.");
-            return;
-        }
-
-        if (message.Contains("CK_Classes_SemesterNo", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.SemesterNo), "Semester no. must be between 1 and 12.");
-            return;
-        }
-
-        if (message.Contains("CK_Classes_MaxStrength", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.MaxStrength), "Max strength must be greater than zero.");
-            return;
-        }
-
-        ModelState.AddModelError(string.Empty, "One or more values are not allowed by database rules.");
-    }
-
-    private int ResolveActorId() => ResolveStaffLoginUid() ?? 1;
 }

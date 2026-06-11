@@ -1,109 +1,48 @@
-@model VEMS.Areas.AdminPortal.Models.ProgramFormPageViewModel
-@using VEMS.Areas.AdminPortal.Models
+@model VEMS.Areas.AdminPortal.Models.ProgramFormModel
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-@if (Model.Lookups.ProgramStatuses.Count == 0)
-{
-    <div class="alert alert-warning">
-        Configure <strong>ProgramStatus</strong> in
-        <a href="/adminportal/settings">Settings → Configurations</a> before saving programs.
-    </div>
-}
-
-<input type="hidden" asp-for="Form.Uid" />
+<input type="hidden" asp-for="Uid" />
 
 <div class="student-mgmt-admin-form-grid">
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.InstTypeId"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="ProgramCode"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.InstTypeId" class="form-select form-select-sm"
-                    asp-items="@(new SelectList(Model.Lookups.InstitutionTypes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-                <option value="">— Select institution type —</option>
-            </select>
-            <span asp-validation-for="Form.InstTypeId" class="text-danger small"></span>
+            <input asp-for="ProgramCode" class="form-control form-control-sm" maxlength="10" />
+            <span asp-validation-for="ProgramCode" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramCode"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="ProgramName"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ProgramCode" class="form-control form-control-sm" />
-            <span asp-validation-for="Form.ProgramCode" class="text-danger small"></span>
+            <input asp-for="ProgramName" class="form-control form-control-sm" maxlength="100" />
+            <span asp-validation-for="ProgramName" class="text-danger small"></span>
         </div>
     </div>
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramName"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="ShortName"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ProgramName" class="form-control form-control-sm" />
-            <span asp-validation-for="Form.ProgramName" class="text-danger small"></span>
+            <input asp-for="ShortName" class="form-control form-control-sm" maxlength="50" />
+            <span asp-validation-for="ShortName" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ShortName"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="DurationYears"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ShortName" class="form-control form-control-sm" />
-            <span asp-validation-for="Form.ShortName" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramLevel"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.ProgramLevel" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.ProgramLevels))">
-                <option value="">— Optional —</option>
-            </select>
-            <span asp-validation-for="Form.ProgramLevel" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramType"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.ProgramType" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.ProgramTypes))">
-                <option value="">— Optional —</option>
-            </select>
-            <span asp-validation-for="Form.ProgramType" class="text-danger small"></span>
+            <input asp-for="DurationYears" class="form-control form-control-sm" type="number" min="1" max="255" />
+            <span asp-validation-for="DurationYears" class="text-danger small"></span>
         </div>
     </div>
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.DegreeLevel"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.DegreeLevel" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.DegreeLevels))">
-                <option value="">— Optional —</option>
-            </select>
-            <span asp-validation-for="Form.DegreeLevel" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.DurationYears"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.DurationYears" class="form-control form-control-sm" type="number" min="1" max="10" />
-            <span asp-validation-for="Form.DurationYears" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TotalSemesters"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.TotalSemesters" class="form-control form-control-sm" type="number" min="1" max="255" />
-            <span asp-validation-for="Form.TotalSemesters" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TotalGrades"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.TotalGrades" class="form-control form-control-sm" type="number" min="1" max="255" />
-            <span asp-validation-for="Form.TotalGrades" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TotalCreditHours"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.TotalCreditHours" class="form-control form-control-sm" type="number" min="1" max="32767" />
-            <span asp-validation-for="Form.TotalCreditHours" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Status"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.Status" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.ProgramStatuses))">
-                <option value="">— Select status —</option>
-            </select>
-            <span asp-validation-for="Form.Status" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="IsActive"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <div class="form-check mb-0">
-                <input asp-for="Form.IsActive" class="form-check-input" />
-                <label asp-for="Form.IsActive" class="form-check-label"></label>
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
             </div>
         </div>
+        @if (Model.CreatedAt.HasValue)
+        {
+            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="CreatedAt"></label>
+            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+                <input class="form-control form-control-sm" value="@Model.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm")" readonly disabled />
+            </div>
+        }
     </div>
 </div>

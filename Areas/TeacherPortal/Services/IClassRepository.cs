@@ -15,9 +15,9 @@ public interface IClassRepository
 
     Task<bool> ClassCodeExistsAsync(string classCode, int? excludeUid, CancellationToken cancellationToken = default);
 
-    Task<int> InsertAsync(ClassFormModel model, int createdBy, CancellationToken cancellationToken = default);
+    Task<int> InsertAsync(ClassFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> UpdateAsync(ClassFormModel model, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> UpdateAsync(ClassFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default);
 }

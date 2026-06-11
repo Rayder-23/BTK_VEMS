@@ -26,16 +26,16 @@ public static class StudentMgmtNavCatalog
             Key = "settings",
             Name = "Settings",
             IconClass = "fa-gear",
-            DefaultUrl = "/adminportal/students/courses",
+            DefaultUrl = "/adminportal/students/programs",
             Links =
             [
+                new() { Key = "programs", Name = "Programs", Url = "/adminportal/students/programs", IconClass = "fa-graduation-cap" },
                 new() { Key = "courses", Name = "Courses", Url = "/adminportal/students/courses", IconClass = "fa-book" },
                 new() { Key = "classes", Name = "Classes", Url = "/adminportal/students/classes", IconClass = "fa-chalkboard" },
-                new() { Key = "programs", Name = "Programs", Url = "/adminportal/students/programs", IconClass = "fa-graduation-cap" },
+                new() { Key = "class-courses", Name = "Link-Class-Courses", Url = "/adminportal/students/class-courses", IconClass = "fa-layer-group" },
                 new() { Key = "program-enrollments", Name = "Program Enrollment", Url = "/adminportal/students/program-enrollments", IconClass = "fa-id-card" },
                 new() { Key = "course-enrollments", Name = "Course Enrolment", Url = "/adminportal/students/course-enrollments", IconClass = "fa-user-check" },
-                new() { Key = "login", Name = "Create Login", Url = "/adminportal/students/login", IconClass = "fa-key" },
-                new() { Key = "class-courses", Name = "Class Courses", Url = "/adminportal/students/class-courses", IconClass = "fa-layer-group" }
+                new() { Key = "login", Name = "Create Login", Url = "/adminportal/students/login", IconClass = "fa-key" }
             ]
         },
         new()

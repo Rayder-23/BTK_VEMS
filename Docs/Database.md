@@ -270,25 +270,15 @@ Sibling records — may link to another enrolled student or store external sibli
 
 Primary academic program catalog (replaces legacy `Programs` table).
 
-| Header           | Type           | Constraints / Role                                      |
-| :--------------- | :------------- | :------------------------------------------------------ |
-| **Uid**          | INT            | **PK**, Identity(1,1)                                   |
-| InstTypeId       | INT            | **FK** → ref_InstitutionTypes.Uid, NOT NULL             |
-| ProgramCode      | NVARCHAR(10)   | **UNIQUE**, NOT NULL                                    |
-| ProgramName      | NVARCHAR(100)  | NOT NULL                                                |
-| ShortName        | NVARCHAR(50)   | Nullable                                                |
-| ProgramLevel     | NVARCHAR(50)   | Nullable — e.g. `'Secondary'`                           |
-| ProgramType      | NVARCHAR(50)   | Nullable — e.g. `'Science'`                             |
-| DegreeLevel      | NVARCHAR(50)   | Nullable                                                |
-| DurationYears    | TINYINT        | Nullable                                                |
-| TotalSemesters   | TINYINT        | Nullable                                                |
-| TotalGrades      | TINYINT        | Nullable                                                |
-| TotalCreditHours | SMALLINT       | Nullable                                                |
-| Status           | NVARCHAR(50)   | DEFAULT `'Active'` — From Configurations                |
-| IsActive         | BIT            | DEFAULT 1                                               |
-| CreatedBy        | INT            | Nullable                                                |
-| CreatedAt        | DATETIME2(7)   | DEFAULT sysdatetime()                                   |
-| UpdatedAt        | DATETIME2(7)   | DEFAULT sysdatetime()                                   |
+| Header        | Type          | Constraints / Role            |
+| :------------ | :------------ | :---------------------------- |
+| **Uid**       | INT           | **PK**, Identity(1,1)         |
+| ProgramCode   | NVARCHAR(10)  | **UNIQUE**, NOT NULL          |
+| ProgramName   | NVARCHAR(100) | NOT NULL                      |
+| ShortName     | NVARCHAR(50)  | Nullable                      |
+| DurationYears | TINYINT       | Nullable                      |
+| IsActive      | BIT           | DEFAULT 1                     |
+| CreatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()         |
 
 ### ref_FeeHeads
 

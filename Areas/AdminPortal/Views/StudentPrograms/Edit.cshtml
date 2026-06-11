@@ -1,4 +1,4 @@
-@model VEMS.Areas.AdminPortal.Models.ProgramFormPageViewModel
+@model VEMS.Areas.AdminPortal.Models.ProgramFormModel
 @{
     ViewData["Title"] = "Edit Program";
 }
@@ -14,13 +14,13 @@
     <div class="page-summary-head">
         <div class="page-summary-title-block">
             <span class="page-summary-title">Edit program</span>
-            <span class="page-summary-meta">@Model.Form.ProgramCode — @Model.Form.ProgramName</span>
+            <span class="page-summary-meta">@Model.ProgramCode — @Model.ProgramName</span>
         </div>
     </div>
 </section>
 
 <section class="portal-card">
-    <form method="post" asp-action="Edit" asp-route-id="@Model.Form.Uid">
+    <form method="post" asp-action="Edit" asp-route-id="@Model.Uid">
         @Html.AntiForgeryToken()
         <partial name="_ProgramForm" model="Model" />
         <div class="mt-4 d-flex gap-2">

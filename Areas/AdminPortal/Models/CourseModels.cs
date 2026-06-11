@@ -8,18 +8,17 @@ public sealed class CourseListItem
     public string CourseCode { get; init; } = string.Empty;
     public string CourseTitle { get; init; } = string.Empty;
     public string ProgramName { get; init; } = string.Empty;
+    public string? ShortName { get; init; }
     public byte CreditHours { get; init; }
-    public string CourseType { get; init; } = string.Empty;
-    public string CourseLevel { get; init; } = string.Empty;
+    public byte? SemesterNo { get; init; }
+    public bool IsMandatory { get; init; }
     public bool IsActive { get; init; }
+    public DateTime CreatedAt { get; init; }
 }
 
 public sealed class CourseLookups
 {
     public IReadOnlyList<StudentLookupItem> Programs { get; init; } = [];
-    public IReadOnlyList<StudentLookupItem> PrerequisiteCourses { get; init; } = [];
-    public IReadOnlyList<string> CourseTypes { get; init; } = [];
-    public IReadOnlyList<string> CourseLevels { get; init; } = [];
 }
 
 public sealed class CourseFormPageViewModel
@@ -53,43 +52,19 @@ public sealed class CourseFormModel
 
     [Required(ErrorMessage = "Credit hours is required.")]
     [Display(Name = "Credit hours")]
-    [Range(1, 6, ErrorMessage = "Credit hours must be between 1 and 6.")]
+    [Range(1, 255)]
     public byte CreditHours { get; set; } = 3;
 
-    [Display(Name = "Theory hours")]
-    [Range(0, 255)]
-    public byte TheoryHours { get; set; }
-
-    [Display(Name = "Lab hours")]
-    [Range(0, 255)]
-    public byte LabHours { get; set; }
-
-    [Required(ErrorMessage = "Course type is required.")]
-    [StringLength(20)]
-    [Display(Name = "Course type")]
-    public string CourseType { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "Course level is required.")]
-    [StringLength(20)]
-    [Display(Name = "Course level")]
-    public string CourseLevel { get; set; } = string.Empty;
-
     [Display(Name = "Semester no.")]
-    [Range(1, 12, ErrorMessage = "Semester no. must be between 1 and 12.")]
+    [Range(1, 255)]
     public byte? SemesterNo { get; set; }
 
     [Display(Name = "Mandatory")]
-    public bool IsMandatory { get; set; }
+    public bool IsMandatory { get; set; } = true;
 
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
-    [StringLength(500)]
-    public string? Description { get; set; }
-
-    [StringLength(500)]
-    public string? Objectives { get; set; }
-
-    [Display(Name = "Prerequisite course")]
-    public int? PrerequisiteCourseId { get; set; }
+    [Display(Name = "Created at")]
+    public DateTime? CreatedAt { get; set; }
 }

@@ -38,7 +38,7 @@
     <form method="get" class="row g-2 align-items-end mb-3">
         <div class="col-md-6">
             <label class="form-label" for="search">Search</label>
-            <input type="search" class="form-control" id="search" name="search" value="@search" placeholder="Code, name, institution type" />
+            <input type="search" class="form-control" id="search" name="search" value="@search" placeholder="Code, name, or short name" />
         </div>
         <div class="col-md-3">
             <div class="form-check mt-4">
@@ -57,10 +57,10 @@
                 <tr>
                     <th>Code</th>
                     <th>Name</th>
-                    <th>Institution type</th>
-                    <th>Degree level</th>
-                    <th>Status</th>
+                    <th>Short name</th>
+                    <th>Duration</th>
                     <th>Active</th>
+                    <th>Created</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -74,10 +74,10 @@
                 <tr>
                     <td>@row.ProgramCode</td>
                     <td>@row.ProgramName</td>
-                    <td>@row.InstitutionTypeName</td>
-                    <td>@(row.DegreeLevel ?? "—")</td>
-                    <td>@row.Status</td>
+                    <td>@(row.ShortName ?? "—")</td>
+                    <td>@(row.DurationYears.HasValue ? $"{row.DurationYears} yr(s)" : "—")</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
+                    <td>@row.CreatedAt.ToString("yyyy-MM-dd")</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-primary" href="/adminportal/students/programs/details/@row.Uid">View</a>
                         <a class="btn btn-sm btn-outline-success" href="/adminportal/students/programs/edit/@row.Uid">Edit</a>

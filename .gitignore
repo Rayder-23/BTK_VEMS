@@ -74,6 +74,9 @@ artifacts/
 # Local publish smoke-test output (dotnet publish -o pubtest)
 pubtest/
 
+# Local dotnet build output (dotnet build -o .build-check)
+.build-check/
+
 # Tye
 .tye/
 

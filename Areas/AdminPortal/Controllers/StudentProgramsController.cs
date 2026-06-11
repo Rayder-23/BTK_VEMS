@@ -32,41 +32,32 @@ public sealed class StudentProgramsController : StudentMgmtBaseController
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken cancellationToken)
+    public IActionResult Create()
     {
         ViewData["Title"] = "Add Program";
         ViewData["PageTitle"] = "Programs · Add";
-
-        var lookups = await _programs.GetLookupsAsync(cancellationToken);
-        return View(new ProgramFormPageViewModel
-        {
-            Lookups = lookups,
-            Form = CreateDefaultForm(lookups)
-        });
+        return View(new ProgramFormModel { IsActive = true });
     }
 
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ProgramFormPageViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(ProgramFormModel form, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Add Program";
         ViewData["PageTitle"] = "Programs · Add";
 
-        await ValidateProgramFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _programs.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return View(form);
         }
 
-        if (await _programs.ProgramCodeExistsAsync(model.Form.ProgramCode, null, cancellationToken))
+        if (await _programs.ProgramCodeExistsAsync(form.ProgramCode, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.ProgramCode), "Program code already exists.");
-            model.Lookups = await _programs.GetLookupsAsync(cancellationToken);
-            return View(model);
+            ModelState.AddModelError(nameof(form.ProgramCode), "Program code already exists.");
+            return View(form);
         }
 
-        var newId = await _programs.InsertAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+        var newId = await _programs.InsertAsync(form, cancellationToken);
         TempData["StatusMessage"] = $"Program created (id {newId}).";
         return RedirectToAction(nameof(Index));
     }
@@ -82,41 +73,33 @@ public sealed class StudentProgramsController : StudentMgmtBaseController
 
         ViewData["Title"] = "Edit Program";
         ViewData["PageTitle"] = "Programs · Edit";
-
-        return View(new ProgramFormPageViewModel
-        {
-            Form = row,
-            Lookups = await _programs.GetLookupsAsync(cancellationToken)
-        });
+        return View(row);
     }
 
     [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ProgramFormPageViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(int id, ProgramFormModel form, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Edit Program";
         ViewData["PageTitle"] = "Programs · Edit";
 
-        if (id != model.Form.Uid)
+        if (id != form.Uid)
         {
             return NotFound();
         }
 
-        await ValidateProgramFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _programs.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return View(form);
         }
 
-        if (await _programs.ProgramCodeExistsAsync(model.Form.ProgramCode, id, cancellationToken))
+        if (await _programs.ProgramCodeExistsAsync(form.ProgramCode, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.ProgramCode), "Program code already exists.");
-            model.Lookups = await _programs.GetLookupsAsync(cancellationToken);
-            return View(model);
+            ModelState.AddModelError(nameof(form.ProgramCode), "Program code already exists.");
+            return View(form);
         }
 
-        var ok = await _programs.UpdateAsync(model.Form, cancellationToken);
+        var ok = await _programs.UpdateAsync(form, cancellationToken);
         if (!ok)
         {
             return NotFound();
@@ -188,59 +171,4 @@ public sealed class StudentProgramsController : StudentMgmtBaseController
 
         return View("ProgramCourses", model);
     }
-
-    private async Task ValidateProgramFormAsync(ProgramFormModel form, CancellationToken cancellationToken)
-    {
-        var lookups = await _programs.GetLookupsAsync(cancellationToken);
-
-        if (lookups.InstitutionTypes.All(t => t.Id != form.InstTypeId))
-        {
-            ModelState.AddModelError(nameof(form.InstTypeId), "Select a valid institution type.");
-        }
-
-        form.ProgramLevel = MatchOptionalConfigValue(
-            form.ProgramLevel, lookups.ProgramLevels, nameof(form.ProgramLevel));
-        form.ProgramType = MatchOptionalConfigValue(
-            form.ProgramType, lookups.ProgramTypes, nameof(form.ProgramType));
-        form.DegreeLevel = MatchOptionalConfigValue(
-            form.DegreeLevel, lookups.DegreeLevels, nameof(form.DegreeLevel));
-
-        var matchedStatus = lookups.ProgramStatuses.FirstOrDefault(s =>
-            string.Equals(s, form.Status, StringComparison.OrdinalIgnoreCase));
-        if (matchedStatus is null)
-        {
-            ModelState.AddModelError(nameof(form.Status), "Select a valid status from Configurations.");
-        }
-        else
-        {
-            form.Status = matchedStatus;
-        }
-    }
-
-    private string? MatchOptionalConfigValue(
-        string? value,
-        IReadOnlyList<string> allowed,
-        string fieldName)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        var matched = allowed.FirstOrDefault(v => string.Equals(v, value, StringComparison.OrdinalIgnoreCase));
-        if (matched is null)
-        {
-            ModelState.AddModelError(fieldName, "Select a valid value from Configurations.");
-            return value;
-        }
-
-        return matched;
-    }
-
-    private static ProgramFormModel CreateDefaultForm(ProgramLookups lookups) => new()
-    {
-        InstTypeId = lookups.InstitutionTypes.FirstOrDefault()?.Id ?? 0,
-        Status = lookups.ProgramStatuses.FirstOrDefault() ?? string.Empty,
-        IsActive = true
-    };
 }

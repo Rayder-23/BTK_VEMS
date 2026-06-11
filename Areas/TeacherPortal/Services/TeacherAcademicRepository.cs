@@ -75,7 +75,8 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
                 c.Shift,
                 c.RoomNo,
                 c.MaxStrength,
-                c.IsActive
+                c.IsActive,
+                c.CreatedAt
             FROM dbo.TeacherCourseAssignments tca
             INNER JOIN dbo.Classes c ON tca.ClassID = c.Uid
             INNER JOIN dbo.ref_Programs p ON c.ProgramID = p.Uid
@@ -105,10 +106,12 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
                 co.CourseCode,
                 co.CourseTitle,
                 p.ProgramName,
+                co.ShortName,
                 co.CreditHours,
-                co.CourseType,
-                co.CourseLevel,
-                co.IsActive
+                co.SemesterNo,
+                co.IsMandatory,
+                co.IsActive,
+                co.CreatedAt
             FROM dbo.TeacherCourseAssignments tca
             INNER JOIN dbo.Courses co ON tca.CourseID = co.Uid
             INNER JOIN dbo.ref_Programs p ON co.ProgramID = p.Uid
@@ -138,10 +141,12 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
                 CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
                 ProgramName = reader["ProgramName"] as string ?? string.Empty,
+                ShortName = reader["ShortName"] as string,
                 CreditHours = Convert.ToByte(reader["CreditHours"]),
-                CourseType = reader["CourseType"] as string ?? string.Empty,
-                CourseLevel = reader["CourseLevel"] as string ?? string.Empty,
-                IsActive = Convert.ToBoolean(reader["IsActive"])
+                SemesterNo = reader["SemesterNo"] is DBNull ? null : Convert.ToByte(reader["SemesterNo"]),
+                IsMandatory = Convert.ToBoolean(reader["IsMandatory"]),
+                IsActive = Convert.ToBoolean(reader["IsActive"]),
+                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
             });
         }
 
@@ -176,7 +181,8 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
                 Shift = reader["Shift"] as string,
                 RoomNo = reader["RoomNo"] as string,
                 MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
-                IsActive = Convert.ToBoolean(reader["IsActive"])
+                IsActive = Convert.ToBoolean(reader["IsActive"]),
+                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
             });
         }
 

@@ -40,7 +40,8 @@ public sealed class ClassRepository : IClassRepository
                 c.Shift,
                 c.RoomNo,
                 c.MaxStrength,
-                c.IsActive
+                c.IsActive,
+                c.CreatedAt
             FROM dbo.Classes c
             INNER JOIN dbo.ref_Programs p ON c.ProgramID = p.Uid
             WHERE (@Search IS NULL
@@ -60,21 +61,7 @@ public sealed class ClassRepository : IClassRepository
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
-            list.Add(new ClassListItem
-            {
-                Uid = Convert.ToInt32(reader["Uid"]),
-                ClassName = reader["ClassName"] as string ?? string.Empty,
-                ClassCode = reader["ClassCode"] as string ?? string.Empty,
-                ProgramName = reader["ProgramName"] as string ?? string.Empty,
-                SemesterNo = Convert.ToByte(reader["SemesterNo"]),
-                Semester = reader["Semester"] as string ?? string.Empty,
-                AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-                Section = reader["Section"] as string,
-                Shift = reader["Shift"] as string,
-                RoomNo = reader["RoomNo"] as string,
-                MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
-                IsActive = Convert.ToBoolean(reader["IsActive"])
-            });
+            list.Add(MapListItem(reader));
         }
 
         return list;
@@ -85,9 +72,9 @@ public sealed class ClassRepository : IClassRepository
         const string sql = """
             SELECT
                 Uid,
-                ClassName,
-                ClassCode,
                 ProgramID,
+                ClassCode,
+                ClassName,
                 SemesterNo,
                 Semester,
                 AcademicYear,
@@ -96,7 +83,7 @@ public sealed class ClassRepository : IClassRepository
                 RoomNo,
                 MaxStrength,
                 IsActive,
-                Remarks
+                CreatedAt
             FROM dbo.Classes
             WHERE Uid = @Uid;
             """;
@@ -106,12 +93,7 @@ public sealed class ClassRepository : IClassRepository
         command.Parameters.AddWithValue("@Uid", uid);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        if (!await reader.ReadAsync(cancellationToken))
-        {
-            return null;
-        }
-
-        return Map(reader);
+        return await reader.ReadAsync(cancellationToken) ? MapForm(reader) : null;
     }
 
     public async Task<ClassLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
@@ -168,13 +150,13 @@ public sealed class ClassRepository : IClassRepository
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
 
-    public async Task<int> InsertAsync(ClassFormModel model, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<int> InsertAsync(ClassFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
             INSERT INTO dbo.Classes (
-                ClassName,
-                ClassCode,
                 ProgramID,
+                ClassCode,
+                ClassName,
                 SemesterNo,
                 Semester,
                 AcademicYear,
@@ -182,15 +164,12 @@ public sealed class ClassRepository : IClassRepository
                 Shift,
                 RoomNo,
                 MaxStrength,
-                IsActive,
-                Remarks,
-                CreatedBy,
-                CreatedAt
+                IsActive
             )
             VALUES (
-                @ClassName,
-                @ClassCode,
                 @ProgramID,
+                @ClassCode,
+                @ClassName,
                 @SemesterNo,
                 @Semester,
                 @AcademicYear,
@@ -198,10 +177,7 @@ public sealed class ClassRepository : IClassRepository
                 @Shift,
                 @RoomNo,
                 @MaxStrength,
-                @IsActive,
-                @Remarks,
-                @CreatedBy,
-                SYSUTCDATETIME()
+                @IsActive
             );
             SELECT CAST(SCOPE_IDENTITY() AS int);
             """;
@@ -209,18 +185,17 @@ public sealed class ClassRepository : IClassRepository
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         Bind(command, model);
-        command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
     }
 
-    public async Task<bool> UpdateAsync(ClassFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(ClassFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
             UPDATE dbo.Classes SET
-                ClassName = @ClassName,
-                ClassCode = @ClassCode,
                 ProgramID = @ProgramID,
+                ClassCode = @ClassCode,
+                ClassName = @ClassName,
                 SemesterNo = @SemesterNo,
                 Semester = @Semester,
                 AcademicYear = @AcademicYear,
@@ -228,10 +203,7 @@ public sealed class ClassRepository : IClassRepository
                 Shift = @Shift,
                 RoomNo = @RoomNo,
                 MaxStrength = @MaxStrength,
-                IsActive = @IsActive,
-                Remarks = @Remarks,
-                UpdatedBy = @UpdatedBy,
-                UpdatedAt = SYSUTCDATETIME()
+                IsActive = @IsActive
             WHERE Uid = @Uid;
             """;
 
@@ -239,35 +211,30 @@ public sealed class ClassRepository : IClassRepository
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Uid", model.Uid);
         Bind(command, model);
-        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.Classes SET
-                IsActive = 0,
-                UpdatedBy = @UpdatedBy,
-                UpdatedAt = SYSUTCDATETIME()
+            UPDATE dbo.Classes SET IsActive = 0
             WHERE Uid = @Uid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Uid", uid);
-        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    private static ClassFormModel Map(SqlDataReader reader) => new()
+    private static ClassListItem MapListItem(SqlDataReader reader) => new()
     {
         Uid = Convert.ToInt32(reader["Uid"]),
         ClassName = reader["ClassName"] as string ?? string.Empty,
         ClassCode = reader["ClassCode"] as string ?? string.Empty,
-        ProgramId = Convert.ToInt32(reader["ProgramID"]),
+        ProgramName = reader["ProgramName"] as string ?? string.Empty,
         SemesterNo = Convert.ToByte(reader["SemesterNo"]),
         Semester = reader["Semester"] as string ?? string.Empty,
         AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
@@ -276,14 +243,31 @@ public sealed class ClassRepository : IClassRepository
         RoomNo = reader["RoomNo"] as string,
         MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
         IsActive = Convert.ToBoolean(reader["IsActive"]),
-        Remarks = reader["Remarks"] as string
+        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+    };
+
+    private static ClassFormModel MapForm(SqlDataReader reader) => new()
+    {
+        Uid = Convert.ToInt32(reader["Uid"]),
+        ProgramId = Convert.ToInt32(reader["ProgramID"]),
+        ClassCode = reader["ClassCode"] as string ?? string.Empty,
+        ClassName = reader["ClassName"] as string ?? string.Empty,
+        SemesterNo = Convert.ToByte(reader["SemesterNo"]),
+        Semester = reader["Semester"] as string ?? string.Empty,
+        AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
+        Section = reader["Section"] as string,
+        Shift = reader["Shift"] as string,
+        RoomNo = reader["RoomNo"] as string,
+        MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
+        IsActive = Convert.ToBoolean(reader["IsActive"]),
+        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
     };
 
     private static void Bind(SqlCommand command, ClassFormModel model)
     {
-        command.Parameters.AddWithValue("@ClassName", model.ClassName.Trim());
-        command.Parameters.AddWithValue("@ClassCode", model.ClassCode.Trim());
         command.Parameters.AddWithValue("@ProgramID", model.ProgramId);
+        command.Parameters.AddWithValue("@ClassCode", model.ClassCode.Trim());
+        command.Parameters.AddWithValue("@ClassName", model.ClassName.Trim());
         command.Parameters.AddWithValue("@SemesterNo", model.SemesterNo);
         command.Parameters.AddWithValue("@Semester", model.Semester.Trim());
         command.Parameters.AddWithValue("@AcademicYear", model.AcademicYear);
@@ -292,6 +276,5 @@ public sealed class ClassRepository : IClassRepository
         command.Parameters.AddWithValue("@RoomNo", (object?)model.RoomNo?.Trim() ?? DBNull.Value);
         command.Parameters.AddWithValue("@MaxStrength", model.MaxStrength);
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
-        command.Parameters.AddWithValue("@Remarks", (object?)model.Remarks?.Trim() ?? DBNull.Value);
     }
 }

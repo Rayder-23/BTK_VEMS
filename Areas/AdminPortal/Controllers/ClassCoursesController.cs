@@ -50,7 +50,7 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
         ViewData["Title"] = "Assign course to class";
         ViewData["PageTitle"] = "Class Courses · Assign";
 
-        await ValidateFormAsync(model.Form, null, cancellationToken);
+        await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
@@ -66,13 +66,19 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
 
         try
         {
-            var newId = await _classCourses.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            var newId = await _classCourses.InsertAsync(model.Form, cancellationToken);
             TempData["StatusMessage"] = $"Class course assignment created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class.");
+            model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ApplyForeignKeyError(ex, model);
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -109,7 +115,7 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
             return NotFound();
         }
 
-        await ValidateFormAsync(model.Form, id, cancellationToken);
+        await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
@@ -125,7 +131,7 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
 
         try
         {
-            var ok = await _classCourses.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            var ok = await _classCourses.UpdateAsync(model.Form, cancellationToken);
             if (!ok)
             {
                 return NotFound();
@@ -140,18 +146,24 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
             return View(model);
         }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            ApplyForeignKeyError(ex, model);
+            model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
+            return View(model);
+        }
     }
 
     [HttpPost("delete/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var ok = await _classCourses.DeactivateAsync(id, ResolveStaffLoginUid(), cancellationToken);
+        var ok = await _classCourses.DeactivateAsync(id, cancellationToken);
         TempData["StatusMessage"] = ok ? "Class course assignment deactivated." : "Record not found.";
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task ValidateFormAsync(ClassCourseFormModel form, int? uid, CancellationToken cancellationToken)
+    private async Task ValidateFormAsync(ClassCourseFormModel form, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
@@ -176,5 +188,17 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
         }
     }
 
-    private int ResolveActorId() => ResolveStaffLoginUid() ?? 1;
+    private void ApplyForeignKeyError(SqlException ex, ClassCourseFormPageViewModel model)
+    {
+        if (ex.Message.Contains("FK_ClassCourses_Class", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.ClassId), "Select a valid class.");
+            return;
+        }
+
+        if (ex.Message.Contains("FK_ClassCourses_Course", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(nameof(model.Form.CourseId), "Select a valid course.");
+        }
+    }
 }

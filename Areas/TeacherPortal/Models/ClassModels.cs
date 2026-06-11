@@ -27,6 +27,8 @@ public sealed class ClassListItem
     public short MaxStrength { get; init; }
 
     public bool IsActive { get; init; }
+
+    public DateTime CreatedAt { get; init; }
 }
 
 public sealed class ClassLookupItem
@@ -73,7 +75,7 @@ public sealed class ClassFormModel
 
     [Required(ErrorMessage = "Semester number is required.")]
     [Display(Name = "Semester no.")]
-    [Range(1, 12)]
+    [Range(1, 255)]
     public byte SemesterNo { get; set; } = 1;
 
     [Required(ErrorMessage = "Semester is required.")]
@@ -102,6 +104,6 @@ public sealed class ClassFormModel
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
-    [StringLength(300)]
-    public string? Remarks { get; set; }
+    [Display(Name = "Created at")]
+    public DateTime? CreatedAt { get; set; }
 }

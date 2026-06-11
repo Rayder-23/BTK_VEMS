@@ -11,7 +11,7 @@ public sealed class ClassCourseListItem
     public string CourseTitle { get; init; } = string.Empty;
     public string? TeacherName { get; init; }
     public bool IsActive { get; init; }
-    public string? Remarks { get; init; }
+    public DateTime CreatedAt { get; init; }
 }
 
 public sealed class ClassCourseLookups
@@ -47,8 +47,8 @@ public sealed class ClassCourseFormModel
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
-    [StringLength(200)]
-    public string? Remarks { get; set; }
+    [Display(Name = "Created at")]
+    public DateTime? CreatedAt { get; set; }
 
     public string? ClassDisplay { get; set; }
     public string? CourseDisplay { get; set; }
