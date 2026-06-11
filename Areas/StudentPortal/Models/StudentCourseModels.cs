@@ -16,14 +16,8 @@ public sealed class StudentAssignedCourseItem
     public string? ShortName { get; init; }
     public string ProgramName { get; init; } = string.Empty;
     public byte CreditHours { get; init; }
-    public byte TheoryHours { get; init; }
-    public byte LabHours { get; init; }
-    public string CourseType { get; init; } = string.Empty;
-    public string CourseLevel { get; init; } = string.Empty;
     public byte? SemesterNo { get; init; }
     public bool IsMandatory { get; init; }
-    public string? Description { get; init; }
-    public string? Objectives { get; init; }
     public short AcademicYear { get; init; }
     public byte GradeOrSemester { get; init; }
 }

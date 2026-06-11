@@ -64,7 +64,6 @@
                         <th>Course</th>
                         <th>Semester</th>
                         <th>Credits</th>
-                        <th>Type</th>
                         <th>Mandatory</th>
                         <th class="text-end">Details</th>
                     </tr>
@@ -84,7 +83,6 @@
                         </td>
                         <td>@(course.SemesterNo?.ToString() ?? course.GradeOrSemester.ToString())</td>
                         <td>@course.CreditHours</td>
-                        <td>@course.CourseType</td>
                         <td>@(course.IsMandatory ? "Yes" : "No")</td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary"
@@ -98,44 +96,22 @@
                         </td>
                     </tr>
                     <tr class="collapse-row">
-                        <td colspan="7" class="p-0 border-0">
+                        <td colspan="6" class="p-0 border-0">
                             <div class="collapse" id="@collapseId">
                                 <div class="border-top bg-light bg-opacity-50 p-3 mx-0 mb-2 rounded-bottom">
                                     <div class="row g-3 small">
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <span class="text-muted d-block">Program</span>
                                             <span>@course.ProgramName</span>
                                         </div>
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block">Level</span>
-                                            <span>@course.CourseLevel</span>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block">Theory hours</span>
-                                            <span>@course.TheoryHours</span>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="text-muted d-block">Lab hours</span>
-                                            <span>@course.LabHours</span>
-                                        </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <span class="text-muted d-block">Academic year</span>
                                             <span>@course.AcademicYear</span>
                                         </div>
-                                        @if (!string.IsNullOrWhiteSpace(course.Description))
-                                        {
-                                            <div class="col-12">
-                                                <span class="text-muted d-block">Description</span>
-                                                <span>@course.Description</span>
-                                            </div>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(course.Objectives))
-                                        {
-                                            <div class="col-12">
-                                                <span class="text-muted d-block">Objectives</span>
-                                                <span>@course.Objectives</span>
-                                            </div>
-                                        }
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block">Enrollment semester</span>
+                                            <span>@course.GradeOrSemester</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -8,9 +8,7 @@ public sealed class StudentApplicationFormModel
     [Display(Name = "Program")]
     public string ProgramCode { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Institution type is required.")]
     [StringLength(10)]
-    [Display(Name = "Institution type")]
     public string InstTypeCode { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Program name is required.")]

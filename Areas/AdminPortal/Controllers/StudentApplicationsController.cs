@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models.Admissions;
 using VEMS.Areas.AdminPortal.Services.Admissions;
+using VEMS.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
 
@@ -196,7 +197,7 @@ public sealed class StudentApplicationsController : AdminBaseController
         }
 
         form.ProgramName = match.ProgramName;
-        form.InstTypeCode = match.InstTypeCode;
+        form.InstTypeCode = StudentApplicationFieldDefaults.ResolveInstTypeCode(match.InstTypeCode);
         form.ProgramCode = match.ProgramCode;
         return true;
     }

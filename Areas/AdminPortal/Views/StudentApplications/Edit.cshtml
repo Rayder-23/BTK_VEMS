@@ -1,6 +1,6 @@
 @model VEMS.Areas.AdminPortal.Models.Admissions.StudentApplicationFormViewModel
 @{
-    ViewData["Title"] = "Edit Application";
+    ViewData["Title"] = Model.IsReadOnly ? "View Application" : "Edit Application";
     ViewData["PageTitle"] = Model.IsReadOnly
         ? $"View · {Model.Form.ApplicationNo}"
         : $"Edit · {Model.Form.ApplicationNo}";
@@ -8,7 +8,28 @@
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card admissions-application-form-card">
+<section class="module-page-header accent-purple">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/admissions/applications">Applications</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@(Model.IsReadOnly ? "View" : "Edit")</li>
+        </ol>
+    </nav>
+    <h1 class="h3 fw-bold mb-0">@(Model.IsReadOnly ? "View application" : "Edit application")</h1>
+    <p class="text-muted mb-0 mt-2">
+        @if (Model.IsReadOnly)
+        {
+            <text>Application <strong>@Model.Form.ApplicationNo</strong> was converted to a student.</text>
+        }
+        else
+        {
+            <text>Update <strong>@Model.Form.ApplicationNo</strong>.</text>
+        }
+    </p>
+</section>
+
+<section class="portal-card mt-4">
     @if (Model.IsReadOnly)
     {
         <div class="alert alert-secondary py-2 mb-3" role="status">
@@ -17,36 +38,36 @@
 
         <partial name="_StudentApplicationAdminFormReadOnly" model="Model" />
 
-        <div class="admissions-admin-form-actions d-flex flex-wrap gap-2 pt-2 mt-2 border-top">
+        <div class="d-flex flex-wrap gap-2 mt-4">
             @if (Model.Form.ConvertedStudentID.HasValue)
             {
-                <a class="btn btn-outline-success btn-sm"
+                <a class="btn btn-outline-success"
                    href="/adminportal/students/students/edit/@Model.Form.ConvertedStudentID">
                     View student #@Model.Form.ConvertedStudentID
                 </a>
             }
-            <a class="btn btn-outline-secondary btn-sm" href="/adminportal/admissions/applications">Back to applications</a>
+            <a class="btn btn-outline-secondary" href="/adminportal/admissions/applications">Back to applications</a>
         </div>
     }
     else
     {
-        <form method="post" asp-action="Edit" asp-route-id="@Model.Form.Uid" id="studentApplicationAdminForm">
+        <form method="post" asp-action="Edit" asp-route-id="@Model.Form.Uid" id="studentApplicationAdminForm" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Form.Uid" />
             <partial name="_StudentApplicationAdminForm" model="Model" />
-            <div class="admissions-admin-form-actions d-flex flex-wrap gap-2 pt-2 mt-2 border-top">
-                <button type="submit" class="btn btn-primary btn-sm">Save changes</button>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Save changes</button>
                 @if (Model.ShowConvertAsStudentButton)
                 {
                     <button type="submit"
-                            class="btn btn-success btn-sm"
+                            class="btn btn-success"
                             formaction="/adminportal/admissions/applications/convert-as-student/@Model.Form.Uid"
                             formmethod="post"
                             onclick="return confirm('Create a student record from this approved application and mark the application as Converted As Student?');">
                         Convert As Student
                     </button>
                 }
-                <a class="btn btn-outline-secondary btn-sm" href="/adminportal/admissions/applications">Cancel</a>
+                <a class="btn btn-outline-secondary" href="/adminportal/admissions/applications">Cancel</a>
             </div>
         </form>
     }

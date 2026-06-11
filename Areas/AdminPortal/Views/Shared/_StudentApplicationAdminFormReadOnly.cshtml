@@ -7,114 +7,114 @@
     string DisplayDecimal(decimal? value) => value.HasValue ? value.Value.ToString("N2") : "—";
 }
 
-<div class="admissions-admin-form-grid admissions-admin-form-readonly">
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Application no.</div>
+<div class="student-mgmt-admin-form-grid student-mgmt-admin-form-readonly admissions-admin-form-readonly">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Application no.</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.ApplicationNo)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Application date</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Application date</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDate(form.ApplicationDate)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Source channel</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Source channel</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.SourceChannel)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Application status</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Application status</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.ApplicationStatus)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Program</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Program</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.ProgramName)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Desired year</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Desired year</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@form.DesiredYear</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Desired grade / semester</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Desired grade / semester</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@form.DesiredGradeOrSemester</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">First name</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">First name</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.FirstName)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Last name</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Last name</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.LastName)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Father name</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Father name</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.FatherName)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Date of birth</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Date of birth</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDate(form.DateOfBirth)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Gender</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Gender</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.Gender)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">B-Form no.</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">B-Form no.</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.BFORM_No)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">NIC</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">NIC</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.NIC_No)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Mobile</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Mobile</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.MobileNo)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Email</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Email</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.EmailAddress)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Address</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Address</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.AddressLine1)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">City</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">City</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.City)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Province</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Province</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.Province)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Country</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Country</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.Country)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Father mobile</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Father mobile</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.FatherMobile)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Father occupation</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Father occupation</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.FatherOccupation)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Test status</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Test status</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.TestStatus)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Test date</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Test date</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDate(form.TestDate)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Test score</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Test score</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDecimal(form.TestScore)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Payment status</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment status</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.PaymentStatus)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Payment amount</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment amount</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDecimal(form.PaymentAmount)</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Payment date</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment date</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDate(form.PaymentDate)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Converted student ID</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Converted student ID</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@(form.ConvertedStudentID?.ToString() ?? "—")</div>
-        <div class="col-6 col-lg-3 admissions-admin-form-label">Converted at</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Converted at</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDateTime(form.ConvertedAt)</div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-start">
-        <div class="col-6 col-lg-3 admissions-admin-form-label pt-1">Teacher comments</div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-start">
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label pt-1">Teacher comments</div>
         <div class="col-6 col-lg-9 admissions-readonly-value">@DisplayText(form.TeacherComments)</div>
     </div>
 </div>

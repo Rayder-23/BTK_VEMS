@@ -8,7 +8,6 @@
 }
 
 <input type="hidden" asp-for="Form.ProgramCode" id="ProgramCode" />
-<input type="hidden" asp-for="Form.InstTypeCode" id="InstTypeCode" />
 <input type="hidden" asp-for="Form.ProgramName" id="ProgramName" />
 
 <div class="application-form-grid">
@@ -27,11 +26,11 @@
                     var maxLevel = p.MaxDesiredLevel;
                     if (isSelected)
                     {
-                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode" data-max-level="@maxLevel" selected="selected">@p.ProgramName</option>
+                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-max-level="@maxLevel" selected="selected">@p.ProgramName</option>
                     }
                     else
                     {
-                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode" data-max-level="@maxLevel">@p.ProgramName</option>
+                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-max-level="@maxLevel">@p.ProgramName</option>
                     }
                 }
             </select>

@@ -56,14 +56,8 @@ public sealed class StudentCourseRepository : IStudentCourseRepository
                 c.ShortName,
                 p.ProgramName,
                 c.CreditHours,
-                c.TheoryHours,
-                c.LabHours,
-                c.CourseType,
-                c.CourseLevel,
                 c.SemesterNo,
                 c.IsMandatory,
-                c.Description,
-                c.Objectives,
                 e.AcademicYear,
                 e.GradeOrSemester
             FROM dbo.StudentEnrollments e
@@ -131,14 +125,8 @@ public sealed class StudentCourseRepository : IStudentCourseRepository
                     ShortName = reader["ShortName"] as string,
                     ProgramName = reader["ProgramName"] as string ?? string.Empty,
                     CreditHours = Convert.ToByte(reader["CreditHours"]),
-                    TheoryHours = Convert.ToByte(reader["TheoryHours"]),
-                    LabHours = Convert.ToByte(reader["LabHours"]),
-                    CourseType = reader["CourseType"] as string ?? string.Empty,
-                    CourseLevel = reader["CourseLevel"] as string ?? string.Empty,
                     SemesterNo = reader["SemesterNo"] is DBNull ? null : Convert.ToByte(reader["SemesterNo"]),
                     IsMandatory = Convert.ToBoolean(reader["IsMandatory"]),
-                    Description = reader["Description"] as string,
-                    Objectives = reader["Objectives"] as string,
                     AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
                     GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"])
                 });

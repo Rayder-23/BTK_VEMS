@@ -7,6 +7,9 @@
     ViewData["FeeErpNavbarBrandHref"] = "/adminportal/admissions";
     ViewData["FeeErpNavbarBrandText"] = "Admissions Module";
     ViewData["FeeErpNavbarBrandIcon"] = "fa-door-open";
+    ViewData["FeeErpMobileNavClass"] = "d-sm-none";
+    ViewData["FeeErpHideRoleLabel"] = true;
+    ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -23,8 +26,10 @@
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/portals/admin-portal.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/portals/fee-mgmt-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portals/module-compact-topbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portals/student-mgmt-portal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portals/admissions-mgmt-portal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="fee-erp-shell admissions-mgmt-shell">

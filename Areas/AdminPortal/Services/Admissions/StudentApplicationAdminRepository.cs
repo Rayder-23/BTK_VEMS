@@ -828,7 +828,7 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         command.Parameters.AddWithValue("@ApplicationNo", applicationNo);
         command.Parameters.AddWithValue("@ApplicationDate", model.ApplicationDate!.Value.Date);
         command.Parameters.AddWithValue("@SourceChannel", model.SourceChannel.Trim());
-        command.Parameters.AddWithValue("@InstTypeCode", model.InstTypeCode.Trim());
+        command.Parameters.AddWithValue("@InstTypeCode", StudentApplicationFieldDefaults.ResolveInstTypeCode(model.InstTypeCode));
         command.Parameters.AddWithValue("@ProgramCode", model.ProgramCode.Trim());
         command.Parameters.AddWithValue("@ProgramName", model.ProgramName.Trim());
         command.Parameters.AddWithValue("@DesiredYear", model.DesiredYear);

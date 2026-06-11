@@ -1,0 +1,16 @@
+/* Admissions admin forms — readonly display values */
+.admissions-admin-form-readonly .student-mgmt-admin-form-label,
+.student-mgmt-admin-form-readonly .student-mgmt-admin-form-label {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.admissions-admin-form-readonly .admissions-readonly-value,
+.student-mgmt-admin-form-readonly .admissions-readonly-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+    min-height: 1.75rem;
+    display: flex;
+    align-items: center;
+}

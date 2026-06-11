@@ -4,12 +4,11 @@
 
   var picker = document.getElementById('applicationProgramPicker');
   var programCode = document.getElementById('ProgramCode');
-  var instTypeCode = document.getElementById('InstTypeCode');
   var programName = document.getElementById('ProgramName');
   var gradeInput = document.getElementById('DesiredGradeOrSemester');
   var applicationForm = document.getElementById('studentApplicationForm');
 
-  if (!picker || !programCode || !instTypeCode || !programName) {
+  if (!picker || !programCode || !programName) {
     return;
   }
 
@@ -17,7 +16,6 @@
     var opt = picker.options[picker.selectedIndex];
     if (!opt || !opt.value) {
       programCode.value = '';
-      instTypeCode.value = '';
       programName.value = '';
       picker.classList.add('is-invalid');
       return;
@@ -25,7 +23,6 @@
 
     picker.classList.remove('is-invalid');
     programCode.value = opt.getAttribute('data-code') || '';
-    instTypeCode.value = opt.getAttribute('data-inst') || '';
     programName.value = opt.value || '';
 
     var maxLevel = parseInt(opt.getAttribute('data-max-level'), 10);

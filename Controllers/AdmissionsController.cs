@@ -93,7 +93,7 @@ public sealed class AdmissionsController : Controller
         }
 
         model.ProgramName = match.ProgramName;
-        model.InstTypeCode = match.InstTypeCode;
+        model.InstTypeCode = StudentApplicationFieldDefaults.ResolveInstTypeCode(match.InstTypeCode);
         model.ProgramCode = match.ProgramCode;
     }
 }

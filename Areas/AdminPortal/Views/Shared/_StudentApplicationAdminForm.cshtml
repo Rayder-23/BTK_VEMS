@@ -8,42 +8,41 @@
     var cityOptions = StudentApplicationListHelper.WithSelectedValue(lookups.Cities, form.City);
 }
 
-<div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<input type="hidden" asp-for="Form.InstTypeCode" id="InstTypeCode" />
 <input type="hidden" asp-for="Form.ProgramCode" id="ProgramCode" />
 <input type="hidden" asp-for="Form.ProgramName" id="ProgramName" />
 
-<div class="admissions-admin-form-grid">
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.ApplicationNo"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+<div class="student-mgmt-admin-form-grid">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ApplicationNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.ApplicationNo" class="form-control form-control-sm" />
             <span asp-validation-for="Form.ApplicationNo" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.ApplicationDate"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ApplicationDate"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.ApplicationDate" class="form-control form-control-sm" type="date" />
             <span asp-validation-for="Form.ApplicationDate" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.SourceChannel"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.SourceChannel"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.SourceChannel" class="form-select form-select-sm" asp-items="@(new SelectList(lookups.SourceChannels))"></select>
             <span asp-validation-for="Form.SourceChannel" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.ApplicationStatus"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ApplicationStatus"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.ApplicationStatus" class="form-select form-select-sm" asp-items="@(new SelectList(lookups.ApplicationStatuses))"></select>
             <span asp-validation-for="Form.ApplicationStatus" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" for="@programPickerId">Program</label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" for="@programPickerId">Program</label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select id="@programPickerId" class="form-select form-select-sm @(ViewData.ModelState["Form.ProgramCode"]?.Errors.Count > 0 ? "is-invalid" : "")">
                 <option value="">— Select —</option>
                 @foreach (var p in lookups.Programs)
@@ -53,128 +52,128 @@
                             && string.Equals(form.ProgramCode, p.ProgramCode, StringComparison.OrdinalIgnoreCase));
                     if (isSelected)
                     {
-                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode" selected="selected">@p.ProgramName</option>
+                        <option value="@p.ProgramName" data-code="@p.ProgramCode" selected="selected">@p.ProgramName</option>
                     }
                     else
                     {
-                        <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode">@p.ProgramName</option>
+                        <option value="@p.ProgramName" data-code="@p.ProgramCode">@p.ProgramName</option>
                     }
                 }
             </select>
             <span asp-validation-for="Form.ProgramCode" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.DesiredYear"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.DesiredYear"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.DesiredYear" class="form-control form-control-sm" type="number" min="2020" max="2100" />
             <span asp-validation-for="Form.DesiredYear" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.DesiredGradeOrSemester"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.DesiredGradeOrSemester"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.DesiredGradeOrSemester" class="form-control form-control-sm" type="number" min="1" max="20" />
             <span asp-validation-for="Form.DesiredGradeOrSemester" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.FirstName"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FirstName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.FirstName" class="form-control form-control-sm" />
             <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.LastName"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.LastName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.LastName" class="form-control form-control-sm" />
             <span asp-validation-for="Form.LastName" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.FatherName"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FatherName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.FatherName" class="form-control form-control-sm" />
             <span asp-validation-for="Form.FatherName" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.DateOfBirth"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.DateOfBirth"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.DateOfBirth" class="form-control form-control-sm" type="date" />
             <span asp-validation-for="Form.DateOfBirth" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.Gender"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Gender"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.Gender" class="form-select form-select-sm" asp-items="@(new SelectList(lookups.Genders))"></select>
             <span asp-validation-for="Form.Gender" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.BFORM_No"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.BFORM_No"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.BFORM_No" class="form-control form-control-sm" />
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.NIC_No"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.NIC_No"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.NIC_No" class="form-control form-control-sm" />
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.MobileNo"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.MobileNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.MobileNo" class="form-control form-control-sm" />
             <span asp-validation-for="Form.MobileNo" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.EmailAddress"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.EmailAddress"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.EmailAddress" class="form-control form-control-sm" type="email" />
             <span asp-validation-for="Form.EmailAddress" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.AddressLine1"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AddressLine1"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.AddressLine1" class="form-control form-control-sm" />
             <span asp-validation-for="Form.AddressLine1" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.City"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.City"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.City" class="form-select form-select-sm" asp-items="@(new SelectList(cityOptions, form.City))">
                 <option value="">— Select —</option>
             </select>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.Province"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Province"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.Province" class="form-select form-select-sm" asp-items="@(new SelectList(provinceOptions, form.Province))">
                 <option value="">— Select —</option>
             </select>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.Country"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Country"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.Country" class="form-select form-select-sm" asp-items="@(new SelectList(lookups.Countries, form.Country))"></select>
             <span asp-validation-for="Form.Country" class="text-danger small"></span>
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.FatherMobile"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FatherMobile"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.FatherMobile" class="form-control form-control-sm" />
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.FatherOccupation"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FatherOccupation"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.FatherOccupation" class="form-control form-control-sm" />
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.TestStatus"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TestStatus"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.TestStatus" class="form-select form-select-sm">
                 <option value="">—</option>
                 @foreach (var s in lookups.TestStatuses)
@@ -185,20 +184,20 @@
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.TestDate"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TestDate"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.TestDate" class="form-control form-control-sm" type="date" />
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.TestScore"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TestScore"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.TestScore" class="form-control form-control-sm" type="number" step="0.01" min="0" max="999.99" />
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.PaymentStatus"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.PaymentStatus"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <select asp-for="Form.PaymentStatus" class="form-select form-select-sm">
                 <option value="">—</option>
                 @foreach (var s in lookups.PaymentStatuses)
@@ -207,26 +206,26 @@
                 }
             </select>
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.PaymentAmount"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.PaymentAmount"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.PaymentAmount" class="form-control form-control-sm" type="number" step="0.01" min="0" />
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.PaymentDate"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.PaymentDate"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.PaymentDate" class="form-control form-control-sm" type="date" />
         </div>
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.ConvertedStudentID"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ConvertedStudentID"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.ConvertedStudentID" class="form-control form-control-sm" type="number" min="1" />
         </div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 admissions-admin-form-label" asp-for="Form.ConvertedAt"></label>
-        <div class="col-6 col-lg-3 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ConvertedAt"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.ConvertedAt" class="form-control form-control-sm" type="datetime-local"
                    value="@(form.ConvertedAt.HasValue ? form.ConvertedAt.Value.ToString("yyyy-MM-ddTHH:mm") : null)" />
         </div>
@@ -234,9 +233,9 @@
         <div class="col-6 col-lg-3 d-none d-lg-block"></div>
     </div>
 
-    <div class="row admissions-admin-form-row g-1 align-items-start">
-        <label class="col-6 col-lg-3 admissions-admin-form-label pt-1" asp-for="Form.TeacherComments"></label>
-        <div class="col-6 col-lg-9 admissions-admin-form-field">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-start">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label pt-1" asp-for="Form.TeacherComments"></label>
+        <div class="col-6 col-lg-9 student-mgmt-admin-form-field">
             <textarea asp-for="Form.TeacherComments" class="form-control form-control-sm" rows="2"></textarea>
         </div>
     </div>

@@ -21,9 +21,7 @@ public sealed class StudentApplicationFormModel
     [Display(Name = "Source channel")]
     public string SourceChannel { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Institution type is required.")]
     [StringLength(10)]
-    [Display(Name = "Institution type")]
     public string InstTypeCode { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Program code is required.")]
