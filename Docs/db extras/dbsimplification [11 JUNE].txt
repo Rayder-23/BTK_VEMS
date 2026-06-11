@@ -1,0 +1,642 @@
+Backup of Tables that had their schemas changed to be more simplified:
+
+1. 'ref_Programs' Table:
+Table: dbo.ref_Programs
+  - Uid: int NOT NULL PK
+  - InstTypeId: int NOT NULL
+  - ProgramCode: nvarchar(10) NOT NULL
+  - ProgramName: nvarchar(100) NOT NULL
+  - TotalSemesters: tinyint NULL
+  - TotalGrades: tinyint NULL
+  - IsActive: bit NOT NULL
+  - ProgramLevel: nvarchar(50) NULL
+  - ProgramType: nvarchar(50) NULL
+  - Status: nvarchar(50) NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL
+  - UpdatedAt: datetime2(7) NOT NULL
+  - ShortName: nvarchar(50) NULL
+  - DegreeLevel: nvarchar(50) NULL
+  - DurationYears: tinyint NULL
+  - TotalCreditHours: smallint NULL
+  - CreatedBy: int NULL
+
+SQL 
+[LOST]
+
+
+2. 'Courses' Table:
+Table: dbo.Courses
+  - Uid: int NOT NULL PK
+  - CourseCode: varchar(20) NOT NULL
+  - CourseTitle: nvarchar(150) NOT NULL
+  - ShortName: nvarchar(50) NULL
+  - ProgramID: int NOT NULL
+  - CreditHours: tinyint NOT NULL
+  - TheoryHours: tinyint NOT NULL DEFAULT ((0))
+  - LabHours: tinyint NOT NULL DEFAULT ((0))
+  - CourseType: nvarchar(20) NOT NULL DEFAULT ('Theory')
+  - CourseLevel: nvarchar(20) NOT NULL DEFAULT ('Undergraduate')
+  - SemesterNo: tinyint NULL
+  - IsMandatory: bit NOT NULL DEFAULT ((1))
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - Description: nvarchar(500) NULL
+  - Objectives: nvarchar(500) NULL
+  - PrerequisiteCourseID: int NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+
+SQL
+```
+USE [VEMS]
+GO
+
+/****** Object:  Table [dbo].[Courses]    Script Date: 6/11/2026 3:07:17 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Courses](
+	[Uid] [int] IDENTITY(1,1) NOT NULL,
+	[CourseCode] [varchar](20) NOT NULL,
+	[CourseTitle] [nvarchar](150) NOT NULL,
+	[ShortName] [nvarchar](50) NULL,
+	[ProgramID] [int] NOT NULL,
+	[CreditHours] [tinyint] NOT NULL,
+	[TheoryHours] [tinyint] NOT NULL,
+	[LabHours] [tinyint] NOT NULL,
+	[CourseType] [nvarchar](20) NOT NULL,
+	[CourseLevel] [nvarchar](20) NOT NULL,
+	[SemesterNo] [tinyint] NULL,
+	[IsMandatory] [bit] NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[Description] [nvarchar](500) NULL,
+	[Objectives] [nvarchar](500) NULL,
+	[PrerequisiteCourseID] [int] NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[UpdatedBy] [int] NULL,
+	[UpdatedAt] [datetime2](7) NULL,
+ CONSTRAINT [PK_Courses] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_Courses_Code] UNIQUE NONCLUSTERED 
+(
+	[CourseCode] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_TheoryHours]  DEFAULT ((0)) FOR [TheoryHours]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_LabHours]  DEFAULT ((0)) FOR [LabHours]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_CourseType]  DEFAULT ('Theory') FOR [CourseType]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_CourseLevel]  DEFAULT ('Undergraduate') FOR [CourseLevel]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_IsMandatory]  DEFAULT ((1)) FOR [IsMandatory]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[Courses] ADD  CONSTRAINT [DF_Courses_CreatedAt]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [FK_Courses_Prerequisite] FOREIGN KEY([PrerequisiteCourseID])
+REFERENCES [dbo].[Courses] ([Uid])
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [FK_Courses_Prerequisite]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [FK_Courses_Program] FOREIGN KEY([ProgramID])
+REFERENCES [dbo].[ref_Programs] ([Uid])
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [FK_Courses_Program]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [CK_Courses_CourseType] CHECK  (([CourseType]='Thesis' OR [CourseType]='Internship' OR [CourseType]='Seminar' OR [CourseType]='Project' OR [CourseType]='Theory+Lab' OR [CourseType]='Lab' OR [CourseType]='Theory'))
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [CK_Courses_CourseType]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [CK_Courses_CreditHours] CHECK  (([CreditHours]>=(1) AND [CreditHours]<=(6)))
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [CK_Courses_CreditHours]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [CK_Courses_LabHours] CHECK  (([LabHours]>=(0)))
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [CK_Courses_LabHours]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [CK_Courses_SemesterNo] CHECK  (([SemesterNo]>=(1) AND [SemesterNo]<=(12)))
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [CK_Courses_SemesterNo]
+GO
+
+ALTER TABLE [dbo].[Courses]  WITH CHECK ADD  CONSTRAINT [CK_Courses_TheoryHours] CHECK  (([TheoryHours]>=(0)))
+GO
+
+ALTER TABLE [dbo].[Courses] CHECK CONSTRAINT [CK_Courses_TheoryHours]
+GO
+```
+
+3. 'Classes' Table:
+Table: dbo.Classes
+  - Uid: int NOT NULL PK
+  - ClassName: nvarchar(100) NOT NULL
+  - ClassCode: varchar(30) NOT NULL
+  - ProgramID: int NOT NULL
+  - SemesterNo: tinyint NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - Section: nvarchar(10) NULL
+  - Shift: nvarchar(20) NULL
+  - RoomNo: nvarchar(30) NULL
+  - MaxStrength: smallint NOT NULL DEFAULT ((40))
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - Remarks: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+
+SQL
+```
+USE [VEMS]
+GO
+
+/****** Object:  Table [dbo].[Classes]    Script Date: 6/11/2026 3:21:26 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Classes](
+	[Uid] [int] IDENTITY(1,1) NOT NULL,
+	[ClassName] [nvarchar](100) NOT NULL,
+	[ClassCode] [varchar](30) NOT NULL,
+	[ProgramID] [int] NOT NULL,
+	[SemesterNo] [tinyint] NOT NULL,
+	[Semester] [nvarchar](20) NOT NULL,
+	[AcademicYear] [smallint] NOT NULL,
+	[Section] [nvarchar](10) NULL,
+	[Shift] [nvarchar](20) NULL,
+	[RoomNo] [nvarchar](30) NULL,
+	[MaxStrength] [smallint] NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[Remarks] [nvarchar](300) NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[UpdatedBy] [int] NULL,
+	[UpdatedAt] [datetime2](7) NULL,
+ CONSTRAINT [PK_Classes] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_Classes_Code] UNIQUE NONCLUSTERED 
+(
+	[ClassCode] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Classes] ADD  CONSTRAINT [DF_Classes_MaxStrength]  DEFAULT ((40)) FOR [MaxStrength]
+GO
+
+ALTER TABLE [dbo].[Classes] ADD  CONSTRAINT [DF_Classes_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[Classes] ADD  CONSTRAINT [DF_Classes_CreatedAt]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[Classes]  WITH CHECK ADD  CONSTRAINT [FK_Classes_Program] FOREIGN KEY([ProgramID])
+REFERENCES [dbo].[ref_Programs] ([Uid])
+GO
+
+ALTER TABLE [dbo].[Classes] CHECK CONSTRAINT [FK_Classes_Program]
+GO
+
+ALTER TABLE [dbo].[Classes]  WITH CHECK ADD  CONSTRAINT [CK_Classes_MaxStrength] CHECK  (([MaxStrength]>(0)))
+GO
+
+ALTER TABLE [dbo].[Classes] CHECK CONSTRAINT [CK_Classes_MaxStrength]
+GO
+
+ALTER TABLE [dbo].[Classes]  WITH CHECK ADD  CONSTRAINT [CK_Classes_Semester] CHECK  (([Semester]='Summer' OR [Semester]='Spring' OR [Semester]='Fall'))
+GO
+
+ALTER TABLE [dbo].[Classes] CHECK CONSTRAINT [CK_Classes_Semester]
+GO
+
+ALTER TABLE [dbo].[Classes]  WITH CHECK ADD  CONSTRAINT [CK_Classes_SemesterNo] CHECK  (([SemesterNo]>=(1) AND [SemesterNo]<=(12)))
+GO
+
+ALTER TABLE [dbo].[Classes] CHECK CONSTRAINT [CK_Classes_SemesterNo]
+GO
+
+ALTER TABLE [dbo].[Classes]  WITH CHECK ADD  CONSTRAINT [CK_Classes_Shift] CHECK  (([Shift]='Weekend' OR [Shift]='Evening' OR [Shift]='Morning' OR [Shift] IS NULL))
+GO
+
+ALTER TABLE [dbo].[Classes] CHECK CONSTRAINT [CK_Classes_Shift]
+GO
+```
+
+4. 'ClassCourses' Table:
+Table: dbo.ClassCourses
+  - Uid: int NOT NULL PK
+  - ClassID: int NOT NULL
+  - CourseID: int NOT NULL
+  - TeacherID: int NULL
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - Remarks: nvarchar(200) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+
+SQL
+```
+USE [VEMS]
+GO
+
+/****** Object:  Table [dbo].[ClassCourses]    Script Date: 6/11/2026 3:29:27 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[ClassCourses](
+	[Uid] [int] IDENTITY(1,1) NOT NULL,
+	[ClassID] [int] NOT NULL,
+	[CourseID] [int] NOT NULL,
+	[TeacherID] [int] NULL,
+	[IsActive] [bit] NOT NULL,
+	[Remarks] [nvarchar](200) NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[UpdatedBy] [int] NULL,
+	[UpdatedAt] [datetime2](7) NULL,
+ CONSTRAINT [PK_ClassCourses] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_ClassCourses] UNIQUE NONCLUSTERED 
+(
+	[ClassID] ASC,
+	[CourseID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ClassCourses] ADD  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[ClassCourses] ADD  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[ClassCourses]  WITH CHECK ADD  CONSTRAINT [FK_ClassCourses_Class] FOREIGN KEY([ClassID])
+REFERENCES [dbo].[Classes] ([Uid])
+GO
+
+ALTER TABLE [dbo].[ClassCourses] CHECK CONSTRAINT [FK_ClassCourses_Class]
+GO
+
+ALTER TABLE [dbo].[ClassCourses]  WITH CHECK ADD  CONSTRAINT [FK_ClassCourses_Course] FOREIGN KEY([CourseID])
+REFERENCES [dbo].[Courses] ([Uid])
+GO
+
+ALTER TABLE [dbo].[ClassCourses] CHECK CONSTRAINT [FK_ClassCourses_Course]
+GO
+```
+
+5. 'StudentEnrollments' Table:
+Table: dbo.StudentEnrollments
+  - Uid: int NOT NULL PK
+  - StudentID: int NOT NULL
+  - ProgramID: int NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - GradeOrSemester: tinyint NOT NULL
+  - SectionID: int NOT NULL
+  - RollNo: nvarchar(30) NOT NULL
+  - EnrollmentDate: date NOT NULL
+  - CompletionDate: date NULL
+  - EnrollmentStatus: nvarchar(20) NOT NULL DEFAULT ('Active')
+  - FeeStatus: nvarchar(20) NOT NULL DEFAULT ('Pending')
+  - Remarks: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+
+SQL
+```
+USE [VEMS]
+GO
+
+/****** Object:  Table [dbo].[StudentEnrollments]    Script Date: 6/11/2026 3:41:41 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[StudentEnrollments](
+	[Uid] [int] IDENTITY(1,1) NOT NULL,
+	[StudentID] [int] NOT NULL,
+	[ProgramID] [int] NOT NULL,
+	[AcademicYear] [smallint] NOT NULL,
+	[GradeOrSemester] [tinyint] NOT NULL,
+	[SectionID] [int] NOT NULL,
+	[RollNo] [nvarchar](30) NOT NULL,
+	[EnrollmentDate] [date] NOT NULL,
+	[CompletionDate] [date] NULL,
+	[EnrollmentStatus] [nvarchar](20) NOT NULL,
+	[FeeStatus] [nvarchar](20) NOT NULL,
+	[Remarks] [nvarchar](300) NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[UpdatedBy] [int] NULL,
+	[UpdatedAt] [datetime2](7) NULL,
+ CONSTRAINT [PK_Enrollments] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_Enrollments_Period] UNIQUE NONCLUSTERED 
+(
+	[StudentID] ASC,
+	[ProgramID] ASC,
+	[AcademicYear] ASC,
+	[GradeOrSemester] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_Enrollments_RollNo] UNIQUE NONCLUSTERED 
+(
+	[ProgramID] ASC,
+	[AcademicYear] ASC,
+	[GradeOrSemester] ASC,
+	[RollNo] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] ADD  DEFAULT ('Active') FOR [EnrollmentStatus]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] ADD  DEFAULT ('Pending') FOR [FeeStatus]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] ADD  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments]  WITH CHECK ADD  CONSTRAINT [FK_Enrollments_Program] FOREIGN KEY([ProgramID])
+REFERENCES [dbo].[ref_Programs] ([Uid])
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] CHECK CONSTRAINT [FK_Enrollments_Program]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments]  WITH CHECK ADD  CONSTRAINT [FK_Enrollments_Student] FOREIGN KEY([StudentID])
+REFERENCES [dbo].[Students] ([Uid])
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] CHECK CONSTRAINT [FK_Enrollments_Student]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments]  WITH CHECK ADD  CONSTRAINT [CK_Enrollments_Fee] CHECK  (([FeeStatus]='Waived' OR [FeeStatus]='Partial' OR [FeeStatus]='Paid' OR [FeeStatus]='Pending'))
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] CHECK CONSTRAINT [CK_Enrollments_Fee]
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments]  WITH CHECK ADD  CONSTRAINT [CK_Enrollments_Status] CHECK  (([EnrollmentStatus]='Expelled' OR [EnrollmentStatus]='Transferred' OR [EnrollmentStatus]='Withdrawn' OR [EnrollmentStatus]='Failed' OR [EnrollmentStatus]='Passed' OR [EnrollmentStatus]='Active'))
+GO
+
+ALTER TABLE [dbo].[StudentEnrollments] CHECK CONSTRAINT [CK_Enrollments_Status]
+GO
+```
+
+6. 'StudentCourseEnrollments' Tables:
+Table: dbo.StudentCourseEnrollments
+  - Uid: int NOT NULL PK
+  - EnrollmentID: int NOT NULL
+  - StudentID: int NOT NULL
+  - ClassCourseID: int NOT NULL
+  - EnrollmentType: nvarchar(20) NOT NULL DEFAULT ('Auto')
+  - Status: nvarchar(20) NOT NULL DEFAULT ('Active')
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - Remarks: nvarchar(200) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+
+SQL
+```
+USE [VEMS]
+GO
+
+/****** Object:  Table [dbo].[StudentCourseEnrollments]    Script Date: 6/11/2026 3:46:02 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[StudentCourseEnrollments](
+	[Uid] [int] IDENTITY(1,1) NOT NULL,
+	[EnrollmentID] [int] NOT NULL,
+	[StudentID] [int] NOT NULL,
+	[ClassCourseID] [int] NOT NULL,
+	[EnrollmentType] [nvarchar](20) NOT NULL,
+	[Status] [nvarchar](20) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[Remarks] [nvarchar](200) NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[UpdatedBy] [int] NULL,
+	[UpdatedAt] [datetime2](7) NULL,
+ CONSTRAINT [PK_StudentCourseEnrollments] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_StudentCourseEnrollments] UNIQUE NONCLUSTERED 
+(
+	[StudentID] ASC,
+	[ClassCourseID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] ADD  DEFAULT ('Auto') FOR [EnrollmentType]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] ADD  DEFAULT ('Active') FOR [Status]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] ADD  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] ADD  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments]  WITH CHECK ADD  CONSTRAINT [FK_SCE_ClassCourse] FOREIGN KEY([ClassCourseID])
+REFERENCES [dbo].[ClassCourses] ([Uid])
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] CHECK CONSTRAINT [FK_SCE_ClassCourse]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments]  WITH CHECK ADD  CONSTRAINT [FK_SCE_Enrollment] FOREIGN KEY([EnrollmentID])
+REFERENCES [dbo].[StudentEnrollments] ([Uid])
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] CHECK CONSTRAINT [FK_SCE_Enrollment]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments]  WITH CHECK ADD  CONSTRAINT [FK_SCE_Student] FOREIGN KEY([StudentID])
+REFERENCES [dbo].[Students] ([Uid])
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] CHECK CONSTRAINT [FK_SCE_Student]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments]  WITH CHECK ADD  CONSTRAINT [CK_SCE_Status] CHECK  (([Status]='Suspended' OR [Status]='Completed' OR [Status]='Dropped' OR [Status]='Active'))
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] CHECK CONSTRAINT [CK_SCE_Status]
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments]  WITH CHECK ADD  CONSTRAINT [CK_SCE_Type] CHECK  (([EnrollmentType]='Manual' OR [EnrollmentType]='Auto'))
+GO
+
+ALTER TABLE [dbo].[StudentCourseEnrollments] CHECK CONSTRAINT [CK_SCE_Type]
+GO
+```
+
+7. 'TeacherCourseAssignments' Table:
+Table: dbo.TeacherCourseAssignments
+  - Uid: int NOT NULL PK
+  - TeacherID: int NOT NULL
+  - ClassID: int NOT NULL
+  - CourseID: int NOT NULL
+  - Semester: nvarchar(20) NOT NULL
+  - AcademicYear: smallint NOT NULL
+  - DayOfWeek: nvarchar(20) NULL
+  - StartTime: time(0) NULL
+  - EndTime: time(0) NULL
+  - RoomNo: nvarchar(30) NULL
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - Remarks: nvarchar(300) NULL
+  - CreatedBy: int NOT NULL
+  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
+  - UpdatedBy: int NULL
+  - UpdatedAt: datetime2(7) NULL
+
+SQL
+```
+USE [VEMS]
+GO
+
+/****** Object:  Table [dbo].[TeacherCourseAssignments]    Script Date: 6/11/2026 4:34:41 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TeacherCourseAssignments](
+	[Uid] [int] IDENTITY(1,1) NOT NULL,
+	[TeacherID] [int] NOT NULL,
+	[ClassID] [int] NOT NULL,
+	[CourseID] [int] NOT NULL,
+	[Semester] [nvarchar](20) NOT NULL,
+	[AcademicYear] [smallint] NOT NULL,
+	[DayOfWeek] [nvarchar](20) NULL,
+	[StartTime] [time](0) NULL,
+	[EndTime] [time](0) NULL,
+	[RoomNo] [nvarchar](30) NULL,
+	[IsActive] [bit] NOT NULL,
+	[Remarks] [nvarchar](300) NULL,
+	[CreatedBy] [int] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+	[UpdatedBy] [int] NULL,
+	[UpdatedAt] [datetime2](7) NULL,
+ CONSTRAINT [PK_TeacherCourseAssignments] PRIMARY KEY CLUSTERED 
+(
+	[Uid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_TCA] UNIQUE NONCLUSTERED 
+(
+	[TeacherID] ASC,
+	[ClassID] ASC,
+	[CourseID] ASC,
+	[DayOfWeek] ASC,
+	[Semester] ASC,
+	[AcademicYear] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] ADD  CONSTRAINT [DF_TCA_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] ADD  CONSTRAINT [DF_TCA_CreatedAt]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments]  WITH CHECK ADD  CONSTRAINT [FK_TCA_Class] FOREIGN KEY([ClassID])
+REFERENCES [dbo].[Classes] ([Uid])
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] CHECK CONSTRAINT [FK_TCA_Class]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments]  WITH CHECK ADD  CONSTRAINT [FK_TCA_Course] FOREIGN KEY([CourseID])
+REFERENCES [dbo].[Courses] ([Uid])
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] CHECK CONSTRAINT [FK_TCA_Course]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments]  WITH CHECK ADD  CONSTRAINT [FK_TCA_Teacher] FOREIGN KEY([TeacherID])
+REFERENCES [dbo].[Teachers] ([Uid])
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] CHECK CONSTRAINT [FK_TCA_Teacher]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments]  WITH CHECK ADD  CONSTRAINT [CK_TCA_Day] CHECK  (([DayOfWeek]='Sunday' OR [DayOfWeek]='Saturday' OR [DayOfWeek]='Friday' OR [DayOfWeek]='Thursday' OR [DayOfWeek]='Wednesday' OR [DayOfWeek]='Tuesday' OR [DayOfWeek]='Monday' OR [DayOfWeek] IS NULL))
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] CHECK CONSTRAINT [CK_TCA_Day]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments]  WITH CHECK ADD  CONSTRAINT [CK_TCA_Semester] CHECK  (([Semester]='Summer' OR [Semester]='Spring' OR [Semester]='Fall'))
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] CHECK CONSTRAINT [CK_TCA_Semester]
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments]  WITH CHECK ADD  CONSTRAINT [CK_TCA_Time] CHECK  (([EndTime] IS NULL OR [EndTime]>[StartTime]))
+GO
+
+ALTER TABLE [dbo].[TeacherCourseAssignments] CHECK CONSTRAINT [CK_TCA_Time]
+GO
+```
