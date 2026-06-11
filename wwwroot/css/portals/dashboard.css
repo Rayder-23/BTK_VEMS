@@ -745,6 +745,13 @@ body.student-mgmt-shell .student-mgmt-nav-blank {
     pointer-events: none;
 }
 
+body.teachers-mgmt-shell .teachers-mgmt-nav-blank {
+    cursor: default;
+    min-height: 2.25rem;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
 body.student-mgmt-shell .fee-erp-navbar {
     top: var(--fee-erp-module-bar-h);
 }
@@ -813,12 +820,13 @@ body.student-mgmt-shell.fee-erp-sidebar-collapsed .student-mgmt-main {
     }
 }
 
-/* Fee, Settings, Accounts, HR, Examination — module mgmt shell (matches admissions / students) */
+/* Fee, Settings, Accounts, HR, Examination, Teachers — module mgmt shell (matches admissions / students) */
 body.fee-mgmt-shell,
 body.settings-mgmt-shell,
 body.accounts-mgmt-shell,
 body.hr-mgmt-shell,
-body.examination-mgmt-shell {
+body.examination-mgmt-shell,
+body.teachers-mgmt-shell {
     --module-mgmt-sidebar-w: 220px;
     --fee-erp-module-bar-h: 44px;
     --fee-erp-topnav-stack-h: calc(var(--fee-erp-module-bar-h) + var(--fee-erp-topnav-h));
@@ -829,7 +837,8 @@ body.fee-mgmt-shell .fee-erp-module-topbar,
 body.settings-mgmt-shell .fee-erp-module-topbar,
 body.accounts-mgmt-shell .fee-erp-module-topbar,
 body.hr-mgmt-shell .fee-erp-module-topbar,
-body.examination-mgmt-shell .fee-erp-module-topbar {
+body.examination-mgmt-shell .fee-erp-module-topbar,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar {
     position: fixed;
     top: 0;
     left: 0;
@@ -845,7 +854,8 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__logo,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__logo,
 body.accounts-mgmt-shell .accounts-mgmt-module-topbar__logo,
 body.hr-mgmt-shell .hr-mgmt-module-topbar__logo,
-body.examination-mgmt-shell .examination-mgmt-module-topbar__logo {
+body.examination-mgmt-shell .examination-mgmt-module-topbar__logo,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__logo {
     width: 32px;
     height: 32px;
     background: rgba(13, 110, 253, 0.25);
@@ -857,7 +867,8 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__brand,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__brand,
 body.accounts-mgmt-shell .accounts-mgmt-module-topbar__brand,
 body.hr-mgmt-shell .hr-mgmt-module-topbar__brand,
-body.examination-mgmt-shell .examination-mgmt-module-topbar__brand {
+body.examination-mgmt-shell .examination-mgmt-module-topbar__brand,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__brand {
     color: #fff;
 }
 
@@ -865,7 +876,8 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__brand:hover,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__brand:hover,
 body.accounts-mgmt-shell .accounts-mgmt-module-topbar__brand:hover,
 body.hr-mgmt-shell .hr-mgmt-module-topbar__brand:hover,
-body.examination-mgmt-shell .examination-mgmt-module-topbar__brand:hover {
+body.examination-mgmt-shell .examination-mgmt-module-topbar__brand:hover,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__brand:hover {
     color: #fff;
     opacity: 0.9;
 }
@@ -874,7 +886,8 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__title,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__title,
 body.accounts-mgmt-shell .accounts-mgmt-module-topbar__title,
 body.hr-mgmt-shell .hr-mgmt-module-topbar__title,
-body.examination-mgmt-shell .examination-mgmt-module-topbar__title {
+body.examination-mgmt-shell .examination-mgmt-module-topbar__title,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__title {
     font-size: 0.95rem;
     letter-spacing: 0.01em;
 }
@@ -883,7 +896,8 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__link,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__link,
 body.accounts-mgmt-shell .accounts-mgmt-module-topbar__link,
 body.hr-mgmt-shell .hr-mgmt-module-topbar__link,
-body.examination-mgmt-shell .examination-mgmt-module-topbar__link {
+body.examination-mgmt-shell .examination-mgmt-module-topbar__link,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__link {
     color: rgba(226, 232, 240, 0.85);
 }
 
@@ -891,7 +905,8 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__link:hover,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__link:hover,
 body.accounts-mgmt-shell .accounts-mgmt-module-topbar__link:hover,
 body.hr-mgmt-shell .hr-mgmt-module-topbar__link:hover,
-body.examination-mgmt-shell .examination-mgmt-module-topbar__link:hover {
+body.examination-mgmt-shell .examination-mgmt-module-topbar__link:hover,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__link:hover {
     color: #fff;
 }
 
@@ -899,7 +914,8 @@ body.fee-mgmt-shell .fee-erp-navbar,
 body.settings-mgmt-shell .fee-erp-navbar,
 body.accounts-mgmt-shell .fee-erp-navbar,
 body.hr-mgmt-shell .fee-erp-navbar,
-body.examination-mgmt-shell .fee-erp-navbar {
+body.examination-mgmt-shell .fee-erp-navbar,
+body.teachers-mgmt-shell .fee-erp-navbar {
     top: var(--fee-erp-module-bar-h);
 }
 
@@ -907,7 +923,8 @@ body.fee-mgmt-shell .fee-erp-sidebar,
 body.settings-mgmt-shell .fee-erp-sidebar,
 body.accounts-mgmt-shell .fee-erp-sidebar,
 body.hr-mgmt-shell .fee-erp-sidebar,
-body.examination-mgmt-shell .fee-erp-sidebar {
+body.examination-mgmt-shell .fee-erp-sidebar,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar {
     top: var(--fee-erp-topnav-stack-h);
 }
 
@@ -915,7 +932,8 @@ body.fee-mgmt-shell .fee-erp-canvas,
 body.settings-mgmt-shell .fee-erp-canvas,
 body.accounts-mgmt-shell .fee-erp-canvas,
 body.hr-mgmt-shell .fee-erp-canvas,
-body.examination-mgmt-shell .fee-erp-canvas {
+body.examination-mgmt-shell .fee-erp-canvas,
+body.teachers-mgmt-shell .fee-erp-canvas {
     min-height: calc(100vh - var(--fee-erp-topnav-stack-h));
 }
 
@@ -928,7 +946,9 @@ body.accounts-mgmt-shell .accounts-mgmt-main,
 body.hr-mgmt-shell .fee-erp-main,
 body.hr-mgmt-shell .hr-mgmt-main,
 body.examination-mgmt-shell .fee-erp-main,
-body.examination-mgmt-shell .examination-mgmt-main {
+body.examination-mgmt-shell .examination-mgmt-main,
+body.teachers-mgmt-shell .fee-erp-main,
+body.teachers-mgmt-shell .teachers-mgmt-main {
     min-height: calc(100vh - var(--fee-erp-topnav-stack-h));
 }
 
@@ -936,7 +956,8 @@ body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-list,
 body.settings-mgmt-shell .settings-mgmt-sidebar-inner .fee-erp-nav-list,
 body.accounts-mgmt-shell .accounts-mgmt-sidebar-inner .fee-erp-nav-list,
 body.hr-mgmt-shell .hr-mgmt-sidebar-inner .fee-erp-nav-list,
-body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-list {
+body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-list,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar-inner .fee-erp-nav-list {
     gap: 0;
 }
 
@@ -944,7 +965,8 @@ body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-list .nav-item,
 body.settings-mgmt-shell .settings-mgmt-sidebar-inner .fee-erp-nav-list .nav-item,
 body.accounts-mgmt-shell .accounts-mgmt-sidebar-inner .fee-erp-nav-list .nav-item,
 body.hr-mgmt-shell .hr-mgmt-sidebar-inner .fee-erp-nav-list .nav-item,
-body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-list .nav-item {
+body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-list .nav-item,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar-inner .fee-erp-nav-list .nav-item {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -952,7 +974,8 @@ body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp
 body.settings-mgmt-shell .settings-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp-nav-link,
 body.accounts-mgmt-shell .accounts-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp-nav-link,
 body.hr-mgmt-shell .hr-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp-nav-link,
-body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp-nav-link {
+body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp-nav-link,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar-inner .fee-erp-nav-list .nav-item .fee-erp-nav-link {
     border-radius: 0;
 }
 
@@ -960,7 +983,8 @@ body.fee-mgmt-shell .fee-mgmt-sidebar,
 body.settings-mgmt-shell .settings-mgmt-sidebar,
 body.accounts-mgmt-shell .accounts-mgmt-sidebar,
 body.hr-mgmt-shell .hr-mgmt-sidebar,
-body.examination-mgmt-shell .examination-mgmt-sidebar {
+body.examination-mgmt-shell .examination-mgmt-sidebar,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar {
     width: var(--module-mgmt-sidebar-w);
 }
 
@@ -968,7 +992,8 @@ body.fee-mgmt-shell .fee-mgmt-main,
 body.settings-mgmt-shell .settings-mgmt-main,
 body.accounts-mgmt-shell .accounts-mgmt-main,
 body.hr-mgmt-shell .hr-mgmt-main,
-body.examination-mgmt-shell .examination-mgmt-main {
+body.examination-mgmt-shell .examination-mgmt-main,
+body.teachers-mgmt-shell .teachers-mgmt-main {
     margin-left: var(--module-mgmt-sidebar-w);
 }
 
@@ -976,7 +1001,8 @@ body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link,
 body.settings-mgmt-shell .settings-mgmt-sidebar-inner .fee-erp-nav-link,
 body.accounts-mgmt-shell .accounts-mgmt-sidebar-inner .fee-erp-nav-link,
 body.hr-mgmt-shell .hr-mgmt-sidebar-inner .fee-erp-nav-link,
-body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-link {
+body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav-link,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar-inner .fee-erp-nav-link {
     padding: 0.55rem 0.65rem;
     font-size: 0.85rem;
 }
@@ -985,7 +1011,8 @@ body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav,
 body.settings-mgmt-shell .settings-mgmt-sidebar-inner .fee-erp-nav,
 body.accounts-mgmt-shell .accounts-mgmt-sidebar-inner .fee-erp-nav,
 body.hr-mgmt-shell .hr-mgmt-sidebar-inner .fee-erp-nav,
-body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav {
+body.examination-mgmt-shell .examination-mgmt-sidebar-inner .fee-erp-nav,
+body.teachers-mgmt-shell .teachers-mgmt-sidebar-inner .fee-erp-nav {
     padding-left: 0.35rem !important;
     padding-right: 0.35rem !important;
 }
@@ -994,7 +1021,8 @@ body.fee-mgmt-shell.fee-erp-sidebar-collapsed .fee-mgmt-sidebar,
 body.settings-mgmt-shell.fee-erp-sidebar-collapsed .settings-mgmt-sidebar,
 body.accounts-mgmt-shell.fee-erp-sidebar-collapsed .accounts-mgmt-sidebar,
 body.hr-mgmt-shell.fee-erp-sidebar-collapsed .hr-mgmt-sidebar,
-body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-sidebar {
+body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-sidebar,
+body.teachers-mgmt-shell.fee-erp-sidebar-collapsed .teachers-mgmt-sidebar {
     width: 76px;
 }
 
@@ -1002,7 +1030,8 @@ body.fee-mgmt-shell.fee-erp-sidebar-collapsed .fee-mgmt-main,
 body.settings-mgmt-shell.fee-erp-sidebar-collapsed .settings-mgmt-main,
 body.accounts-mgmt-shell.fee-erp-sidebar-collapsed .accounts-mgmt-main,
 body.hr-mgmt-shell.fee-erp-sidebar-collapsed .hr-mgmt-main,
-body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-main {
+body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-main,
+body.teachers-mgmt-shell.fee-erp-sidebar-collapsed .teachers-mgmt-main {
     margin-left: 76px;
 }
 
@@ -1011,7 +1040,8 @@ body.examination-mgmt-shell.fee-erp-sidebar-collapsed .examination-mgmt-main {
     body.settings-mgmt-shell .settings-mgmt-main,
     body.accounts-mgmt-shell .accounts-mgmt-main,
     body.hr-mgmt-shell .hr-mgmt-main,
-    body.examination-mgmt-shell .examination-mgmt-main {
+    body.examination-mgmt-shell .examination-mgmt-main,
+    body.teachers-mgmt-shell .teachers-mgmt-main {
         margin-left: 0;
     }
 }

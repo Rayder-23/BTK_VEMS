@@ -1,0 +1,167 @@
+/* Admin portal home — dual topbar shell (matches Teachers module) */
+
+body.fee-erp-shell.admin-home-shell {
+    --fee-erp-topnav-stack-h: calc(var(--fee-erp-module-bar-h) + var(--fee-erp-topnav-h));
+    padding-top: var(--fee-erp-topnav-stack-h);
+}
+
+body.admin-home-shell .admin-home-module-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--fee-erp-module-bar-h);
+    z-index: 1040;
+    background: linear-gradient(180deg, var(--fee-erp-sidebar-start) 0%, var(--fee-erp-sidebar-end) 100%);
+    color: #e2e8f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.admin-home-shell .admin-home-module-topbar__logo {
+    background: rgba(13, 110, 253, 0.25);
+    color: #fff;
+}
+
+body.admin-home-shell .admin-home-module-topbar__brand {
+    color: #fff;
+}
+
+body.admin-home-shell .admin-home-module-topbar__brand:hover {
+    color: #fff;
+    opacity: 0.9;
+}
+
+body.admin-home-shell .admin-home-module-topbar__link {
+    color: rgba(226, 232, 240, 0.85);
+}
+
+body.admin-home-shell .fee-erp-navbar {
+    top: var(--fee-erp-module-bar-h);
+}
+
+body.admin-home-shell .fee-erp-canvas {
+    min-height: calc(100vh - var(--fee-erp-topnav-stack-h));
+}
+
+body.admin-home-shell .fee-erp-main,
+body.admin-home-shell .admin-home-main {
+    margin-left: 0;
+    min-height: calc(100vh - var(--fee-erp-topnav-stack-h));
+    width: 100%;
+}
+
+body.admin-home-shell .admin-home-main {
+    padding: 0;
+}
+
+/* Module grid — compact tm-module-card */
+.admin-home-shell .portal-card {
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+}
+
+.admin-home-shell .tm-module-grid .tm-module-card {
+    background: #fff;
+    border: 1px solid rgba(124, 58, 237, 0.12);
+    border-radius: 0.75rem;
+    color: inherit;
+    display: block;
+    height: 100%;
+    padding: 0.75rem 0.85rem;
+    text-decoration: none;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.admin-home-shell .tm-module-grid .tm-module-card:hover {
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.12);
+    color: inherit;
+    transform: translateY(-1px);
+}
+
+.admin-home-shell .tm-module-card--soon {
+    cursor: default;
+    opacity: 0.72;
+}
+
+.admin-home-shell .tm-module-card--soon:hover {
+    box-shadow: none;
+    transform: none;
+}
+
+.admin-home-shell .tm-module-card__icon {
+    align-items: center;
+    background: rgba(100, 116, 139, 0.12);
+    border-radius: 0.6rem;
+    color: #475569;
+    display: inline-flex;
+    font-size: 1rem;
+    height: 36px;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    width: 36px;
+}
+
+.admin-home-shell .tm-module-card__icon.accent-blue { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+.admin-home-shell .tm-module-card__icon.accent-cyan { background: rgba(8, 145, 178, 0.12); color: #0891b2; }
+.admin-home-shell .tm-module-card__icon.accent-indigo { background: rgba(79, 70, 229, 0.12); color: #4f46e5; }
+.admin-home-shell .tm-module-card__icon.accent-green { background: rgba(22, 163, 74, 0.12); color: #16a34a; }
+.admin-home-shell .tm-module-card__icon.accent-purple { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+.admin-home-shell .tm-module-card__icon.accent-orange { background: rgba(249, 115, 22, 0.12); color: #f97316; }
+.admin-home-shell .tm-module-card__icon.accent-red { background: rgba(220, 38, 38, 0.12); color: #dc2626; }
+.admin-home-shell .tm-module-card__icon.accent-teal { background: rgba(13, 148, 136, 0.12); color: #0d9488; }
+.admin-home-shell .tm-module-card__icon.accent-pink { background: rgba(219, 39, 119, 0.12); color: #db2777; }
+
+.admin-home-shell .tm-module-card__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 0.2rem;
+}
+
+.admin-home-shell .tm-module-card__badge {
+    background: rgba(100, 116, 139, 0.15);
+    border-radius: 999px;
+    color: #64748b;
+    font-size: 0.65rem;
+    font-weight: 600;
+    margin-left: 0.35rem;
+    padding: 0.15rem 0.45rem;
+    vertical-align: middle;
+}
+
+.admin-home-shell .tm-module-card__desc {
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.admin-home-shell .tm-module-grid {
+    --bs-gutter-x: 0.65rem;
+    --bs-gutter-y: 0.65rem;
+}
+
+.admin-home-shell .erp-module-search-wrap {
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    color: #64748b;
+    display: flex;
+    gap: 0.65rem;
+    min-width: min(100%, 300px);
+    padding: 0.35rem 1rem;
+}
+
+.admin-home-shell .erp-module-search-wrap:focus-within {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.admin-home-shell .erp-module-search-wrap .form-control {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    font-size: 0.9rem;
+    padding: 0.4rem 0;
+}

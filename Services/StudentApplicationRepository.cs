@@ -29,13 +29,10 @@ public sealed class StudentApplicationRepository : IStudentApplicationRepository
     {
         const string sql = """
             SELECT
-                LTRIM(RTRIM(ISNULL(it.InstTypeCode, ''))) AS InstTypeCode,
                 p.ProgramCode,
                 p.ProgramName,
-                p.TotalGrades,
-                p.TotalSemesters
+                p.DurationYears
             FROM dbo.ref_Programs p
-            LEFT JOIN dbo.ref_InstitutionTypes it ON it.Uid = p.InstTypeId
             WHERE p.IsActive = 1
             ORDER BY p.ProgramName;
             """;
@@ -49,11 +46,9 @@ public sealed class StudentApplicationRepository : IStudentApplicationRepository
         {
             list.Add(new StudentApplicationProgramOption
             {
-                InstTypeCode = reader["InstTypeCode"] as string ?? string.Empty,
                 ProgramCode = reader["ProgramCode"] as string ?? string.Empty,
                 ProgramName = reader["ProgramName"] as string ?? string.Empty,
-                TotalGrades = reader["TotalGrades"] is DBNull ? null : Convert.ToByte(reader["TotalGrades"]),
-                TotalSemesters = reader["TotalSemesters"] is DBNull ? null : Convert.ToByte(reader["TotalSemesters"])
+                DurationYears = reader["DurationYears"] is DBNull ? null : Convert.ToByte(reader["DurationYears"])
             });
         }
 

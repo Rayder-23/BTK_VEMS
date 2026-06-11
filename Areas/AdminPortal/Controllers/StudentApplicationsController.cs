@@ -187,8 +187,7 @@ public sealed class StudentApplicationsController : AdminBaseController
         var match = lookups.Programs.FirstOrDefault(p =>
             (!string.IsNullOrWhiteSpace(form.ProgramName)
                 && string.Equals(p.ProgramName, form.ProgramName.Trim(), StringComparison.OrdinalIgnoreCase))
-            || (string.Equals(p.ProgramCode, form.ProgramCode.Trim(), StringComparison.OrdinalIgnoreCase)
-                && string.Equals(p.InstTypeCode, form.InstTypeCode.Trim(), StringComparison.OrdinalIgnoreCase)));
+            || string.Equals(p.ProgramCode, form.ProgramCode.Trim(), StringComparison.OrdinalIgnoreCase));
 
         if (match is null)
         {

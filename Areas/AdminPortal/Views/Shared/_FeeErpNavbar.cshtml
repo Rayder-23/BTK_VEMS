@@ -9,6 +9,7 @@
     var hideGlobalSearch = ViewData["FeeErpHideGlobalSearch"] as bool? == true;
     var hideNavbarBrandIcon = ViewData["FeeErpHideNavbarBrandIcon"] as bool? == true;
     var hideNavAlerts = ViewData["FeeErpHideNavAlerts"] as bool? == true;
+    var hideRoleLabel = ViewData["FeeErpHideRoleLabel"] as bool? == true;
     var mobileNavClass = ViewData["FeeErpMobileNavClass"] as string ?? "d-lg-none";
     var brandHref = ViewData["FeeErpNavbarBrandHref"] as string ?? "/adminportal/fee";
     var brandText = ViewData["FeeErpNavbarBrandText"] as string ?? "Fee Management System";
@@ -81,10 +82,17 @@
                 <button class="btn btn-light d-flex align-items-center gap-2 py-2 px-2 px-sm-3 rounded-3 fee-erp-user-btn dropdown-toggle"
                         type="button" data-bs-toggle="dropdown" aria-expanded="false" id="feeErpUserMenu">
                     <span class="fee-erp-avatar rounded-circle text-white fw-semibold">@avatarLetter</span>
-                    <span class="d-none d-sm-flex flex-column text-start lh-sm">
-                        <span class="small fw-semibold text-dark">@displayName</span>
-                        <span class="fee-erp-role-label">@roleLabel</span>
-                    </span>
+                    @if (!hideRoleLabel)
+                    {
+                        <span class="d-none d-sm-flex flex-column text-start lh-sm">
+                            <span class="small fw-semibold text-dark">@displayName</span>
+                            <span class="fee-erp-role-label">@roleLabel</span>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="d-none d-sm-inline small fw-semibold text-dark">@displayName</span>
+                    }
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 py-2 fee-erp-dropdown" aria-labelledby="feeErpUserMenu">
                     <li><span class="dropdown-item-text small text-muted px-3">Signed in as <strong>@displayName</strong></span></li>

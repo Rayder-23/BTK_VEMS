@@ -4,9 +4,12 @@
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 
-    if (string.Equals(controller, "StudentMgmt", StringComparison.OrdinalIgnoreCase)
-        || StudentMgmtNavCatalog.IsStudentMgmtController(controller)
-        || TeachersNavCatalog.IsTeachersController(controller))
+    if (TeachersNavCatalog.IsTeachersController(controller))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_TeachersMgmtLayout.cshtml";
+    }
+    else if (string.Equals(controller, "StudentMgmt", StringComparison.OrdinalIgnoreCase)
+        || StudentMgmtNavCatalog.IsStudentMgmtController(controller))
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_StudentMgmtMgmtLayout.cshtml";
     }

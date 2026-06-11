@@ -1,0 +1,48 @@
+/* Teachers module — dashboard cards */
+
+.tm-module-grid .tm-module-card {
+    background: #fff;
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    border-radius: 1rem;
+    color: inherit;
+    display: block;
+    height: 100%;
+    padding: 1.25rem;
+    text-decoration: none;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tm-module-grid .tm-module-card:hover {
+    box-shadow: 0 12px 28px rgba(124, 58, 237, 0.15);
+    color: inherit;
+    transform: translateY(-2px);
+}
+
+.tm-module-card__icon {
+    align-items: center;
+    background: rgba(100, 116, 139, 0.12);
+    border-radius: 0.85rem;
+    color: #475569;
+    display: inline-flex;
+    font-size: 1.35rem;
+    height: 48px;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    width: 48px;
+}
+
+.tm-module-card__icon.accent-blue { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+.tm-module-card__icon.accent-purple { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+.tm-module-card__icon.accent-teal { background: rgba(13, 148, 136, 0.12); color: #0d9488; }
+
+.tm-module-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.tm-module-card__desc {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin: 0;
+}

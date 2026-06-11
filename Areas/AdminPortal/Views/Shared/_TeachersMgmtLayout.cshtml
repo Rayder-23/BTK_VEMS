@@ -1,14 +1,14 @@
 @{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Settings";
+    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Teachers";
     ViewData["FeeErpShowSidebarChrome"] = true;
     ViewData["FeeErpHideGlobalSearch"] = true;
     ViewData["FeeErpHideNavbarBrandIcon"] = true;
     ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/settings";
-    ViewData["FeeErpNavbarBrandText"] = "Settings";
-    ViewData["FeeErpNavbarBrandIcon"] = "fa-gear";
-    ViewData["FeeErpHideRoleLabel"] = true;
+    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/teachers";
+    ViewData["FeeErpNavbarBrandText"] = "Teachers Module";
+    ViewData["FeeErpNavbarBrandIcon"] = "fa-chalkboard-user";
     ViewData["FeeErpMobileNavClass"] = "d-sm-none";
+    ViewData["FeeErpHideRoleLabel"] = true;
     ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
 }
 <!DOCTYPE html>
@@ -16,7 +16,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — Settings</title>
+    <title>@ViewData["Title"] — Teachers</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -28,34 +28,35 @@
     <link rel="stylesheet" href="~/css/portals/admin-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/module-compact-topbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portals/teachers-mgmt-portal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="fee-erp-shell settings-mgmt-shell">
-    <partial name="_SettingsMgmtModuleTopBar" />
+<body class="fee-erp-shell teachers-mgmt-shell">
+    <partial name="_TeachersMgmtModuleTopBar" />
     <partial name="_FeeErpNavbar" model="pageTitle" />
     <div class="fee-erp-canvas">
-        <aside class="fee-erp-sidebar settings-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Settings navigation">
-            <partial name="_SettingsMgmtMgmtSidebar" />
+        <aside class="fee-erp-sidebar teachers-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Teachers navigation">
+            <partial name="_TeachersMgmtSidebar" />
         </aside>
         <div class="offcanvas offcanvas-start fee-erp-offcanvas text-bg-dark" tabindex="-1" id="feeErpSidebarOffcanvas"
              aria-labelledby="feeErpSidebarOffcanvasLabel">
             <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
                 <h5 class="offcanvas-title" id="feeErpSidebarOffcanvasLabel">
-                    <i class="fa-solid fa-gear me-2 text-info"></i>Settings
+                    <i class="fa-solid fa-chalkboard-user me-2 text-info"></i>Teachers
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body p-0 overflow-auto">
-                <partial name="_SettingsMgmtMgmtSidebar" />
+                <partial name="_TeachersMgmtSidebar" />
             </div>
         </div>
-        <div class="fee-erp-main settings-mgmt-main">
+        <div class="fee-erp-main teachers-mgmt-main">
             <div class="fee-erp-main-inner container-fluid py-4 px-3 px-lg-4">
                 @RenderBody()
             </div>
             <footer class="fee-erp-footer">
                 <div class="container-fluid px-3 px-lg-4 py-3 small text-muted">
-                    <span>&copy; @DateTime.UtcNow.Year VEMS · Settings</span>
+                    <span>&copy; @DateTime.UtcNow.Year VEMS · Teachers</span>
                 </div>
             </footer>
         </div>

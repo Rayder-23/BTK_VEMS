@@ -22,8 +22,8 @@ public sealed class TeachersController : AdminBaseController
         _employees = employees;
     }
 
-    [HttpGet("")]
-    [HttpGet("Index")]
+    [HttpGet("all")]
+    [HttpGet("all/Index")]
     public async Task<IActionResult> Index(string? search, bool showInactive = false, CancellationToken cancellationToken = default)
     {
         ViewData["Title"] = "Teachers";

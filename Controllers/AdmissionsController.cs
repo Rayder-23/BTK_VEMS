@@ -84,8 +84,7 @@ public sealed class AdmissionsController : Controller
         var match = programs.FirstOrDefault(p =>
             (!string.IsNullOrWhiteSpace(model.ProgramName)
                 && string.Equals(p.ProgramName, model.ProgramName.Trim(), StringComparison.OrdinalIgnoreCase))
-            || (string.Equals(p.ProgramCode, model.ProgramCode.Trim(), StringComparison.OrdinalIgnoreCase)
-                && string.Equals(p.InstTypeCode, model.InstTypeCode.Trim(), StringComparison.OrdinalIgnoreCase)));
+            || string.Equals(p.ProgramCode, model.ProgramCode.Trim(), StringComparison.OrdinalIgnoreCase));
 
         if (match is null)
         {

@@ -1,0 +1,57 @@
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeKey = TeachersNavCatalog.ResolveActiveKey(path, action);
+}
+<div class="fee-erp-sidebar-inner d-flex flex-column h-100 teachers-mgmt-sidebar-inner">
+    <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Teachers navigation">
+        <ul class="nav flex-column gap-1 fee-erp-nav-list teachers-mgmt-leading-placeholder-nav">
+            @foreach (var item in TeachersNavCatalog.SidebarLeadingPlaceholderNav)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link teachers-mgmt-nav-blank" href="@item.Url" aria-hidden="true" tabindex="-1">&nbsp;</a>
+                </li>
+            }
+        </ul>
+
+        <ul class="nav flex-column gap-1 fee-erp-nav-list teachers-mgmt-sub-nav mb-2">
+            @foreach (var item in TeachersNavCatalog.SidebarSubNav)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link @(activeKey == item.Key ? "active" : "")" href="@item.Url">
+                        <i class="fa-fw fa-solid @item.IconClass"></i>
+                        <span class="fee-erp-nav-label">@item.Name</span>
+                    </a>
+                </li>
+            }
+        </ul>
+
+        <ul class="nav flex-column gap-1 fee-erp-nav-list teachers-mgmt-placeholder-nav">
+            @foreach (var item in TeachersNavCatalog.SidebarPlaceholderNav)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link teachers-mgmt-nav-blank" href="@item.Url" aria-hidden="true" tabindex="-1">&nbsp;</a>
+                </li>
+            }
+        </ul>
+
+        <ul class="nav flex-column gap-1 fee-erp-nav-list teachers-mgmt-main-nav mt-1">
+            @foreach (var item in TeachersNavCatalog.SidebarNav)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link @(activeKey == item.Key ? "active" : "")" href="@item.Url">
+                        <i class="fa-fw fa-solid @item.IconClass"></i>
+                        <span class="fee-erp-nav-label">@item.Name</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+    <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10">
+        <a class="fee-erp-nav-link border border-light border-opacity-25 bg-transparent" href="/adminportal">
+            <i class="fa-fw fa-solid fa-arrow-left"></i>
+            <span class="fee-erp-nav-label">Admin portal home</span>
+        </a>
+    </div>
+</div>

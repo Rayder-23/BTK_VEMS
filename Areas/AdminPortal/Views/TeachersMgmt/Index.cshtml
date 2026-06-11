@@ -1,0 +1,27 @@
+@model IReadOnlyList<VEMS.Areas.AdminPortal.Services.TeachersModule>
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Teachers · Dashboard";
+}
+
+<h1 class="h4 fw-bold mb-3">Dashboard</h1>
+
+<p class="text-muted mb-4">Faculty profiles, class-course assignments, and teacher records in <code>dbo.Teachers</code>.</p>
+
+<section class="portal-card">
+    <h2 class="h6 fw-bold mb-3">Modules</h2>
+    <div class="row g-3 tm-module-grid">
+        @foreach (var module in Model)
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <a class="tm-module-card @module.AccentClass" href="@module.Url">
+                    <span class="tm-module-card__icon @module.AccentClass">
+                        <i class="bi @module.IconClass"></i>
+                    </span>
+                    <h3 class="tm-module-card__title">@module.Name</h3>
+                    <p class="tm-module-card__desc">@module.Description</p>
+                </a>
+            </div>
+        }
+    </div>
+</section>

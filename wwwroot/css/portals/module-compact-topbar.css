@@ -1,0 +1,177 @@
+/* Shared compact first + second topbar (Teachers module baseline) */
+
+body.teachers-mgmt-shell,
+body.student-mgmt-shell,
+body.settings-mgmt-shell,
+body.fee-mgmt-shell,
+body.examination-mgmt-shell,
+body.admin-home-shell {
+    --fee-erp-module-bar-h: 34px;
+    --fee-erp-topnav-h: 46px;
+}
+
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__logo,
+body.student-mgmt-shell .student-mgmt-module-topbar__logo,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__logo,
+body.fee-mgmt-shell .fee-mgmt-module-topbar__logo,
+body.examination-mgmt-shell .examination-mgmt-module-topbar__logo,
+body.admin-home-shell .admin-home-module-topbar__logo {
+    width: 26px;
+    height: 26px;
+    font-size: 0.8rem;
+}
+
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__title,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__title,
+body.fee-mgmt-shell .fee-mgmt-module-topbar__title,
+body.examination-mgmt-shell .examination-mgmt-module-topbar__title,
+body.admin-home-shell .admin-home-module-topbar__title {
+    font-size: 0.85rem;
+}
+
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__link,
+body.student-mgmt-shell .student-mgmt-module-topbar__link,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__link,
+body.fee-mgmt-shell .fee-mgmt-module-topbar__link,
+body.examination-mgmt-shell .examination-mgmt-module-topbar__link,
+body.admin-home-shell .admin-home-module-topbar__link {
+    font-size: 0.75rem;
+}
+
+body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link {
+    font-size: 0.75rem;
+    gap: 0.3rem;
+    padding: 0.2rem 0.45rem;
+}
+
+body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link i {
+    font-size: 0.78rem;
+}
+
+body.teachers-mgmt-shell .portal-sidebar-toggle,
+body.student-mgmt-shell .portal-sidebar-toggle,
+body.settings-mgmt-shell .portal-sidebar-toggle,
+body.fee-mgmt-shell .portal-sidebar-toggle,
+body.examination-mgmt-shell .portal-sidebar-toggle {
+    border-radius: 0.45rem;
+    height: 30px;
+    width: 36px;
+}
+
+body.teachers-mgmt-shell .portal-sidebar-toggle__graphic,
+body.student-mgmt-shell .portal-sidebar-toggle__graphic,
+body.settings-mgmt-shell .portal-sidebar-toggle__graphic,
+body.fee-mgmt-shell .portal-sidebar-toggle__graphic,
+body.examination-mgmt-shell .portal-sidebar-toggle__graphic {
+    height: 14px;
+    width: 22px;
+}
+
+body.teachers-mgmt-shell .portal-sidebar-toggle__pane--nav,
+body.student-mgmt-shell .portal-sidebar-toggle__pane--nav,
+body.settings-mgmt-shell .portal-sidebar-toggle__pane--nav,
+body.fee-mgmt-shell .portal-sidebar-toggle__pane--nav,
+body.examination-mgmt-shell .portal-sidebar-toggle__pane--nav {
+    flex: 0 0 7px;
+}
+
+body.teachers-mgmt-shell .portal-sidebar-toggle__grip,
+body.student-mgmt-shell .portal-sidebar-toggle__grip,
+body.settings-mgmt-shell .portal-sidebar-toggle__grip,
+body.fee-mgmt-shell .portal-sidebar-toggle__grip,
+body.examination-mgmt-shell .portal-sidebar-toggle__grip {
+    flex: 0 0 3px;
+}
+
+body.teachers-mgmt-shell .portal-sidebar-toggle__chevron,
+body.student-mgmt-shell .portal-sidebar-toggle__chevron,
+body.settings-mgmt-shell .portal-sidebar-toggle__chevron,
+body.fee-mgmt-shell .portal-sidebar-toggle__chevron,
+body.examination-mgmt-shell .portal-sidebar-toggle__chevron {
+    border-bottom-width: 3px;
+    border-right-width: 4px;
+    border-top-width: 3px;
+}
+
+body.teachers-mgmt-shell.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--nav,
+body.student-mgmt-shell.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--nav,
+body.settings-mgmt-shell.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--nav,
+body.fee-mgmt-shell.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--nav,
+body.examination-mgmt-shell.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pane--nav {
+    flex-basis: 3px;
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar,
+body.student-mgmt-shell .fee-erp-navbar,
+body.settings-mgmt-shell .fee-erp-navbar,
+body.fee-mgmt-shell .fee-erp-navbar,
+body.examination-mgmt-shell .fee-erp-navbar,
+body.admin-home-shell .fee-erp-navbar {
+    min-height: var(--fee-erp-topnav-h);
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar .container-fluid,
+body.student-mgmt-shell .fee-erp-navbar .container-fluid,
+body.settings-mgmt-shell .fee-erp-navbar .container-fluid,
+body.fee-mgmt-shell .fee-erp-navbar .container-fluid,
+body.examination-mgmt-shell .fee-erp-navbar .container-fluid,
+body.admin-home-shell .fee-erp-navbar .container-fluid {
+    min-height: var(--fee-erp-topnav-h);
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-brand-text,
+body.student-mgmt-shell .fee-erp-navbar .fee-erp-brand-text,
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-brand-text,
+body.fee-mgmt-shell .fee-erp-navbar .fee-erp-brand-text,
+body.examination-mgmt-shell .fee-erp-navbar .fee-erp-brand-text,
+body.admin-home-shell .fee-erp-navbar .fee-erp-brand-text {
+    font-size: 0.8125rem;
+    line-height: 1.15;
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
+body.student-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
+body.fee-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
+body.examination-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.45rem;
+    font-size: 0.8rem;
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
+body.student-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
+body.settings-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
+body.fee-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
+body.examination-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
+body.admin-home-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm {
+    font-size: 0.75rem;
+    line-height: 1.1;
+    min-height: 30px;
+    padding: 0.2rem 0.45rem;
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
+body.student-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
+body.fee-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
+body.examination-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
+body.admin-home-shell .fee-erp-navbar .fee-erp-user-btn {
+    min-height: 30px;
+    padding: 0.2rem 0.45rem !important;
+}
+
+body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
+body.student-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
+body.fee-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
+body.examination-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
+body.admin-home-shell .fee-erp-navbar .fee-erp-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+    line-height: 26px;
+}

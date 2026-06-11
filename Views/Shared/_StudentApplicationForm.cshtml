@@ -24,7 +24,7 @@
                     var isSelected = string.Equals(form.ProgramName, p.ProgramName, StringComparison.OrdinalIgnoreCase)
                         || (string.IsNullOrWhiteSpace(form.ProgramName)
                             && string.Equals(form.ProgramCode, p.ProgramCode, StringComparison.OrdinalIgnoreCase));
-                    var maxLevel = p.TotalGrades ?? p.TotalSemesters ?? (byte)12;
+                    var maxLevel = p.MaxDesiredLevel;
                     if (isSelected)
                     {
                         <option value="@p.ProgramName" data-code="@p.ProgramCode" data-inst="@p.InstTypeCode" data-max-level="@maxLevel" selected="selected">@p.ProgramName</option>

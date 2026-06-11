@@ -5,8 +5,9 @@
     ViewData["FeeErpHideNavbarBrandIcon"] = true;
     ViewData["FeeErpHideNavAlerts"] = true;
     ViewData["FeeErpNavbarBrandHref"] = "/adminportal/students";
-    ViewData["FeeErpNavbarBrandText"] = "Student Management Module";
+    ViewData["FeeErpNavbarBrandText"] = "Student Management";
     ViewData["FeeErpNavbarBrandIcon"] = "fa-user-graduate";
+    ViewData["FeeErpHideRoleLabel"] = true;
     ViewData["FeeErpMobileNavClass"] = "d-sm-none";
     ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
 }
@@ -27,6 +28,7 @@
     <link rel="stylesheet" href="~/css/portals/admin-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/fee-mgmt-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portals/module-compact-topbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/student-mgmt-portal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
