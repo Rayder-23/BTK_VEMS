@@ -77,6 +77,9 @@ pubtest/
 # Local dotnet build output (dotnet build -o .build-check)
 .build-check/
 
+# Local deploy overrides (SSH host, key path)
+Scripts/deploy/deploy.local.ps1
+
 # Tye
 .tye/
 

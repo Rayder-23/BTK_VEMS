@@ -12,6 +12,10 @@ Service:  vems (Kestrel http://127.0.0.1:5100)
 Nginx:    /etc/nginx/sites-available/dlpuae
 Secrets:  /etc/vems/environment (not in git; create on server once)
 
+Deploy settings (local only, not in git):
+  Copy Scripts/deploy/deploy.local.ps1.example to Scripts/deploy/deploy.local.ps1
+  Or set env: VEMS_DEPLOY_SSH_HOST, VEMS_DEPLOY_SSH_KEY
+
 Redeploy from repo root:
   .\Scripts\deploy\Deploy-Dlpuae.ps1
 

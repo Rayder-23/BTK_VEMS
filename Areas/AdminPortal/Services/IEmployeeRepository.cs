@@ -17,4 +17,6 @@ public interface IEmployeeRepository
     Task<bool> EmployeeIdExistsAsync(string employeeId, int? excludeUid = null, CancellationToken cancellationToken = default);
 
     Task<bool> CnicExistsAsync(string cnic, int? excludeUid = null, CancellationToken cancellationToken = default);
+
+    Task<EmployeeTeacherLookupResult?> GetByEmployeeIdForTeacherAsync(string employeeId, CancellationToken cancellationToken = default);
 }

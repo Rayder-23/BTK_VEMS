@@ -12,7 +12,6 @@ public sealed class StudentCourseEnrollmentListItem
     public string CourseTitle { get; init; } = string.Empty;
     public short AcademicYear { get; init; }
     public byte GradeOrSemester { get; init; }
-    public string EnrollmentType { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public bool IsActive { get; init; }
 }
@@ -22,7 +21,6 @@ public sealed class StudentCourseEnrollmentLookups
     public IReadOnlyList<StudentLookupItem> Students { get; init; } = [];
     public IReadOnlyList<StudentLookupItem> ClassCourses { get; init; } = [];
     public IReadOnlyList<StudentLookupItem> ProgramEnrollments { get; init; } = [];
-    public IReadOnlyList<string> EnrollmentTypes { get; init; } = [];
     public IReadOnlyList<string> Statuses { get; init; } = [];
 }
 
@@ -51,20 +49,12 @@ public sealed class StudentCourseEnrollmentFormModel
     [Range(1, int.MaxValue)]
     public int ClassCourseId { get; set; }
 
-    [Required(ErrorMessage = "Enrollment type is required.")]
-    [Display(Name = "Enrollment type")]
-    [StringLength(20)]
-    public string EnrollmentType { get; set; } = "Manual";
-
     [Required(ErrorMessage = "Status is required.")]
     [StringLength(20)]
     public string Status { get; set; } = "Active";
 
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
-
-    [StringLength(200)]
-    public string? Remarks { get; set; }
 
     public string? StudentDisplay { get; set; }
     public string? ClassCourseDisplay { get; set; }

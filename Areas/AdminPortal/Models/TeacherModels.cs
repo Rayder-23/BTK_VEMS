@@ -45,7 +45,7 @@ public sealed class TeacherFormModel
 
     [Required(ErrorMessage = "Employee code is required.")]
     [StringLength(20)]
-    [Display(Name = "Employee code")]
+    [Display(Name = "Employee ID")]
     public string EmployeeCode { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "First name is required.")]

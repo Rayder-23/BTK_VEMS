@@ -10,11 +10,16 @@ public sealed class TeachersController : AdminBaseController
 {
     private readonly ITeacherRepository _teachers;
     private readonly ITeacherCourseAssignmentRepository _assignments;
+    private readonly IEmployeeRepository _employees;
 
-    public TeachersController(ITeacherRepository teachers, ITeacherCourseAssignmentRepository assignments)
+    public TeachersController(
+        ITeacherRepository teachers,
+        ITeacherCourseAssignmentRepository assignments,
+        IEmployeeRepository employees)
     {
         _teachers = teachers;
         _assignments = assignments;
+        _employees = employees;
     }
 
     [HttpGet("")]
@@ -35,6 +40,7 @@ public sealed class TeachersController : AdminBaseController
     {
         ViewData["Title"] = "Add teacher";
         ViewData["PageTitle"] = "Teachers · Add";
+        ViewData["RequireEmployeeLookup"] = true;
 
         var lookups = await _teachers.GetLookupsAsync(cancellationToken);
         return View(new TeacherFormPageViewModel
@@ -48,32 +54,44 @@ public sealed class TeachersController : AdminBaseController
         });
     }
 
+    private async Task<IActionResult> ReturnCreateViewAsync(
+        TeacherFormPageViewModel model,
+        CancellationToken cancellationToken)
+    {
+        model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+        ViewData["RequireEmployeeLookup"] = true;
+        if (await _employees.GetByEmployeeIdForTeacherAsync(model.Form.EmployeeCode, cancellationToken) is not null)
+        {
+            ViewData["EmployeeVerified"] = true;
+        }
+
+        return View(model);
+    }
+
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TeacherFormPageViewModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Add teacher";
         ViewData["PageTitle"] = "Teachers · Add";
+        ViewData["RequireEmployeeLookup"] = true;
 
         await ValidateFormAsync(model.Form, null, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return await ReturnCreateViewAsync(model, cancellationToken);
         }
 
         if (await _teachers.EmployeeCodeExistsAsync(model.Form.EmployeeCode, null, cancellationToken))
         {
             ModelState.AddModelError(nameof(model.Form.EmployeeCode), "Employee code already exists.");
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return await ReturnCreateViewAsync(model, cancellationToken);
         }
 
         if (await _teachers.EmailExistsAsync(model.Form.Email, null, cancellationToken))
         {
             ModelState.AddModelError(nameof(model.Form.Email), "Email already exists.");
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return await ReturnCreateViewAsync(model, cancellationToken);
         }
 
         try
@@ -85,15 +103,64 @@ public sealed class TeachersController : AdminBaseController
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             ApplyUniqueConstraintError(ex, model);
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return await ReturnCreateViewAsync(model, cancellationToken);
         }
         catch (SqlException ex) when (ex.Number == 547)
         {
             ApplyCheckConstraintError(ex, model);
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return await ReturnCreateViewAsync(model, cancellationToken);
         }
+    }
+
+    [HttpGet("lookup-employee")]
+    public async Task<IActionResult> LookupEmployee(string employeeId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(employeeId))
+        {
+            return BadRequest(new { found = false, message = "Employee ID is required." });
+        }
+
+        var employee = await _employees.GetByEmployeeIdForTeacherAsync(employeeId, cancellationToken);
+        if (employee is null)
+        {
+            return Json(new { found = false, message = "No employee found with this ID." });
+        }
+
+        if (!string.Equals(employee.Status, "Active", StringComparison.OrdinalIgnoreCase))
+        {
+            return Json(new
+            {
+                found = false,
+                message = $"Employee status is '{employee.Status}'. Only active employees can be linked."
+            });
+        }
+
+        var alreadyTeacher = await _teachers.EmployeeCodeExistsAsync(employee.EmployeeId, null, cancellationToken);
+        if (alreadyTeacher)
+        {
+            return Json(new
+            {
+                found = true,
+                alreadyTeacher = true,
+                message = "A teacher record already exists for this employee ID."
+            });
+        }
+
+        return Json(new
+        {
+            found = true,
+            alreadyTeacher = false,
+            employeeId = employee.EmployeeId,
+            fullName = employee.FullName,
+            firstName = employee.FirstName,
+            lastName = employee.LastName,
+            email = employee.Email,
+            phone = employee.Phone,
+            designation = employee.Designation,
+            qualification = employee.Qualification,
+            specialization = employee.Specialization,
+            joiningDate = employee.JoinedDate?.ToString("yyyy-MM-dd")
+        });
     }
 
     [HttpGet("edit/{id:int}")]
@@ -360,6 +427,24 @@ public sealed class TeachersController : AdminBaseController
         if (!ModelState.IsValid)
         {
             return;
+        }
+
+        if (teacherUid is null)
+        {
+            var employee = await _employees.GetByEmployeeIdForTeacherAsync(form.EmployeeCode, cancellationToken);
+            if (employee is null)
+            {
+                ModelState.AddModelError(nameof(form.EmployeeCode), "Enter a valid employee ID from the employee register.");
+                return;
+            }
+
+            if (!string.Equals(employee.Status, "Active", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(form.EmployeeCode), "Only active employees can be registered as teachers.");
+                return;
+            }
+
+            form.EmployeeCode = employee.EmployeeId;
         }
 
         var lookups = await _teachers.GetLookupsAsync(cancellationToken);

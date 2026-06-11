@@ -212,6 +212,59 @@ public sealed class EmployeeRepository : IEmployeeRepository
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
 
+    public async Task<EmployeeTeacherLookupResult?> GetByEmployeeIdForTeacherAsync(
+        string employeeId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(employeeId))
+        {
+            return null;
+        }
+
+        const string sql = """
+            SELECT
+                EmployeeId,
+                FullName,
+                Email,
+                Phone,
+                Designation,
+                Qualification,
+                Specialization,
+                JoinedDate,
+                Status
+            FROM dbo.Employee
+            WHERE EmployeeId = @EmployeeId;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@EmployeeId", employeeId.Trim());
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        var fullName = reader["FullName"] as string ?? string.Empty;
+        SplitFullName(fullName, out var firstName, out var lastName);
+
+        return new EmployeeTeacherLookupResult
+        {
+            EmployeeId = reader["EmployeeId"] as string ?? string.Empty,
+            FullName = fullName,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = reader["Email"] as string,
+            Phone = reader["Phone"] as string,
+            Designation = reader["Designation"] as string,
+            Qualification = reader["Qualification"] as string,
+            Specialization = reader["Specialization"] as string,
+            JoinedDate = reader.GetDateTime(reader.GetOrdinal("JoinedDate")),
+            Status = reader["Status"] as string ?? string.Empty
+        };
+    }
+
     public async Task<bool> CnicExistsAsync(string cnic, int? excludeUid = null, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -269,5 +322,20 @@ public sealed class EmployeeRepository : IEmployeeRepository
             JoinedDate = reader.GetDateTime(reader.GetOrdinal("JoinedDate")),
             Notes = reader["Notes"] as string
         };
+    }
+
+    private static void SplitFullName(string fullName, out string firstName, out string lastName)
+    {
+        var trimmed = fullName.Trim();
+        var spaceIndex = trimmed.IndexOf(' ');
+        if (spaceIndex <= 0)
+        {
+            firstName = trimmed;
+            lastName = string.Empty;
+            return;
+        }
+
+        firstName = trimmed[..spaceIndex].Trim();
+        lastName = trimmed[(spaceIndex + 1)..].Trim();
     }
 }

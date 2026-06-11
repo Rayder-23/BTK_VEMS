@@ -19,9 +19,9 @@ public interface IStudentCourseEnrollmentRepository
 
     Task<bool> EnrollmentBelongsToStudentAsync(int enrollmentId, int studentId, CancellationToken cancellationToken = default);
 
-    Task<int> InsertAsync(StudentCourseEnrollmentFormModel model, int createdBy, CancellationToken cancellationToken = default);
+    Task<int> InsertAsync(StudentCourseEnrollmentFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> UpdateAsync(StudentCourseEnrollmentFormModel model, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> UpdateAsync(StudentCourseEnrollmentFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default);
 }

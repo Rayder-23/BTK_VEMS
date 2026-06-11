@@ -39,7 +39,6 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
         var form = new StudentCourseEnrollmentFormModel
         {
             IsActive = true,
-            EnrollmentType = "Manual",
             Status = "Active"
         };
         if (studentId is > 0)
@@ -77,7 +76,7 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
 
         try
         {
-            var newId = await _enrollments.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            var newId = await _enrollments.InsertAsync(model.Form, cancellationToken);
             TempData["StatusMessage"] = $"Student course enrollment created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
@@ -142,7 +141,7 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
 
         try
         {
-            var ok = await _enrollments.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            var ok = await _enrollments.UpdateAsync(model.Form, cancellationToken);
             if (!ok)
             {
                 return NotFound();
@@ -169,7 +168,7 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var ok = await _enrollments.DeactivateAsync(id, ResolveStaffLoginUid(), cancellationToken);
+        var ok = await _enrollments.DeactivateAsync(id, cancellationToken);
         TempData["StatusMessage"] = ok ? "Enrollment deactivated." : "Record not found.";
         return RedirectToAction(nameof(Index));
     }
@@ -210,17 +209,6 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
             ModelState.AddModelError(nameof(form.EnrollmentId), "Select a program enrollment that belongs to this student.");
         }
 
-        var matchedType = lookups.EnrollmentTypes.FirstOrDefault(t =>
-            string.Equals(t, form.EnrollmentType, StringComparison.OrdinalIgnoreCase));
-        if (matchedType is null)
-        {
-            ModelState.AddModelError(nameof(form.EnrollmentType), "Select a valid enrollment type.");
-        }
-        else
-        {
-            form.EnrollmentType = matchedType;
-        }
-
         var matchedStatus = lookups.Statuses.FirstOrDefault(s =>
             string.Equals(s, form.Status, StringComparison.OrdinalIgnoreCase));
         if (matchedStatus is null)
@@ -238,6 +226,4 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
                 string.Equals(a, matchedStatus, StringComparison.OrdinalIgnoreCase));
         }
     }
-
-    private int ResolveActorId() => ResolveStaffLoginUid() ?? 1;
 }

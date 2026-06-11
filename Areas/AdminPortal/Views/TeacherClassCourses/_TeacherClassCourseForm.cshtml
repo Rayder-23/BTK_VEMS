@@ -1,0 +1,50 @@
+@model TeacherClassCourseFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Form.Uid" />
+
+<div class="student-mgmt-admin-form-grid">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.TeacherId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.TeacherId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select teacher —</option>
+            </select>
+            <span asp-validation-for="Form.TeacherId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassCourseId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ClassCourseId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.ClassCourses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select class / course —</option>
+            </select>
+            <span asp-validation-for="Form.ClassCourseId" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Role"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.Role" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Roles))"></select>
+            <span asp-validation-for="Form.Role" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="Form.IsActive" class="form-check-input" />
+                <label asp-for="Form.IsActive" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+    @if (Model.Form.CreatedAt.HasValue)
+    {
+        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.CreatedAt"></label>
+            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+                <input class="form-control form-control-sm" value="@Model.Form.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm")" readonly disabled />
+            </div>
+        </div>
+    }
+</div>

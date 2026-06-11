@@ -8,30 +8,12 @@ if (-not (Test-Path (Join-Path $repoRoot 'VEMS.csproj'))) {
     throw "Run this script from the VEMS repo (expected VEMS.csproj next to Scripts folder)."
 }
 
-$devSettings = Join-Path $repoRoot 'appsettings.Development.json'
-if (-not (Test-Path $devSettings)) {
-    Write-Error "Missing $devSettings - add DefaultConnection there or set env DefaultConnection."
-}
-
-$json = Get-Content $devSettings -Raw | ConvertFrom-Json
-$cs = $json.ConnectionStrings.DefaultConnection
-if ([string]::IsNullOrWhiteSpace($cs)) {
-    Write-Error 'ConnectionStrings:DefaultConnection is empty in appsettings.Development.json'
-}
-
-$m = [regex]::Match($cs, 'Server=(?<s>[^;]+);Database=(?<d>[^;]+);(?:User\s+Id|UID)=(?<u>[^;]+);(?:Password|PWD)=(?<p>[^;]+)', 'IgnoreCase')
-if (-not $m.Success) {
-    Write-Error 'Could not parse Server;Database;User Id;Password from connection string.'
-}
-
-$server = $m.Groups['s'].Value.Trim()
-$database = $m.Groups['d'].Value.Trim()
-$user = $m.Groups['u'].Value.Trim()
-$password = $m.Groups['p'].Value.Trim()
+. "$PSScriptRoot\Get-SqlConnectionFromAppSettings.ps1"
+$sql = Get-SqlConnectionFromAppSettings -RepoRoot $repoRoot
 
 $sqlFile = Join-Path $PSScriptRoot 'Generate_DbTxt.sql'
 $tempOut = [System.IO.Path]::GetTempFileName()
-& sqlcmd -S $server -d $database -U $user -P $password -C -h-1 -W -i $sqlFile -o $tempOut
+& sqlcmd -S $sql.Server -d $sql.Database -U $sql.User -P $sql.Password -C -h-1 -W -i $sqlFile -o $tempOut
 if ($LASTEXITCODE -ne 0) { throw "sqlcmd failed with exit code $LASTEXITCODE" }
 
 $lines = Get-Content $tempOut | Where-Object { $null -ne $_ -and $_.Trim() -ne '' }

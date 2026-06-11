@@ -1,0 +1,5 @@
+# Copy to deploy.local.ps1 (gitignored) and set your deploy targets.
+# Or set the same values via environment variables (see Deploy-Dlpuae.ps1).
+
+$DeploySshHost = 'root@YOUR_SERVER_HOST'
+$DeploySshKey  = 'C:\Users\YOU\.ssh\your_private_key'

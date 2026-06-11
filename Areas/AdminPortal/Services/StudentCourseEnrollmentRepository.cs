@@ -6,7 +6,6 @@ namespace VEMS.Areas.AdminPortal.Services;
 
 public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollmentRepository
 {
-    public static readonly IReadOnlyList<string> AllowedEnrollmentTypes = ["Manual", "Auto"];
     public static readonly IReadOnlyList<string> AllowedStatuses = ["Active", "Dropped", "Completed", "Suspended"];
 
     private const string EnrollmentStatusConfigKey = "EnrollmentStatus";
@@ -36,7 +35,6 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 co.CourseTitle,
                 se.AcademicYear,
                 se.GradeOrSemester,
-                sce.EnrollmentType,
                 sce.Status,
                 sce.IsActive
             FROM dbo.StudentCourseEnrollments sce
@@ -74,7 +72,6 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
                 AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
                 GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"]),
-                EnrollmentType = reader["EnrollmentType"] as string ?? string.Empty,
                 Status = reader["Status"] as string ?? string.Empty,
                 IsActive = Convert.ToBoolean(reader["IsActive"])
             });
@@ -91,10 +88,8 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 sce.EnrollmentID,
                 sce.StudentID,
                 sce.ClassCourseID,
-                sce.EnrollmentType,
                 sce.Status,
                 sce.IsActive,
-                sce.Remarks,
                 s.RegistrationNo + ' - ' + s.FirstName + ' ' + s.LastName AS StudentDisplay,
                 c.ClassCode + ' / ' + co.CourseCode + ' - ' + co.CourseTitle AS ClassCourseDisplay
             FROM dbo.StudentCourseEnrollments sce
@@ -121,10 +116,8 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
             EnrollmentId = Convert.ToInt32(reader["EnrollmentID"]),
             StudentId = Convert.ToInt32(reader["StudentID"]),
             ClassCourseId = Convert.ToInt32(reader["ClassCourseID"]),
-            EnrollmentType = reader["EnrollmentType"] as string ?? string.Empty,
             Status = reader["Status"] as string ?? string.Empty,
             IsActive = Convert.ToBoolean(reader["IsActive"]),
-            Remarks = reader["Remarks"] as string,
             StudentDisplay = reader["StudentDisplay"] as string,
             ClassCourseDisplay = reader["ClassCourseDisplay"] as string
         };
@@ -175,7 +168,6 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
             Students = students,
             ClassCourses = classCourses,
             ProgramEnrollments = programEnrollments,
-            EnrollmentTypes = AllowedEnrollmentTypes,
             Statuses = statuses
         };
     }
@@ -219,30 +211,22 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
 
-    public async Task<int> InsertAsync(StudentCourseEnrollmentFormModel model, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<int> InsertAsync(StudentCourseEnrollmentFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
             INSERT INTO dbo.StudentCourseEnrollments (
                 EnrollmentID,
                 StudentID,
                 ClassCourseID,
-                EnrollmentType,
                 Status,
-                IsActive,
-                Remarks,
-                CreatedBy,
-                CreatedAt
+                IsActive
             )
             VALUES (
                 @EnrollmentID,
                 @StudentID,
                 @ClassCourseID,
-                @EnrollmentType,
                 @Status,
-                @IsActive,
-                @Remarks,
-                @CreatedBy,
-                SYSUTCDATETIME()
+                @IsActive
             );
             SELECT CAST(SCOPE_IDENTITY() AS int);
             """;
@@ -250,24 +234,19 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         Bind(command, model);
-        command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
     }
 
-    public async Task<bool> UpdateAsync(StudentCourseEnrollmentFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(StudentCourseEnrollmentFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
             UPDATE dbo.StudentCourseEnrollments SET
                 EnrollmentID = @EnrollmentID,
                 StudentID = @StudentID,
                 ClassCourseID = @ClassCourseID,
-                EnrollmentType = @EnrollmentType,
                 Status = @Status,
-                IsActive = @IsActive,
-                Remarks = @Remarks,
-                UpdatedBy = @UpdatedBy,
-                UpdatedAt = SYSUTCDATETIME()
+                IsActive = @IsActive
             WHERE Uid = @Uid;
             """;
 
@@ -275,26 +254,22 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Uid", model.Uid);
         Bind(command, model);
-        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default)
     {
         const string sql = """
             UPDATE dbo.StudentCourseEnrollments SET
                 IsActive = 0,
-                Status = 'Dropped',
-                UpdatedBy = @UpdatedBy,
-                UpdatedAt = SYSUTCDATETIME()
+                Status = 'Dropped'
             WHERE Uid = @Uid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Uid", uid);
-        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
@@ -304,10 +279,8 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         command.Parameters.AddWithValue("@EnrollmentID", model.EnrollmentId);
         command.Parameters.AddWithValue("@StudentID", model.StudentId);
         command.Parameters.AddWithValue("@ClassCourseID", model.ClassCourseId);
-        command.Parameters.AddWithValue("@EnrollmentType", model.EnrollmentType.Trim());
         command.Parameters.AddWithValue("@Status", model.Status.Trim());
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
-        command.Parameters.AddWithValue("@Remarks", (object?)model.Remarks?.Trim() ?? DBNull.Value);
     }
 
     private static async Task<IReadOnlyList<StudentLookupItem>> ReadProgramEnrollmentsAsync(
