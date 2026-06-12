@@ -8,6 +8,7 @@ public sealed class TeacherClassCourseListItem
     public string EmployeeCode { get; init; } = string.Empty;
     public string TeacherName { get; init; } = string.Empty;
     public string ClassCode { get; init; } = string.Empty;
+    public string ClassName { get; init; } = string.Empty;
     public string CourseCode { get; init; } = string.Empty;
     public string CourseTitle { get; init; } = string.Empty;
     public string Role { get; init; } = string.Empty;

@@ -287,10 +287,10 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         const string statsSql = """
             SELECT
                 COUNT(*) AS TotalApplications,
-                SUM(CASE WHEN ApplicationStatus = N'Pending' THEN 1 ELSE 0 END) AS PendingApplications,
-                SUM(CASE WHEN ApplicationStatus = N'Approved' THEN 1 ELSE 0 END) AS ApprovedApplications,
-                SUM(CASE WHEN PaymentStatus = N'Paid' THEN 1 ELSE 0 END) AS PaidApplications,
-                SUM(CASE WHEN SourceChannel = N'Online' THEN 1 ELSE 0 END) AS OnlineApplications
+                ISNULL(SUM(CASE WHEN ApplicationStatus = N'Pending' THEN 1 ELSE 0 END), 0) AS PendingApplications,
+                ISNULL(SUM(CASE WHEN ApplicationStatus = N'Approved' THEN 1 ELSE 0 END), 0) AS ApprovedApplications,
+                ISNULL(SUM(CASE WHEN PaymentStatus = N'Paid' THEN 1 ELSE 0 END), 0) AS PaidApplications,
+                ISNULL(SUM(CASE WHEN SourceChannel = N'Online' THEN 1 ELSE 0 END), 0) AS OnlineApplications
             FROM dbo.StudentApplications;
             """;
 

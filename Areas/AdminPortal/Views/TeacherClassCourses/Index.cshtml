@@ -74,7 +74,7 @@
                         <div class="fw-semibold">@row.TeacherName</div>
                         <div class="small text-muted">@row.EmployeeCode</div>
                     </td>
-                    <td>@row.ClassCode</td>
+                    <td>@(string.IsNullOrWhiteSpace(row.ClassName) ? row.ClassCode : row.ClassName)</td>
                     <td>
                         <div class="fw-semibold">@row.CourseCode</div>
                         <div class="small text-muted">@row.CourseTitle</div>

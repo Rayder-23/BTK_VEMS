@@ -26,6 +26,7 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
                 t.EmployeeCode,
                 t.FirstName + ' ' + t.LastName AS TeacherName,
                 c.ClassCode,
+                c.ClassName,
                 co.CourseCode,
                 co.CourseTitle,
                 tcc.Role,
@@ -41,6 +42,7 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
                    OR t.FirstName LIKE @Search
                    OR t.LastName LIKE @Search
                    OR c.ClassCode LIKE @Search
+                   OR c.ClassName LIKE @Search
                    OR co.CourseCode LIKE @Search
                    OR co.CourseTitle LIKE @Search
                    OR tcc.Role LIKE @Search)
@@ -62,6 +64,7 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
                 EmployeeCode = reader["EmployeeCode"] as string ?? string.Empty,
                 TeacherName = reader["TeacherName"] as string ?? string.Empty,
                 ClassCode = reader["ClassCode"] as string ?? string.Empty,
+                ClassName = reader["ClassName"] as string ?? string.Empty,
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
                 CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
                 Role = reader["Role"] as string ?? string.Empty,
