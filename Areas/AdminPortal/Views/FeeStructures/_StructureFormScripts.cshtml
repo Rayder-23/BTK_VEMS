@@ -1,0 +1,64 @@
+<script>
+    (function () {
+        const programSelect = document.getElementById('feeStructureProgramId');
+        const classSelect = document.getElementById('feeStructureClassId');
+        const semesterSelect = document.getElementById('feeStructureSemester');
+        const academicYearInput = document.getElementById('feeStructureAcademicYear');
+
+        if (!programSelect || !classSelect) {
+            return;
+        }
+
+        const initialClassId = classSelect.dataset.initialClassId || classSelect.value;
+
+        async function loadClasses(programId, selectedId) {
+            const current = selectedId || classSelect.value;
+            classSelect.innerHTML = '<option value="">— All classes —</option>';
+
+            if (!programId) {
+                return;
+            }
+
+            const response = await fetch(`/adminportal/fee/fee-structures/lookups/classes?programId=${programId}`);
+            if (!response.ok) {
+                return;
+            }
+
+            const items = await response.json();
+            items.forEach((item) => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                option.dataset.semester = item.semester ?? '';
+                option.dataset.academicYear = item.academicYear ?? '';
+                if (current && Number(current) === Number(item.id)) {
+                    option.selected = true;
+                }
+                classSelect.appendChild(option);
+            });
+        }
+
+        classSelect.addEventListener('change', () => {
+            const selected = classSelect.selectedOptions[0];
+            if (!selected || !selected.value) {
+                return;
+            }
+
+            if (selected.dataset.semester && semesterSelect) {
+                semesterSelect.value = selected.dataset.semester;
+            }
+
+            if (selected.dataset.academicYear && academicYearInput) {
+                academicYearInput.value = selected.dataset.academicYear;
+            }
+        });
+
+        programSelect.addEventListener('change', () => {
+            loadClasses(programSelect.value, null);
+        });
+
+        if (programSelect.value) {
+            loadClasses(programSelect.value, initialClassId);
+        }
+    })();
+</script>

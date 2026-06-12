@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VEMS.Areas.AdminPortal;
@@ -21,11 +20,30 @@ public sealed class ChallansController : ControllerBase
         _lookups = lookups;
     }
 
+    [HttpGet("program-structures")]
+    public async Task<IActionResult> GetProgramStructures(
+        [FromQuery] int programId,
+        CancellationToken cancellationToken)
+    {
+        if (programId <= 0)
+        {
+            return BadRequest(new { message = "Program is required." });
+        }
+
+        var structures = await _lookups.GetProgramStructuresAsync(programId, cancellationToken);
+        return Ok(structures.Select(s => new
+        {
+            id = s.StructureId,
+            name = $"{s.StructureName} ({s.Semester} {s.AcademicYear})",
+            semester = s.Semester,
+            academicYear = s.AcademicYear
+        }));
+    }
+
     [HttpGet("bulk-eligible-students")]
     public async Task<IActionResult> GetEligibleStudents(
         [FromQuery] int programId,
-        [FromQuery] string semester,
-        [FromQuery] short academicYear,
+        [FromQuery] int structureId,
         CancellationToken cancellationToken)
     {
         if (programId <= 0)
@@ -33,34 +51,31 @@ public sealed class ChallansController : ControllerBase
             return BadRequest(new { message = "Program is required." });
         }
 
-        if (string.IsNullOrWhiteSpace(semester))
+        var feeContext = structureId > 0
+            ? await _lookups.ResolveStructureBulkChallanContextAsync(programId, structureId, cancellationToken)
+            : await _lookups.ResolveProgramBulkChallanContextAsync(programId, cancellationToken);
+        if (feeContext is null)
         {
-            return BadRequest(new { message = "Semester is required." });
+            return BadRequest(new { message = "No active fee structure with line items found for this program." });
         }
 
-        if (academicYear is < 1900 or > 9999)
+        var students = await _challans.GetEligibleStudentsAsync(
+            programId,
+            feeContext.Semester,
+            feeContext.AcademicYear,
+            cancellationToken);
+
+        return Ok(new
         {
-            return BadRequest(new { message = "Academic year must be a valid 4-digit year." });
-        }
-
-        var students = await _challans.GetEligibleStudentsAsync(programId, semester, academicYear, cancellationToken);
-        return Ok(students);
-    }
-
-    [HttpGet("structures")]
-    public async Task<IActionResult> GetStructures(
-        [FromQuery] int programId,
-        [FromQuery] string? semester,
-        [FromQuery] short? academicYear,
-        CancellationToken cancellationToken)
-    {
-        if (programId <= 0)
-        {
-            return BadRequest(new { message = "Program is required." });
-        }
-
-        var structures = await _lookups.GetActiveStructuresByProgramAsync(programId, semester, academicYear, cancellationToken);
-        return Ok(structures);
+            feeContext = new
+            {
+                structureId = feeContext.StructureId,
+                structureName = feeContext.StructureName,
+                semester = feeContext.Semester,
+                academicYear = feeContext.AcademicYear
+            },
+            students
+        });
     }
 
     [HttpPost("bulk-generate")]
@@ -73,37 +88,30 @@ public sealed class ChallansController : ControllerBase
             return BadRequest(new { message = "Program is required." });
         }
 
-        if (body.StructureId <= 0)
-        {
-            return BadRequest(new { message = "Fee structure is required." });
-        }
-
-        if (string.IsNullOrWhiteSpace(body.Semester))
-        {
-            return BadRequest(new { message = "Semester is required." });
-        }
-
-        if (body.AcademicYear is < 1900 or > 9999)
-        {
-            return BadRequest(new { message = "Academic year must be a valid 4-digit year." });
-        }
-
         if (body.IssueDate > body.DueDate)
         {
             return BadRequest(new { message = "Issue date must be on or before due date." });
         }
 
-        if (body.StudentIds is { Count: > 0 } && body.StudentIds.All(id => id <= 0))
+        if (body.StudentIds is not { Count: > 0 })
         {
-            return BadRequest(new { message = "At least one student must be selected." });
+            return BadRequest(new { message = "Select at least one student." });
+        }
+
+        var feeContext = body.StructureId > 0
+            ? await _lookups.ResolveStructureBulkChallanContextAsync(body.ProgramId, body.StructureId, cancellationToken)
+            : await _lookups.ResolveProgramBulkChallanContextAsync(body.ProgramId, cancellationToken);
+        if (feeContext is null)
+        {
+            return BadRequest(new { message = "Selected fee structure is invalid for this program, or no active fee structure with line items exists." });
         }
 
         var request = new BulkChallanGenerateRequest
         {
             ProgramId = body.ProgramId,
-            StructureId = body.StructureId,
-            Semester = body.Semester,
-            AcademicYear = body.AcademicYear,
+            StructureId = feeContext.StructureId,
+            Semester = feeContext.Semester,
+            AcademicYear = feeContext.AcademicYear,
             IssueDate = body.IssueDate,
             DueDate = body.DueDate,
             CreatedBy = ResolveActorId(),
@@ -146,8 +154,6 @@ public sealed class ChallansController : ControllerBase
     {
         public int ProgramId { get; set; }
         public int StructureId { get; set; }
-        public string Semester { get; set; } = "Fall";
-        public short AcademicYear { get; set; } = (short)DateTime.Today.Year;
         public DateOnly IssueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(15));
         public IReadOnlyList<int>? StudentIds { get; set; }

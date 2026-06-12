@@ -1,0 +1,118 @@
+@using VEMS.Areas.AdminPortal.Models.Fee
+@{
+    var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+}
+
+<section id="challanGenerate" class="portal-card mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h2 class="h6 fw-bold mb-1">Generate challans</h2>
+            <p class="text-muted small mb-0">Select a program, search students, tick rows, then create challans.</p>
+        </div>
+        <a class="btn btn-sm btn-outline-primary rounded-pill" href="/adminportal/fee/challans/create">Single challan</a>
+    </div>
+
+    <div class="row g-2 align-items-end mb-3">
+        <div class="col-md-4">
+            <label class="form-label" for="bulkProgramId">Program</label>
+            <select id="bulkProgramId" class="form-select form-select-sm">
+                <option value="">— Select program —</option>
+                @foreach (var program in programs)
+                {
+                    <option value="@program.Id">@program.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="bulkStructureId">Fee structure</label>
+            <select id="bulkStructureId" class="form-select form-select-sm" disabled>
+                <option value="">— Select program first —</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="bulkIssueDate">Issue date</label>
+            <input id="bulkIssueDate" class="form-control form-control-sm" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="bulkDueDate">Due date</label>
+            <input id="bulkDueDate" class="form-control form-control-sm" type="date" value="@DateTime.Today.AddDays(15).ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-4">
+            <button type="button" id="bulkLoadStudentsBtn" class="btn btn-sm btn-outline-primary w-100">Search</button>
+        </div>
+        <div class="col-md-4">
+            <button type="button" id="bulkGenerateSelectedBtn" class="btn btn-sm btn-primary w-100" disabled>
+                Create challans (<span id="bulkSelectedCount">0</span>)
+            </button>
+        </div>
+        <div class="col-12">
+            <span id="bulkFilterError" class="text-danger small d-none"></span>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <span id="bulkSelectionCount" class="small text-muted">Select a program, then search.</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 2.5rem;">
+                        <input type="checkbox" id="bulkSelectAll" class="form-check-input" aria-label="Select all students" disabled />
+                    </th>
+                    <th>#</th>
+                    <th>Reg no.</th>
+                    <th>Roll no.</th>
+                    <th>Student</th>
+                    <th>Program</th>
+                    <th>Concession</th>
+                    <th>Challan exists</th>
+                </tr>
+            </thead>
+            <tbody id="bulkStudentTableBody">
+                <tr id="bulkStudentPlaceholder">
+                    <td colspan="8" class="text-center text-muted py-4">Select a program and click Search to load students.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section id="bulkResultSection" class="portal-card mb-3 d-none">
+    <h2 class="h6 fw-bold mb-3">Generation summary</h2>
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="small text-muted">Processed</div>
+            <div class="h5 fw-bold mb-0" id="bulkTotalProcessed">0</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="small text-muted">Generated</div>
+            <div class="h5 fw-bold mb-0 text-success" id="bulkTotalGenerated">0</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="small text-muted">Skipped</div>
+            <div class="h5 fw-bold mb-0 text-warning" id="bulkTotalSkipped">0</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="small text-muted">Errors</div>
+            <div class="h5 fw-bold mb-0 text-danger" id="bulkTotalErrors">0</div>
+        </div>
+    </div>
+    <div id="bulkResultMessage" class="alert alert-success py-2 d-none" role="status"></div>
+    <div class="table-responsive">
+        <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Reg no.</th>
+                    <th>Student</th>
+                    <th>Challan no.</th>
+                    <th>Net</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="bulkResultTableBody"></tbody>
+        </table>
+    </div>
+</section>
+
+<script src="~/js/fee/bulk-challans.js" asp-append-version="true"></script>

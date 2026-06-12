@@ -18,11 +18,14 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     public async Task<IReadOnlyList<PaymentListItem>> ListAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT p.Uid, p.ChallanID, c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName,
+            SELECT p.Uid, p.ChallanID, c.ChallanNo,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    p.AmountPaid, p.PaymentDate, p.PaymentMode, p.Status, pr.ReceiptNo
             FROM dbo.Payments p
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             LEFT JOIN dbo.PaymentReceipts pr ON pr.PaymentID = p.Uid
             WHERE p.IsActive = 1
             ORDER BY p.PaymentDate DESC, p.Uid DESC;
@@ -34,10 +37,14 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     public async Task<PaymentFormModel?> GetChallanForPaymentAsync(int challanId, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT c.Uid, c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName,
+            SELECT c.Uid, c.ChallanNo, c.ApplicationUid,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
+                   COALESCE(s.RegistrationNo, a.ApplicationNo) AS PartyNo,
                    c.NetPayable, c.AmountPaid
             FROM dbo.Challans c
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE c.Uid = @Uid AND c.IsActive = 1 AND c.Status <> 'Cancelled';
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -50,13 +57,21 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
             return null;
         }
 
+        var isApplicationChallan = reader["ApplicationUid"] is not DBNull;
+        var partyNo = reader["PartyNo"] as string;
+        var netPayable = FeeSql.ToDecimal(reader, "NetPayable");
+        var amountPaidSoFar = FeeSql.ToDecimal(reader, "AmountPaid");
+
         return new PaymentFormModel
         {
             ChallanId = FeeSql.ToInt32(reader, "Uid"),
             ChallanNo = reader["ChallanNo"] as string,
             StudentName = reader["StudentName"] as string,
-            NetPayable = FeeSql.ToDecimal(reader, "NetPayable"),
-            AmountPaidSoFar = FeeSql.ToDecimal(reader, "AmountPaid"),
+            ApplicantId = isApplicationChallan ? partyNo : null,
+            IsApplicationChallan = isApplicationChallan,
+            NetPayable = netPayable,
+            AmountPaidSoFar = amountPaidSoFar,
+            AmountPaid = Math.Max(0, netPayable - amountPaidSoFar),
             PaymentDate = DateOnly.FromDateTime(DateTime.Today)
         };
     }
@@ -146,13 +161,17 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     {
         const string sql = """
             SELECT p.Uid AS PaymentId, pr.ReceiptNo, pr.IssuedAt, pr.IssuedBy,
-                   c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName, s.RegistrationNo,
+                   c.ChallanNo,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
+                   COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
                    p.AmountPaid, p.PaymentMode, p.PaymentDate, p.TransactionRef,
                    c.NetPayable, c.AmountPaid AS ChallanTotalPaid
             FROM dbo.Payments p
             INNER JOIN dbo.PaymentReceipts pr ON pr.PaymentID = p.Uid
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE p.Uid = @PaymentId;
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -201,12 +220,15 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     public async Task<IReadOnlyList<PaymentListItem>> ListReceiptsAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT p.Uid, p.ChallanID, c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName,
+            SELECT p.Uid, p.ChallanID, c.ChallanNo,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    p.AmountPaid, p.PaymentDate, p.PaymentMode, p.Status, pr.ReceiptNo
             FROM dbo.PaymentReceipts pr
             INNER JOIN dbo.Payments p ON pr.PaymentID = p.Uid
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE p.IsActive = 1
             ORDER BY pr.IssuedAt DESC;
             """;

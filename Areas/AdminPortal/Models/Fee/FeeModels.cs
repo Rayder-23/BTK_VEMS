@@ -8,6 +8,28 @@ public sealed class FeeLookupItem
     public string Name { get; init; } = string.Empty;
 }
 
+public sealed class FeeClassLookupItem
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Semester { get; init; } = string.Empty;
+    public short AcademicYear { get; init; }
+}
+
+public sealed class ProgramBulkChallanContext
+{
+    public int StructureId { get; init; }
+    public string StructureName { get; init; } = string.Empty;
+    public string Semester { get; init; } = string.Empty;
+    public short AcademicYear { get; init; }
+}
+
+public sealed class BulkEligibleStudentsResponse
+{
+    public ProgramBulkChallanContext? FeeContext { get; init; }
+    public IReadOnlyList<BulkChallanEligibleStudent> Students { get; init; } = [];
+}
+
 public sealed class FeeHeadListItem
 {
     public short Uid { get; init; }
@@ -47,6 +69,7 @@ public sealed class FeeStructureListItem
     public int Uid { get; init; }
     public string StructureName { get; init; } = string.Empty;
     public string ProgramName { get; init; } = string.Empty;
+    public string? ClassName { get; init; }
     public string Semester { get; init; } = string.Empty;
     public short AcademicYear { get; init; }
     public int DetailCount { get; init; }
@@ -66,6 +89,9 @@ public sealed class FeeStructureFormModel
     [Range(1, int.MaxValue)]
     public int ProgramId { get; set; }
 
+    [Display(Name = "Class / section")]
+    public int? ClassId { get; set; }
+
     [Required, StringLength(20)]
     public string Semester { get; set; } = "Fall";
 
@@ -80,6 +106,7 @@ public sealed class FeeStructureDetailLine
     public int Uid { get; init; }
     public int StructureId { get; init; }
     public short FeeHeadId { get; init; }
+    public string FeeHeadCode { get; init; } = string.Empty;
     public string FeeHeadName { get; init; } = string.Empty;
     public decimal Amount { get; init; }
     public DateOnly? DueDate { get; init; }
@@ -134,6 +161,8 @@ public sealed class ChallanListItem
 
 public sealed class ChallanGenerateFormModel
 {
+    public int? ApplicationUid { get; set; }
+
     [Display(Name = "Student")]
     [Range(1, int.MaxValue)]
     public int StudentId { get; set; }
@@ -223,6 +252,12 @@ public sealed class PaymentFormModel
 
     public string? ChallanNo { get; set; }
     public string? StudentName { get; set; }
+
+    [Display(Name = "Applicant ID")]
+    public string? ApplicantId { get; set; }
+
+    public bool IsApplicationChallan { get; set; }
+
     public decimal NetPayable { get; set; }
     public decimal AmountPaidSoFar { get; set; }
     public decimal Balance => Math.Max(0, NetPayable - AmountPaidSoFar);
@@ -315,6 +350,7 @@ public sealed class BulkChallanEligibleStudent
     public string? RollNo { get; init; }
     public string StudentName { get; init; } = string.Empty;
     public string ProgramName { get; init; } = string.Empty;
+    public string ClassCode { get; init; } = string.Empty;
     public bool HasConcession { get; init; }
     public bool AlreadyHasChallan { get; init; }
 }

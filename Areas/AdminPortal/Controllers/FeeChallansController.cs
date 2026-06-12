@@ -19,13 +19,15 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
 
     [HttpGet("")]
     [HttpGet("Index")]
-    public async Task<IActionResult> Index(string? search, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(string? search, int? programId, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Challans Management";
         ViewData["PageTitle"] = "Challans Management";
         ViewData["FeeMgmtModuleKey"] = "Challans";
         ViewData["Search"] = search;
-        return View(await _challans.ListAsync(search, cancellationToken));
+        ViewData["ProgramId"] = programId;
+        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        return View(await _challans.ListAsync(search, programId, cancellationToken));
     }
 
     [HttpGet("bulk")]
@@ -101,13 +103,24 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    [HttpPost("delete/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        var ok = await _challans.DeleteCancelledAsync(id, cancellationToken);
+        TempData["StatusMessage"] = ok
+            ? "Cancelled challan deleted."
+            : "Challan could not be deleted. It must be cancelled with no payments recorded.";
+        return ok ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Details), new { id });
+    }
+
     [HttpGet("print-voucher")]
     public async Task<IActionResult> PrintVoucher(CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Print voucher";
         ViewData["PageTitle"] = "Challans · Print voucher";
         ViewData["FeeMgmtModuleKey"] = "Challans";
-        var list = await _challans.ListAsync(null, cancellationToken);
+        var list = await _challans.ListAsync(null, null, cancellationToken);
         return View(list);
     }
 
@@ -121,5 +134,117 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
         }
 
         return View(page);
+    }
+
+    [HttpGet("lookup-students")]
+    public async Task<IActionResult> LookupStudents(int programId, CancellationToken cancellationToken)
+    {
+        if (programId <= 0)
+        {
+            return BadRequest(new { message = "Program is required." });
+        }
+
+        var feeContext = await _lookups.ResolveProgramBulkChallanContextAsync(programId, cancellationToken);
+        if (feeContext is null)
+        {
+            return BadRequest(new { message = "No active fee structure with line items found for this program." });
+        }
+
+        var students = await _challans.GetEligibleStudentsAsync(
+            programId,
+            feeContext.Semester,
+            feeContext.AcademicYear,
+            cancellationToken);
+
+        return Json(new
+        {
+            feeContext = new
+            {
+                structureId = feeContext.StructureId,
+                structureName = feeContext.StructureName,
+                semester = feeContext.Semester,
+                academicYear = feeContext.AcademicYear
+            },
+            students = students.Select(s => new
+            {
+                studentId = s.StudentId,
+                registrationNo = s.RegistrationNo,
+                rollNo = s.RollNo,
+                studentName = s.StudentName,
+                programName = s.ProgramName,
+                hasConcession = s.HasConcession,
+                alreadyHasChallan = s.AlreadyHasChallan
+            })
+        });
+    }
+
+    [HttpPost("bulk-generate")]
+    public async Task<IActionResult> BulkGenerate([FromBody] BulkChallanApiRequest body, CancellationToken cancellationToken)
+    {
+        if (body.ProgramId <= 0)
+        {
+            return BadRequest(new { message = "Program is required." });
+        }
+
+        if (body.IssueDate > body.DueDate)
+        {
+            return BadRequest(new { message = "Issue date must be on or before due date." });
+        }
+
+        if (body.StudentIds is not { Count: > 0 })
+        {
+            return BadRequest(new { message = "Select at least one student." });
+        }
+
+        var feeContext = await _lookups.ResolveProgramBulkChallanContextAsync(body.ProgramId, cancellationToken);
+        if (feeContext is null)
+        {
+            return BadRequest(new { message = "No active fee structure with line items found for this program." });
+        }
+
+        var request = new BulkChallanGenerateRequest
+        {
+            ProgramId = body.ProgramId,
+            StructureId = feeContext.StructureId,
+            Semester = feeContext.Semester,
+            AcademicYear = feeContext.AcademicYear,
+            IssueDate = body.IssueDate,
+            DueDate = body.DueDate,
+            CreatedBy = ResolveActorId(),
+            StudentIds = body.StudentIds
+        };
+
+        try
+        {
+            var response = await _challans.BulkGenerateAsync(request, cancellationToken);
+            return Json(new
+            {
+                totalProcessed = response.TotalProcessed,
+                totalGenerated = response.TotalGenerated,
+                totalSkipped = response.TotalSkipped,
+                totalErrors = response.TotalErrors,
+                results = response.Results.Select(r => new
+                {
+                    studentId = r.StudentId,
+                    registrationNo = r.RegistrationNo,
+                    studentName = r.StudentName,
+                    challanNo = r.ChallanNo,
+                    netPayable = r.NetPayable,
+                    status = r.Status
+                })
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    public sealed class BulkChallanApiRequest
+    {
+        public int ProgramId { get; set; }
+        public DateOnly IssueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(15));
+        public IReadOnlyList<int>? StudentIds { get; set; }
     }
 }

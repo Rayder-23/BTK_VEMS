@@ -3,70 +3,126 @@
 @{
     ViewData["Title"] = "Record Payment";
     var challans = ViewData["Challans"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+    var banks = ViewData["Banks"] as IReadOnlyList<string> ?? Array.Empty<string>();
 }
 
-<section class="module-page-header accent-green">
-    <h1 class="h3 fw-bold">Record payment</h1>
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Record payment</span>
+        <a class="btn btn-sm btn-outline-secondary rounded-pill" href="/adminportal/fee/payments">Back</a>
+    </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
-    <form method="post" id="paymentForm">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-        <div class="row g-3">
-            <div class="col-md-8">
-                <label asp-for="ChallanId" class="form-label"></label>
-                <select asp-for="ChallanId" class="form-select" id="challanSelect"
-                        asp-items="@(new SelectList(challans, "Id", "Name"))">
-                    <option value="">— Select challan —</option>
-                </select>
-                <span asp-validation-for="ChallanId" class="text-danger"></span>
-            </div>
-            @if (!string.IsNullOrEmpty(Model.ChallanNo))
-            {
-                <div class="col-12">
-                    <div class="alert alert-light border">
-                        <strong>@Model.ChallanNo</strong> — @Model.StudentName<br />
-                        Net: @Model.NetPayable.ToString("N2") · Paid: @Model.AmountPaidSoFar.ToString("N2") ·
-                        Balance: <strong>@Model.Balance.ToString("N2")</strong>
-                    </div>
-                </div>
-            }
-            <div class="col-md-4">
-                <label asp-for="AmountPaid" class="form-label"></label>
-                <input asp-for="AmountPaid" class="form-control" type="number" step="0.01" min="0.01" />
-                <span asp-validation-for="AmountPaid" class="text-danger"></span>
-            </div>
-            <div class="col-md-4">
-                <label asp-for="PaymentDate" class="form-label"></label>
-                <input asp-for="PaymentDate" class="form-control" type="date" />
-            </div>
-            <div class="col-md-4">
-                <label asp-for="PaymentMode" class="form-label"></label>
-                <select asp-for="PaymentMode" class="form-select" asp-items="@(new SelectList(FeeConstants.PaymentModes))"></select>
-            </div>
-            <div class="col-md-6">
-                <label asp-for="TransactionRef" class="form-label"></label>
-                <input asp-for="TransactionRef" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="BankName" class="form-label"></label>
-                <input asp-for="BankName" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="ChequeNo" class="form-label"></label>
-                <input asp-for="ChequeNo" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label asp-for="Remarks" class="form-label"></label>
-                <input asp-for="Remarks" class="form-control" />
+@if (!string.IsNullOrEmpty(Model.ChallanNo))
+{
+    <section class="portal-card challan-summary-compact challan-summary-compact--admin mb-3">
+        <div class="challan-summary-head">
+            <div class="challan-summary-title">
+                <span class="challan-summary-no">@Model.ChallanNo</span>
+                <span class="challan-summary-meta">
+                    @Model.StudentName
+                    @if (Model.IsApplicationChallan && !string.IsNullOrEmpty(Model.ApplicantId))
+                    {
+                        <text> · Applicant <code>@Model.ApplicantId</code></text>
+                    }
+                </span>
             </div>
         </div>
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Save payment</button>
-            <a class="btn btn-outline-secondary" href="/adminportal/fee/payments">Cancel</a>
+        <div class="challan-summary-metrics challan-summary-metrics--3">
+            <div class="challan-summary-metric">
+                <span class="challan-summary-label">Net</span>
+                <span class="challan-summary-value">@Model.NetPayable.ToString("N2")</span>
+            </div>
+            <div class="challan-summary-metric">
+                <span class="challan-summary-label">Paid</span>
+                <span class="challan-summary-value">@Model.AmountPaidSoFar.ToString("N2")</span>
+            </div>
+            <div class="challan-summary-metric">
+                <span class="challan-summary-label">Balance</span>
+                <span class="challan-summary-value">@Model.Balance.ToString("N2")</span>
+            </div>
+        </div>
+    </section>
+}
+
+<section class="portal-card fee-payment-create-card">
+    <form method="post" id="paymentForm" class="fee-payment-form">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="fee-payment-form-grid">
+            <div class="row fee-payment-form-row g-1 align-items-center">
+                <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="ChallanId"></label>
+                <div class="col-6 col-lg-3 fee-payment-form-field">
+                    <select asp-for="ChallanId" class="form-select form-select-sm" id="challanSelect"
+                            asp-items="@(new SelectList(challans, "Id", "Name"))">
+                        <option value="">— Select challan —</option>
+                    </select>
+                    <span asp-validation-for="ChallanId" class="text-danger small"></span>
+                </div>
+                @if (Model.IsApplicationChallan && !string.IsNullOrEmpty(Model.ApplicantId))
+                {
+                    <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="ApplicantId"></label>
+                    <div class="col-6 col-lg-3 fee-payment-form-field">
+                        <input asp-for="ApplicantId" class="form-control form-control-sm" readonly />
+                    </div>
+                }
+            </div>
+
+            <div class="row fee-payment-form-row g-1 align-items-center">
+                <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="AmountPaid"></label>
+                <div class="col-6 col-lg-3 fee-payment-form-field">
+                    <input asp-for="AmountPaid" class="form-control form-control-sm" type="number" step="0.01" min="0.01" />
+                    <span asp-validation-for="AmountPaid" class="text-danger small"></span>
+                </div>
+                <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="PaymentDate"></label>
+                <div class="col-6 col-lg-3 fee-payment-form-field">
+                    <input asp-for="PaymentDate" class="form-control form-control-sm" type="date" />
+                    <span asp-validation-for="PaymentDate" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row fee-payment-form-row g-1 align-items-center">
+                <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="PaymentMode"></label>
+                <div class="col-6 col-lg-3 fee-payment-form-field">
+                    <select asp-for="PaymentMode" class="form-select form-select-sm" id="paymentModeSelect"
+                            asp-items="@(new SelectList(FeeConstants.PaymentModes))"></select>
+                    <span asp-validation-for="PaymentMode" class="text-danger small"></span>
+                </div>
+                <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="Remarks"></label>
+                <div class="col-6 col-lg-3 fee-payment-form-field">
+                    <input asp-for="Remarks" class="form-control form-control-sm" />
+                </div>
+            </div>
+
+            <div id="paymentNonCashFields">
+                <div class="row fee-payment-form-row g-1 align-items-center">
+                    <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="TransactionRef"></label>
+                    <div class="col-6 col-lg-3 fee-payment-form-field">
+                        <input asp-for="TransactionRef" class="form-control form-control-sm" />
+                    </div>
+                    <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="BankName"></label>
+                    <div class="col-6 col-lg-3 fee-payment-form-field">
+                        <select asp-for="BankName" class="form-select form-select-sm" asp-items="@(new SelectList(banks))">
+                            <option value="">— Select bank —</option>
+                        </select>
+                        <span asp-validation-for="BankName" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="row fee-payment-form-row g-1 align-items-center">
+                    <label class="col-6 col-lg-3 fee-payment-form-label" asp-for="ChequeNo"></label>
+                    <div class="col-6 col-lg-3 fee-payment-form-field">
+                        <input asp-for="ChequeNo" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary">Save payment</button>
+            <a class="btn btn-sm btn-outline-secondary" href="/adminportal/fee/payments">Cancel</a>
         </div>
     </form>
 </section>
@@ -74,8 +130,38 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.getElementById('challanSelect')?.addEventListener('change', function () {
-            if (this.value) window.location = '/adminportal/fee/payments/create?challanId=' + this.value;
-        });
+        (function () {
+            const challanSelect = document.getElementById('challanSelect');
+            const modeSelect = document.getElementById('paymentModeSelect');
+            const nonCashFields = document.getElementById('paymentNonCashFields');
+
+            challanSelect?.addEventListener('change', function () {
+                if (this.value) {
+                    window.location = '/adminportal/fee/payments/create?challanId=' + this.value;
+                }
+            });
+
+            function toggleNonCashFields() {
+                if (!modeSelect || !nonCashFields) {
+                    return;
+                }
+
+                const isCash = modeSelect.value === 'Cash';
+                nonCashFields.classList.toggle('d-none', isCash);
+
+                if (isCash) {
+                    nonCashFields.querySelectorAll('input, select').forEach((el) => {
+                        if (el.tagName === 'SELECT') {
+                            el.selectedIndex = 0;
+                        } else {
+                            el.value = '';
+                        }
+                    });
+                }
+            }
+
+            modeSelect?.addEventListener('change', toggleNonCashFields);
+            toggleNonCashFields();
+        })();
     </script>
 }

@@ -25,6 +25,7 @@
                 <tr>
                     <th>Name</th>
                     <th>Program</th>
+                    <th>Class</th>
                     <th>Semester</th>
                     <th>Year</th>
                     <th>Lines</th>
@@ -39,6 +40,7 @@
                 <tr>
                     <td>@row.StructureName</td>
                     <td>@row.ProgramName</td>
+                    <td>@(string.IsNullOrWhiteSpace(row.ClassName) ? "—" : row.ClassName)</td>
                     <td>@row.Semester</td>
                     <td>@row.AcademicYear</td>
                     <td>@row.DetailCount</td>

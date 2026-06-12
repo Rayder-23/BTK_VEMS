@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models.Admissions;
+using VEMS.Areas.AdminPortal.Models.Fee;
 using VEMS.Areas.AdminPortal.Services.Admissions;
+using VEMS.Areas.AdminPortal.Services.Fee;
 using VEMS.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
@@ -11,10 +13,14 @@ namespace VEMS.Areas.AdminPortal.Controllers;
 public sealed class StudentApplicationsController : AdminBaseController
 {
     private readonly IStudentApplicationAdminRepository _applications;
+    private readonly IFeeChallanRepository _challans;
 
-    public StudentApplicationsController(IStudentApplicationAdminRepository applications)
+    public StudentApplicationsController(
+        IStudentApplicationAdminRepository applications,
+        IFeeChallanRepository challans)
     {
         _applications = applications;
+        _challans = challans;
     }
 
     [HttpGet("")]
@@ -138,6 +144,107 @@ public sealed class StudentApplicationsController : AdminBaseController
 
         TempData["StatusMessage"] = "Application updated.";
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet("challan/{id:int}")]
+    public async Task<IActionResult> CreateChallan(int id, CancellationToken cancellationToken)
+    {
+        var model = await _applications.GetApplicationChallanPrefillAsync(id, cancellationToken);
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        ViewData["Title"] = "Create Challan";
+        ViewData["PageTitle"] = "Admissions · Create Challan";
+        return View(model);
+    }
+
+    [HttpPost("challan/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateChallan(
+        int id,
+        ApplicationChallanGenerateFormModel model,
+        CancellationToken cancellationToken)
+    {
+        if (id != model.ApplicationUid)
+        {
+            return BadRequest();
+        }
+
+        var prefill = await _applications.GetApplicationChallanPrefillAsync(id, cancellationToken);
+        if (prefill is null)
+        {
+            return NotFound();
+        }
+
+        if (!prefill.FeeStructureFound || prefill.StructureId <= 0)
+        {
+            ModelState.AddModelError(string.Empty, "No admission fee structure found for this application's program and year.");
+        }
+
+        if (model.DueDate < model.IssueDate)
+        {
+            ModelState.AddModelError(nameof(model.DueDate), "Due date cannot be before issue date.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewData["Title"] = "Create Challan";
+            ViewData["PageTitle"] = "Admissions · Create Challan";
+            model.ApplicationNo = prefill.ApplicationNo;
+            model.ApplicantName = prefill.ApplicantName;
+            model.ProgramName = prefill.ProgramName;
+            model.DesiredYear = prefill.DesiredYear;
+            model.StructureId = prefill.StructureId;
+            model.StructureLabel = prefill.StructureLabel;
+            model.AdmissionFeeAmount = prefill.AdmissionFeeAmount;
+            model.FeeStructureFound = prefill.FeeStructureFound;
+            model.FeeMessage = prefill.FeeMessage;
+            return View(model);
+        }
+
+        try
+        {
+            var challanId = await _challans.GenerateChallanAsync(new ChallanGenerateFormModel
+            {
+                ApplicationUid = id,
+                StructureId = prefill.StructureId,
+                IssueDate = model.IssueDate,
+                DueDate = model.DueDate,
+                Remarks = model.Remarks,
+                DiscountAmount = model.DiscountAmount
+            }, ResolveStaffLoginUid() ?? 1, cancellationToken);
+
+            TempData["StatusMessage"] = $"Challan created for application {prefill.ApplicationNo}.";
+            return Redirect($"/adminportal/fee/challans/details/{challanId}");
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            ViewData["Title"] = "Create Challan";
+            ViewData["PageTitle"] = "Admissions · Create Challan";
+            model.ApplicationNo = prefill.ApplicationNo;
+            model.ApplicantName = prefill.ApplicantName;
+            model.ProgramName = prefill.ProgramName;
+            model.DesiredYear = prefill.DesiredYear;
+            model.StructureId = prefill.StructureId;
+            model.StructureLabel = prefill.StructureLabel;
+            model.AdmissionFeeAmount = prefill.AdmissionFeeAmount;
+            model.FeeStructureFound = prefill.FeeStructureFound;
+            model.FeeMessage = prefill.FeeMessage;
+            return View(model);
+        }
+    }
+
+    [HttpGet("pick-admission-fee")]
+    public async Task<IActionResult> PickAdmissionFee(
+        string programCode,
+        short academicYear,
+        CancellationToken cancellationToken)
+    {
+        var result = await _applications.GetAdmissionFeeAmountAsync(programCode, academicYear, cancellationToken);
+        return Json(result);
     }
 
     [HttpPost("convert-as-student/{id:int}")]

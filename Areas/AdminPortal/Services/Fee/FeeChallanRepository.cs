@@ -20,16 +20,28 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         _concessions = concessions;
     }
 
-    public async Task<IReadOnlyList<ChallanListItem>> ListAsync(string? search, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ChallanListItem>> ListAsync(string? search, int? programId = null, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT c.Uid, c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName, s.RegistrationNo,
+            SELECT c.Uid, c.ChallanNo,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
+                   COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
                    c.Semester, c.AcademicYear, c.DueDate, c.NetPayable, c.AmountPaid, c.Status
             FROM dbo.Challans c
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
+            LEFT JOIN dbo.FeeStructures fs ON c.StructureID = fs.Uid
+            LEFT JOIN dbo.ref_Programs ap ON ap.ProgramCode = a.ProgramCode
             WHERE c.IsActive = 1
-              AND (@Search IS NULL OR c.ChallanNo LIKE @Search OR s.RegistrationNo LIKE @Search
-                   OR s.FirstName LIKE @Search OR s.LastName LIKE @Search)
+              AND (@Search IS NULL OR c.ChallanNo LIKE @Search
+                   OR s.RegistrationNo LIKE @Search OR a.ApplicationNo LIKE @Search
+                   OR s.FirstName LIKE @Search OR s.LastName LIKE @Search
+                   OR a.FirstName LIKE @Search OR a.LastName LIKE @Search)
+              AND (@ProgramId IS NULL
+                   OR s.ProgramID = @ProgramId
+                   OR fs.ProgramID = @ProgramId
+                   OR ap.Uid = @ProgramId)
             ORDER BY c.Uid DESC;
             """;
 
@@ -37,6 +49,7 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Search", string.IsNullOrWhiteSpace(search) ? DBNull.Value : $"%{search.Trim()}%");
+        command.Parameters.AddWithValue("@ProgramId", programId is > 0 ? programId.Value : DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
@@ -67,10 +80,14 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
     public async Task<ChallanDetailsPageModel?> GetDetailsAsync(int challanId, CancellationToken cancellationToken = default)
     {
         const string headerSql = """
-            SELECT c.Uid, c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName, s.RegistrationNo,
+            SELECT c.Uid, c.ChallanNo,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
+                   COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
                    c.Semester, c.AcademicYear, c.DueDate, c.NetPayable, c.AmountPaid, c.Status
             FROM dbo.Challans c
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE c.Uid = @Uid;
             """;
 
@@ -135,11 +152,14 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         }
 
         const string paymentsSql = """
-            SELECT p.Uid, p.ChallanID, c.ChallanNo, s.FirstName + ' ' + s.LastName AS StudentName,
+            SELECT p.Uid, p.ChallanID, c.ChallanNo,
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                            NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    p.AmountPaid, p.PaymentDate, p.PaymentMode, p.Status, pr.ReceiptNo
             FROM dbo.Payments p
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             LEFT JOIN dbo.PaymentReceipts pr ON pr.PaymentID = p.Uid
             WHERE p.ChallanID = @ChallanId AND p.IsActive = 1
             ORDER BY p.PaymentDate DESC, p.Uid DESC;
@@ -177,6 +197,12 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
 
     public async Task<int> GenerateChallanAsync(ChallanGenerateFormModel model, int createdBy, CancellationToken cancellationToken = default)
     {
+        var isApplicationChallan = model.ApplicationUid.HasValue && model.ApplicationUid.Value > 0;
+        if (!isApplicationChallan && model.StudentId <= 0)
+        {
+            throw new InvalidOperationException("Student is required.");
+        }
+
         var structure = await _structures.GetAsync(model.StructureId, cancellationToken)
             ?? throw new InvalidOperationException("Fee structure not found.");
 
@@ -186,9 +212,16 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         }
 
         var details = await _structures.GetDetailsForStructureAsync(model.StructureId, cancellationToken);
+        if (isApplicationChallan)
+        {
+            details = details.Where(IsAdmissionFeeLine).ToList();
+        }
+
         if (details.Count == 0)
         {
-            throw new InvalidOperationException("Fee structure has no line items. Add structure details first.");
+            throw new InvalidOperationException(isApplicationChallan
+                ? "No admission fee line found in the selected fee structure."
+                : "Fee structure has no line items. Add structure details first.");
         }
 
         decimal totalAmount = 0;
@@ -197,8 +230,10 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
 
         foreach (var line in details)
         {
-            var concessionDiscount = await _concessions.GetApplicableDiscountForHeadAsync(
-                model.StudentId, line.FeeHeadId, line.Amount, model.IssueDate, cancellationToken);
+            var concessionDiscount = isApplicationChallan
+                ? 0m
+                : await _concessions.GetApplicableDiscountForHeadAsync(
+                    model.StudentId, line.FeeHeadId, line.Amount, model.IssueDate, cancellationToken);
             var net = line.Amount - concessionDiscount;
             totalAmount += line.Amount;
             lineDiscountTotal += concessionDiscount;
@@ -223,11 +258,11 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             var challanNo = await AllocateChallanNoAsync(connection, transaction, cancellationToken);
             const string insertChallan = """
                 INSERT INTO dbo.Challans
-                    (ChallanNo, StudentID, StructureID, Semester, AcademicYear, IssueDate, DueDate,
+                    (ChallanNo, StudentID, ApplicationUid, StructureID, Semester, AcademicYear, IssueDate, DueDate,
                      TotalAmount, DiscountAmount, LateFineAmount, NetPayable, AmountPaid, Status, Remarks,
                      IsActive, CreatedBy, CreatedAt)
                 VALUES
-                    (@ChallanNo, @StudentId, @StructureId, @Semester, @AcademicYear, @IssueDate, @DueDate,
+                    (@ChallanNo, @StudentId, @ApplicationUid, @StructureId, @Semester, @AcademicYear, @IssueDate, @DueDate,
                      @TotalAmount, @DiscountAmount, 0, @NetPayable, 0, 'Unpaid', @Remarks,
                      1, @CreatedBy, SYSUTCDATETIME());
                 SELECT CAST(SCOPE_IDENTITY() AS int);
@@ -237,7 +272,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             await using (var command = new SqlCommand(insertChallan, connection, transaction))
             {
                 command.Parameters.AddWithValue("@ChallanNo", challanNo);
-                command.Parameters.AddWithValue("@StudentId", model.StudentId);
+                command.Parameters.AddWithValue("@StudentId", isApplicationChallan ? DBNull.Value : model.StudentId);
+                command.Parameters.AddWithValue("@ApplicationUid", isApplicationChallan ? model.ApplicationUid!.Value : DBNull.Value);
                 command.Parameters.AddWithValue("@StructureId", model.StructureId);
                 command.Parameters.AddWithValue("@Semester", structure.Semester);
                 command.Parameters.AddWithValue("@AcademicYear", structure.AcademicYear);
@@ -293,6 +329,90 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
+    }
+
+    public async Task<bool> DeleteCancelledAsync(int challanId, CancellationToken cancellationToken = default)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            const string validateSql = """
+                SELECT Status, AmountPaid
+                FROM dbo.Challans
+                WHERE Uid = @Uid;
+                """;
+
+            string status;
+            decimal amountPaid;
+
+            await using (var validateCommand = new SqlCommand(validateSql, connection, (SqlTransaction)transaction))
+            {
+                validateCommand.Parameters.AddWithValue("@Uid", challanId);
+                await using var reader = await validateCommand.ExecuteReaderAsync(cancellationToken);
+                if (!await reader.ReadAsync(cancellationToken))
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return false;
+                }
+
+                status = reader["Status"] as string ?? string.Empty;
+                amountPaid = FeeSql.ToDecimal(reader, "AmountPaid");
+            }
+
+            if (!string.Equals(status, "Cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return false;
+            }
+
+            if (amountPaid > 0)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return false;
+            }
+
+            const string paymentCountSql = "SELECT COUNT(1) FROM dbo.Payments WHERE ChallanID = @Uid;";
+            await using (var paymentCountCommand = new SqlCommand(paymentCountSql, connection, (SqlTransaction)transaction))
+            {
+                paymentCountCommand.Parameters.AddWithValue("@Uid", challanId);
+                var paymentCount = Convert.ToInt32(await paymentCountCommand.ExecuteScalarAsync(cancellationToken));
+                if (paymentCount > 0)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return false;
+                }
+            }
+
+            const string deleteDetailsSql = "DELETE FROM dbo.ChallanDetails WHERE ChallanID = @Uid;";
+            await using (var deleteDetailsCommand = new SqlCommand(deleteDetailsSql, connection, (SqlTransaction)transaction))
+            {
+                deleteDetailsCommand.Parameters.AddWithValue("@Uid", challanId);
+                await deleteDetailsCommand.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            const string deleteChallanSql = "DELETE FROM dbo.Challans WHERE Uid = @Uid AND Status = 'Cancelled';";
+            await using (var deleteChallanCommand = new SqlCommand(deleteChallanSql, connection, (SqlTransaction)transaction))
+            {
+                deleteChallanCommand.Parameters.AddWithValue("@Uid", challanId);
+                var deleted = await deleteChallanCommand.ExecuteNonQueryAsync(cancellationToken);
+                if (deleted == 0)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return false;
+                }
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            return true;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task RecalculateStatusAsync(int challanId, CancellationToken cancellationToken = default)
@@ -353,11 +473,11 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                 p.ProgramName,
                 CASE WHEN EXISTS (
                     SELECT 1
-                    FROM dbo.Concessions c
-                    WHERE c.StudentID = s.Uid
-                      AND c.IsActive = 1
-                      AND c.ValidFrom <= CONVERT(date, SYSUTCDATETIME())
-                      AND (c.ValidTo IS NULL OR c.ValidTo >= CONVERT(date, SYSUTCDATETIME()))
+                    FROM dbo.Concessions con
+                    WHERE con.StudentID = s.Uid
+                      AND con.IsActive = 1
+                      AND con.ValidFrom <= CONVERT(date, SYSUTCDATETIME())
+                      AND (con.ValidTo IS NULL OR con.ValidTo >= CONVERT(date, SYSUTCDATETIME()))
                 ) THEN 1 ELSE 0 END AS HasConcession,
                 CASE WHEN EXISTS (
                     SELECT 1
@@ -484,6 +604,10 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             Results = results
         };
     }
+
+    private static bool IsAdmissionFeeLine(FeeStructureDetailLine line) =>
+        string.Equals(line.FeeHeadCode, "ADM", StringComparison.OrdinalIgnoreCase)
+        || line.FeeHeadName.Contains("Admission", StringComparison.OrdinalIgnoreCase);
 
     private static async Task<string> AllocateChallanNoAsync(
         SqlConnection connection,

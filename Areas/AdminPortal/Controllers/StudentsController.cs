@@ -93,7 +93,8 @@ public sealed class StudentsController : StudentMgmtBaseController
         }
         catch (SqlException ex) when (ex.Number == 547)
         {
-            ModelState.AddModelError(string.Empty, "Student or program enrollment could not be saved because a related reference is invalid.");
+            ModelState.AddModelError(string.Empty,
+                "Student could not be saved because a selected reference is invalid. Check that the chosen Program, Country, Province, and City exist.");
             model.Lookups = await _students.GetLookupsAsync(cancellationToken);
             return View(model);
         }

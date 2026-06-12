@@ -32,5 +32,14 @@ public interface IStudentApplicationAdminRepository
 
     Task<AdmissionsSummaryViewModel> GetSummaryAsync(CancellationToken cancellationToken = default);
 
+    Task<AdmissionFeePickResult> GetAdmissionFeeAmountAsync(
+        string programCode,
+        short academicYear,
+        CancellationToken cancellationToken = default);
+
+    Task<ApplicationChallanGenerateFormModel?> GetApplicationChallanPrefillAsync(
+        int applicationUid,
+        CancellationToken cancellationToken = default);
+
     Task<int> ConvertToStudentAsync(int applicationUid, int createdBy, CancellationToken cancellationToken = default);
 }

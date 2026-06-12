@@ -48,6 +48,13 @@
                     <button type="submit" class="btn btn-sm btn-outline-danger">Cancel challan</button>
                 </form>
             }
+            @if (h.DisplayStatus == "Cancelled" && h.AmountPaid == 0 && Model.Payments.Count == 0)
+            {
+                <form method="post" action="/adminportal/fee/challans/delete/@h.Uid" onsubmit="return confirm('Permanently delete this cancelled challan and its fee lines? This cannot be undone.');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-danger">Delete challan</button>
+                </form>
+            }
         </div>
     </div>
     <table class="table admin-table">

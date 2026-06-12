@@ -1,31 +1,51 @@
+@using VEMS.Areas.AdminPortal.Models.Fee
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.ChallanListItem>
 @{
     var search = ViewData["Search"] as string;
+    var selectedProgramId = ViewData["ProgramId"] as int?;
+    var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <section class="portal-card page-summary-compact mb-3">
     <div class="page-summary-head">
         <span class="page-summary-title">Challans Management</span>
-        <div class="d-flex flex-wrap gap-2 flex-shrink-0">
-            <a class="btn btn-sm btn-primary rounded-pill" href="/adminportal/fee/challans/create">Generate challan</a>
-            <a class="btn btn-sm btn-outline-primary rounded-pill" href="/adminportal/fee/challans/bulk">Bulk generate</a>
-        </div>
     </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
+<partial name="_ChallanBulkGenerate" />
+
 <section class="portal-card mt-3">
-    <form method="get" class="row g-2 mb-3">
-        <div class="col-md-8">
-            <input type="search" name="search" value="@search" class="form-control" placeholder="Challan no, registration, student name" />
-        </div>
+    <h2 class="h6 fw-bold mb-3">All challans</h2>
+    <form method="get" class="row g-2 mb-3 align-items-end">
         <div class="col-md-4">
-            <button type="submit" class="btn btn-outline-primary w-100">Search</button>
+            <label class="form-label" for="challanProgramFilter">Program</label>
+            <select id="challanProgramFilter" name="programId" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All programs</option>
+                @foreach (var program in programs)
+                {
+                    if (selectedProgramId.HasValue && selectedProgramId.Value == program.Id)
+                    {
+                        <option value="@program.Id" selected="selected">@program.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@program.Id">@program.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label" for="challanSearch">Search</label>
+            <input type="search" id="challanSearch" name="search" value="@search" class="form-control form-control-sm" placeholder="Challan no, registration, student name" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100">Filter</button>
         </div>
     </form>
     <div class="table-responsive">
-        <table class="table admin-table align-middle">
+        <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
             <thead>
                 <tr>
                     <th>Challan</th>
@@ -39,6 +59,10 @@
                 </tr>
             </thead>
             <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="8" class="text-center text-muted py-4">No challans found.</td></tr>
+            }
             @foreach (var row in Model)
             {
                 <tr>
@@ -49,7 +73,7 @@
                     <td>@row.NetPayable.ToString("N2")</td>
                     <td>@row.AmountPaid.ToString("N2")</td>
                     <td><span class="badge text-bg-secondary">@row.DisplayStatus</span></td>
-                    <td class="text-end">
+                    <td class="text-end text-nowrap">
                         <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/challans/details/@row.Uid">View</a>
                         @if (row.DisplayStatus is not ("Paid" or "Cancelled"))
                         {
@@ -62,3 +86,4 @@
         </table>
     </div>
 </section>
+

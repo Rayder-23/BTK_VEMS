@@ -51,9 +51,8 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
             return View(model);
         }
 
-        if (await _structures.ExistsAsync(model.ProgramId, model.Semester, model.AcademicYear, null, cancellationToken))
+        if (!await ValidateStructureAsync(model, null, cancellationToken))
         {
-            ModelState.AddModelError(string.Empty, "A structure already exists for this program, semester, and academic year.");
             return View(model);
         }
 
@@ -97,9 +96,8 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
             return View(model);
         }
 
-        if (await _structures.ExistsAsync(model.ProgramId, model.Semester, model.AcademicYear, id, cancellationToken))
+        if (!await ValidateStructureAsync(model, id, cancellationToken))
         {
-            ModelState.AddModelError(string.Empty, "A structure already exists for this program, semester, and academic year.");
             return View(model);
         }
 
@@ -167,5 +165,60 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         await _structures.DeleteDetailAsync(detailId, cancellationToken);
         TempData["StatusMessage"] = "Line item removed.";
         return RedirectToAction(nameof(Details), new { id = structureId });
+    }
+
+    [HttpGet("lookups/classes")]
+    public async Task<IActionResult> ClassLookups(int programId, CancellationToken cancellationToken)
+    {
+        if (programId <= 0)
+        {
+            return BadRequest();
+        }
+
+        var classes = await _lookups.GetClassesByProgramAsync(programId, cancellationToken);
+        return Json(classes.Select(c => new
+        {
+            id = c.Id,
+            name = c.Name,
+            semester = c.Semester,
+            academicYear = c.AcademicYear
+        }));
+    }
+
+    private async Task<bool> ValidateStructureAsync(
+        FeeStructureFormModel model,
+        int? excludeUid,
+        CancellationToken cancellationToken)
+    {
+        var normalizedClassId = model.ClassId is > 0 ? model.ClassId : null;
+
+        if (normalizedClassId.HasValue)
+        {
+            var classes = await _lookups.GetClassesByProgramAsync(model.ProgramId, cancellationToken);
+            if (classes.All(c => c.Id != normalizedClassId.Value))
+            {
+                ModelState.AddModelError(nameof(model.ClassId), "Select a valid class for this program.");
+                return false;
+            }
+        }
+
+        if (await _structures.ExistsAsync(
+                model.ProgramId,
+                model.Semester,
+                model.AcademicYear,
+                normalizedClassId,
+                excludeUid,
+                cancellationToken))
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                normalizedClassId.HasValue
+                    ? "A structure already exists for this program, class, semester, and academic year."
+                    : "A structure already exists for this program, semester, and academic year.");
+            return false;
+        }
+
+        model.ClassId = normalizedClassId;
+        return true;
     }
 }

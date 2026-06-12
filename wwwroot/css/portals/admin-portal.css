@@ -661,7 +661,8 @@ body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__chevron {
     padding-top: 0.65rem;
 }
 
-.challan-summary-metrics--4 {
+.challan-summary-metrics--4,
+.challan-summary-metrics--3 {
     grid-template-columns: repeat(2, 1fr);
 }
 
@@ -699,6 +700,11 @@ body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__chevron {
     .challan-summary-metrics--4 {
         gap: 0;
         grid-template-columns: repeat(4, 1fr);
+    }
+
+    .challan-summary-metrics--3 {
+        gap: 0;
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .challan-summary-metric {

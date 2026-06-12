@@ -7,6 +7,12 @@ internal static class FeeSql
     public static int ToInt32(SqlDataReader reader, string column) =>
         Convert.ToInt32(reader.GetValue(reader.GetOrdinal(column)));
 
+    public static int? ToNullableInt32(SqlDataReader reader, string column)
+    {
+        var ordinal = reader.GetOrdinal(column);
+        return reader.IsDBNull(ordinal) ? null : Convert.ToInt32(reader.GetValue(ordinal));
+    }
+
     public static int ToInt32(SqlDataReader reader, int ordinal) =>
         Convert.ToInt32(reader.GetValue(ordinal));
 

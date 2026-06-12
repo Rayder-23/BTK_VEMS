@@ -95,15 +95,24 @@
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Test score</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDecimal(form.TestScore)</div>
+        <div class="col-6 col-lg-3 d-none d-lg-block"></div>
+        <div class="col-6 col-lg-3 d-none d-lg-block"></div>
+    </div>
+
+    <div class="admissions-form-section-heading" role="heading" aria-level="3">Payments</div>
+
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment status</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayText(form.PaymentStatus)</div>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment amount</div>
+        <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDecimal(form.PaymentAmount)</div>
     </div>
 
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment amount</div>
-        <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDecimal(form.PaymentAmount)</div>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-label">Payment date</div>
         <div class="col-6 col-lg-3 admissions-readonly-value">@DisplayDate(form.PaymentDate)</div>
+        <div class="col-6 col-lg-3 d-none d-lg-block"></div>
+        <div class="col-6 col-lg-3 d-none d-lg-block"></div>
     </div>
 
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">

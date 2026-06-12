@@ -5,6 +5,10 @@ namespace VEMS.Areas.AdminPortal.Services.Fee;
 public interface IFeeLookupRepository
 {
     Task<IReadOnlyList<FeeLookupItem>> GetProgramsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeeClassLookupItem>> GetClassesByProgramAsync(int programId, CancellationToken cancellationToken = default);
+    Task<ProgramBulkChallanContext?> ResolveProgramBulkChallanContextAsync(int programId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ProgramBulkChallanContext>> GetProgramStructuresAsync(int programId, CancellationToken cancellationToken = default);
+    Task<ProgramBulkChallanContext?> ResolveStructureBulkChallanContextAsync(int programId, int structureId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeLookupItem>> GetActiveStudentsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeLookupItem>> GetActiveFeeHeadsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeLookupItem>> GetActiveStructuresAsync(CancellationToken cancellationToken = default);
@@ -30,7 +34,13 @@ public interface IFeeStructureRepository
 {
     Task<IReadOnlyList<FeeStructureListItem>> ListAsync(CancellationToken cancellationToken = default);
     Task<FeeStructureFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(int programId, string semester, short academicYear, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(
+        int programId,
+        string semester,
+        short academicYear,
+        int? classId,
+        int? excludeUid,
+        CancellationToken cancellationToken = default);
     Task<int> InsertAsync(FeeStructureFormModel model, int createdBy, CancellationToken cancellationToken = default);
     Task<bool> UpdateAsync(FeeStructureFormModel model, int? updatedBy, CancellationToken cancellationToken = default);
     Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default);
@@ -43,10 +53,11 @@ public interface IFeeStructureRepository
 
 public interface IFeeChallanRepository
 {
-    Task<IReadOnlyList<ChallanListItem>> ListAsync(string? search, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ChallanListItem>> ListAsync(string? search, int? programId = null, CancellationToken cancellationToken = default);
     Task<ChallanDetailsPageModel?> GetDetailsAsync(int challanId, CancellationToken cancellationToken = default);
     Task<int> GenerateChallanAsync(ChallanGenerateFormModel model, int createdBy, CancellationToken cancellationToken = default);
     Task<bool> CancelAsync(int challanId, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> DeleteCancelledAsync(int challanId, CancellationToken cancellationToken = default);
     Task RecalculateStatusAsync(int challanId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsAsync(
         int programId,

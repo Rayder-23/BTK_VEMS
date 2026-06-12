@@ -378,10 +378,7 @@ public sealed class StudentRepository : IStudentRepository
             VALUES (
                 @StudentID,
                 @ProgramID,
-                COALESCE(
-                    (SELECT TOP 1 Uid FROM dbo.Classes WHERE ProgramID = @ProgramID AND IsActive = 1 ORDER BY Uid),
-                    1
-                ),
+                (SELECT TOP 1 Uid FROM dbo.Classes WHERE ProgramID = @ProgramID AND IsActive = 1 ORDER BY Uid),
                 @RollNo,
                 @AcademicYear,
                 @GradeOrSemester,

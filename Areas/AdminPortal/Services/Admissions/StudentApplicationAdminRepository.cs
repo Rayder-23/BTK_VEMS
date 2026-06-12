@@ -215,6 +215,12 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
 
     public async Task<bool> UpdateAsync(StudentApplicationFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
     {
+        if (!string.Equals(model.ApplicationStatus, ConvertedApplicationStatus, StringComparison.OrdinalIgnoreCase))
+        {
+            model.ConvertedStudentID = null;
+            model.ConvertedAt = null;
+        }
+
         const string sql = """
             UPDATE dbo.StudentApplications SET
                 ApplicationNo = @ApplicationNo,
@@ -383,6 +389,131 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         };
     }
 
+    public async Task<AdmissionFeePickResult> GetAdmissionFeeAmountAsync(
+        string programCode,
+        short academicYear,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(programCode))
+        {
+            return new AdmissionFeePickResult
+            {
+                Amount = 0,
+                Found = false,
+                Message = "admission fee not exist"
+            };
+        }
+
+        const string sql = """
+            SELECT TOP (1) fsd.Amount
+            FROM dbo.FeeStructures fs
+            INNER JOIN dbo.ref_Programs p ON p.Uid = fs.ProgramID
+            INNER JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
+            INNER JOIN dbo.ref_FeeHeads fh ON fh.Uid = fsd.FeeHeadID
+            WHERE fs.IsActive = 1
+              AND p.IsActive = 1
+              AND fh.IsActive = 1
+              AND p.ProgramCode = @ProgramCode
+              AND fs.AcademicYear = @AcademicYear
+              AND (fh.HeadCode = 'ADM' OR fh.HeadName LIKE '%Admission%')
+            ORDER BY fs.Uid DESC;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ProgramCode", programCode.Trim());
+        command.Parameters.AddWithValue("@AcademicYear", academicYear);
+        await connection.OpenAsync(cancellationToken);
+        var scalar = await command.ExecuteScalarAsync(cancellationToken);
+
+        if (scalar is null or DBNull)
+        {
+            return new AdmissionFeePickResult
+            {
+                Amount = 0,
+                Found = false,
+                Message = "admission fee not exist"
+            };
+        }
+
+        return new AdmissionFeePickResult
+        {
+            Amount = Convert.ToDecimal(scalar),
+            Found = true,
+            Message = string.Empty
+        };
+    }
+
+    public async Task<ApplicationChallanGenerateFormModel?> GetApplicationChallanPrefillAsync(
+        int applicationUid,
+        CancellationToken cancellationToken = default)
+    {
+        var application = await GetAsync(applicationUid, cancellationToken);
+        if (application is null)
+        {
+            return null;
+        }
+
+        const string structureSql = """
+            SELECT TOP (1)
+                fs.Uid AS StructureId,
+                p.ProgramName,
+                fs.Semester,
+                fs.AcademicYear,
+                fsd.Amount
+            FROM dbo.FeeStructures fs
+            INNER JOIN dbo.ref_Programs p ON p.Uid = fs.ProgramID
+            INNER JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
+            INNER JOIN dbo.ref_FeeHeads fh ON fh.Uid = fsd.FeeHeadID
+            WHERE fs.IsActive = 1
+              AND p.IsActive = 1
+              AND fh.IsActive = 1
+              AND p.ProgramCode = @ProgramCode
+              AND fs.AcademicYear = @AcademicYear
+              AND (fh.HeadCode = 'ADM' OR fh.HeadName LIKE '%Admission%')
+            ORDER BY fs.Uid DESC;
+            """;
+
+        int structureId = 0;
+        string structureLabel = string.Empty;
+        decimal admissionFee = 0;
+        var feeFound = false;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(structureSql, connection);
+        command.Parameters.AddWithValue("@ProgramCode", application.ProgramCode.Trim());
+        command.Parameters.AddWithValue("@AcademicYear", application.DesiredYear);
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (await reader.ReadAsync(cancellationToken))
+        {
+            structureId = Convert.ToInt32(reader["StructureId"]);
+            var programName = reader["ProgramName"] as string ?? application.ProgramName;
+            var semester = reader["Semester"] as string ?? string.Empty;
+            var academicYear = Convert.ToInt16(reader["AcademicYear"]);
+            admissionFee = Convert.ToDecimal(reader["Amount"]);
+            structureLabel = $"{programName} · {semester} · {academicYear}";
+            feeFound = true;
+        }
+
+        return new ApplicationChallanGenerateFormModel
+        {
+            ApplicationUid = applicationUid,
+            ApplicationNo = application.ApplicationNo,
+            ApplicantName = $"{application.FirstName} {application.LastName}".Trim(),
+            ProgramName = application.ProgramName,
+            DesiredYear = application.DesiredYear,
+            StructureId = structureId,
+            StructureLabel = structureLabel,
+            AdmissionFeeAmount = admissionFee,
+            FeeStructureFound = feeFound,
+            FeeMessage = feeFound ? null : "admission fee not exist",
+            IssueDate = DateOnly.FromDateTime(DateTime.Today),
+            DueDate = DateOnly.FromDateTime(DateTime.Today.AddDays(15)),
+            Remarks = $"Admission challan for application {application.ApplicationNo}"
+        };
+    }
+
     public async Task<int> ConvertToStudentAsync(int applicationUid, int createdBy, CancellationToken cancellationToken = default)
     {
         var application = await GetAsync(applicationUid, cancellationToken)
@@ -391,11 +522,6 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         if (!string.Equals(application.ApplicationStatus, ApprovedApplicationStatus, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException($"Only applications with status '{ApprovedApplicationStatus}' can be converted.");
-        }
-
-        if (application.ConvertedStudentID.HasValue)
-        {
-            throw new InvalidOperationException("This application has already been converted to a student.");
         }
 
         var statuses = await _configValues.GetValuesAsync("ApplicationStatuses", cancellationToken);
@@ -410,6 +536,18 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
 
         await using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
+
+        if (application.ConvertedStudentID.HasValue)
+        {
+            await using var existsCmd = new SqlCommand("SELECT 1 FROM dbo.Students WHERE Uid = @Uid;", connection);
+            existsCmd.Parameters.AddWithValue("@Uid", application.ConvertedStudentID.Value);
+            var linkedStudent = await existsCmd.ExecuteScalarAsync(cancellationToken);
+            if (linkedStudent is not null and not DBNull)
+            {
+                throw new InvalidOperationException("This application has already been converted to a student.");
+            }
+        }
+
         await EnsureEmployeeLoginExistsAsync(connection, createdBy, cancellationToken);
 
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);

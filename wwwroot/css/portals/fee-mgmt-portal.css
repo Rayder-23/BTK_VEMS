@@ -124,3 +124,50 @@ body.fee-mgmt-home .home-brand-icon {
     justify-content: center;
     width: 40px;
 }
+
+/* Record payment — compact 4-column label / field grid */
+.payments-receipts-mgmt-shell .fee-payment-create-card {
+    padding: 0.85rem 1rem;
+}
+
+.payments-receipts-mgmt-shell .fee-payment-form-grid .fee-payment-form-row {
+    margin-bottom: 0.2rem;
+}
+
+.payments-receipts-mgmt-shell .fee-payment-form-grid .fee-payment-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.payments-receipts-mgmt-shell .fee-payment-form-label {
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 0;
+    padding-right: 0;
+    text-align: start;
+}
+
+.payments-receipts-mgmt-shell .fee-payment-form-field {
+    text-align: start;
+}
+
+.payments-receipts-mgmt-shell .fee-payment-form-field .form-control-sm,
+.payments-receipts-mgmt-shell .fee-payment-form-field .form-select-sm {
+    color: #1e293b;
+    font-size: 0.8125rem;
+    min-height: calc(1.4em + 0.4rem + 2px);
+}
+
+.payments-receipts-mgmt-shell .fee-payment-form-field .text-danger.small {
+    display: block;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    margin-top: 0.1rem;
+}
+
+@media (min-width: 992px) {
+    .payments-receipts-mgmt-shell .fee-payment-form-row > :nth-child(3) {
+        padding-left: 0.75rem;
+    }
+}

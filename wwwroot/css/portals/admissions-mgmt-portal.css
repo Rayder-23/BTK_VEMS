@@ -14,3 +14,58 @@
     display: flex;
     align-items: center;
 }
+
+/* Section heading — separates payment block from fields above */
+.admissions-form-section-heading {
+    border-top: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    margin: 1.25rem 0 1rem;
+    padding: 0.85rem 0 0.85rem;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.admissions-form-section-heading--with-action {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    text-transform: none;
+}
+
+.admissions-form-section-heading--with-action > span {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.admissions-pick-payment-message {
+    color: #dc2626;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin: -0.65rem 0 0.5rem;
+}
+
+/* Wider label ↔ field gap and space between 1st and 2nd column pairs */
+.admissions-mgmt-shell .student-mgmt-admin-form-grid .student-mgmt-admin-form-row {
+    --bs-gutter-x: 0.65rem;
+}
+
+.admissions-mgmt-shell .student-mgmt-admin-form-label {
+    padding-right: 0.85rem;
+}
+
+.admissions-mgmt-shell .student-mgmt-admin-form-field,
+.admissions-mgmt-shell .student-mgmt-admin-form-readonly .admissions-readonly-value {
+    padding-left: 0.35rem;
+}
+
+@media (min-width: 992px) {
+    .admissions-mgmt-shell .student-mgmt-admin-form-row > :nth-child(3) {
+        padding-left: 1.75rem;
+    }
+}

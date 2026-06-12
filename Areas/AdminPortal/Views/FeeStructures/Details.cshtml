@@ -13,7 +13,14 @@
         </ol>
     </nav>
     <h1 class="h3 fw-bold mb-1">@s.StructureName</h1>
-    <p class="text-muted mb-0">@s.ProgramName · @s.Semester · @s.AcademicYear</p>
+    <p class="text-muted mb-0">
+        @s.ProgramName
+        @if (!string.IsNullOrWhiteSpace(s.ClassName))
+        {
+            <text> · @s.ClassName</text>
+        }
+        · @s.Semester · @s.AcademicYear
+    </p>
 </section>
 
 <partial name="_FeeAlerts" />

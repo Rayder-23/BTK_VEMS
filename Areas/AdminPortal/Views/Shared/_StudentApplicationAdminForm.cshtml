@@ -195,6 +195,12 @@
         </div>
     </div>
 
+    <div class="admissions-form-section-heading admissions-form-section-heading--with-action" role="heading" aria-level="3">
+        <span>Payments</span>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="pickAdmissionPaymentBtn">Pick Payment</button>
+    </div>
+    <div id="pickPaymentMessage" class="admissions-pick-payment-message d-none" role="status"></div>
+
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.PaymentStatus"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
@@ -216,18 +222,6 @@
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.PaymentDate"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <input asp-for="Form.PaymentDate" class="form-control form-control-sm" type="date" />
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ConvertedStudentID"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ConvertedStudentID" class="form-control form-control-sm" type="number" min="1" />
-        </div>
-    </div>
-
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ConvertedAt"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ConvertedAt" class="form-control form-control-sm" type="datetime-local"
-                   value="@(form.ConvertedAt.HasValue ? form.ConvertedAt.Value.ToString("yyyy-MM-ddTHH:mm") : null)" />
         </div>
         <div class="col-6 col-lg-3 d-none d-lg-block"></div>
         <div class="col-6 col-lg-3 d-none d-lg-block"></div>

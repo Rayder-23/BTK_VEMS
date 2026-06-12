@@ -13,16 +13,26 @@
     </div>
     <div class="col-md-4">
         <label asp-for="ProgramId" class="form-label"></label>
-        <select asp-for="ProgramId" class="form-select" asp-items="@(new SelectList(programs, "Id", "Name"))"></select>
+        <select asp-for="ProgramId" id="feeStructureProgramId" class="form-select" asp-items="@(new SelectList(programs, "Id", "Name"))">
+            <option value="">— Select program —</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ClassId" class="form-label"></label>
+        <select asp-for="ClassId" id="feeStructureClassId" class="form-select" data-initial-class-id="@(Model.ClassId?.ToString() ?? "")">
+            <option value="">— All classes —</option>
+        </select>
+        <span asp-validation-for="ClassId" class="text-danger"></span>
+        <div class="form-text">Choose a class/section (e.g. 10-B) when fee amounts differ by section.</div>
     </div>
     <div class="col-md-4">
         <label asp-for="Semester" class="form-label"></label>
-        <select asp-for="Semester" class="form-select" asp-items="@(new SelectList(FeeConstants.Semesters))"></select>
+        <select asp-for="Semester" id="feeStructureSemester" class="form-select" asp-items="@(new SelectList(FeeConstants.Semesters))"></select>
         <span asp-validation-for="Semester" class="text-danger"></span>
     </div>
     <div class="col-md-4">
         <label asp-for="AcademicYear" class="form-label"></label>
-        <input asp-for="AcademicYear" class="form-control" type="number" />
+        <input asp-for="AcademicYear" id="feeStructureAcademicYear" class="form-control" type="number" />
     </div>
     <div class="col-md-4">
         <div class="form-check mt-2">

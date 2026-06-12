@@ -12,6 +12,5 @@ public sealed class StudentApplicationFormViewModel
 
     public bool ShowConvertAsStudentButton =>
         !IsReadOnly
-        && string.Equals(Form.ApplicationStatus, StudentApplicationAdminRepository.ApprovedApplicationStatus, StringComparison.OrdinalIgnoreCase)
-        && !Form.ConvertedStudentID.HasValue;
+        && string.Equals(Form.ApplicationStatus, StudentApplicationAdminRepository.ApprovedApplicationStatus, StringComparison.OrdinalIgnoreCase);
 }

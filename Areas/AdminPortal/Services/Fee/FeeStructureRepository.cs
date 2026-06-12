@@ -16,13 +16,16 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     public async Task<IReadOnlyList<FeeStructureListItem>> ListAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT fs.Uid, fs.StructureName, p.ProgramName, fs.Semester, fs.AcademicYear, fs.IsActive,
+            SELECT fs.Uid, fs.StructureName, p.ProgramName,
+                   c.ClassCode AS ClassName,
+                   fs.Semester, fs.AcademicYear, fs.IsActive,
                    COUNT(fsd.Uid) AS DetailCount,
                    ISNULL(SUM(fsd.Amount), 0) AS TotalAmount
             FROM dbo.FeeStructures fs
             INNER JOIN dbo.ref_Programs p ON fs.ProgramID = p.Uid
+            LEFT JOIN dbo.Classes c ON fs.ClassID = c.Uid
             LEFT JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
-            GROUP BY fs.Uid, fs.StructureName, p.ProgramName, fs.Semester, fs.AcademicYear, fs.IsActive
+            GROUP BY fs.Uid, fs.StructureName, p.ProgramName, c.ClassCode, fs.Semester, fs.AcademicYear, fs.IsActive
             ORDER BY fs.AcademicYear DESC, fs.StructureName;
             """;
 
@@ -38,6 +41,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
                 Uid = FeeSql.ToInt32(reader, "Uid"),
                 StructureName = reader["StructureName"] as string ?? "",
                 ProgramName = reader["ProgramName"] as string ?? "",
+                ClassName = reader["ClassName"] as string,
                 Semester = reader["Semester"] as string ?? "",
                 AcademicYear = FeeSql.ToInt16(reader, "AcademicYear"),
                 IsActive = FeeSql.ToBoolean(reader, "IsActive"),
@@ -52,7 +56,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     public async Task<FeeStructureFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Uid, StructureName, ProgramID, Semester, AcademicYear, IsActive
+            SELECT Uid, StructureName, ProgramID, ClassID, Semester, AcademicYear, IsActive
             FROM dbo.FeeStructures WHERE Uid = @Uid;
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -70,17 +74,30 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
             Uid = FeeSql.ToInt32(reader, "Uid"),
             StructureName = reader["StructureName"] as string ?? "",
             ProgramId = FeeSql.ToInt32(reader, "ProgramID"),
+            ClassId = FeeSql.ToNullableInt32(reader, "ClassID"),
             Semester = reader["Semester"] as string ?? "",
             AcademicYear = FeeSql.ToInt16(reader, "AcademicYear"),
             IsActive = FeeSql.ToBoolean(reader, "IsActive")
         };
     }
 
-    public async Task<bool> ExistsAsync(int programId, string semester, short academicYear, int? excludeUid, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(
+        int programId,
+        string semester,
+        short academicYear,
+        int? classId,
+        int? excludeUid,
+        CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT COUNT(1) FROM dbo.FeeStructures
-            WHERE ProgramID = @ProgramId AND Semester = @Semester AND AcademicYear = @AcademicYear
+            WHERE ProgramID = @ProgramId
+              AND Semester = @Semester
+              AND AcademicYear = @AcademicYear
+              AND (
+                    (@ClassId IS NULL AND ClassID IS NULL)
+                    OR ClassID = @ClassId
+                  )
               AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -88,6 +105,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
         command.Parameters.AddWithValue("@ProgramId", programId);
         command.Parameters.AddWithValue("@Semester", semester.Trim());
         command.Parameters.AddWithValue("@AcademicYear", academicYear);
+        command.Parameters.AddWithValue("@ClassId", classId.HasValue && classId.Value > 0 ? classId.Value : DBNull.Value);
         command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return (int)(await command.ExecuteScalarAsync(cancellationToken) ?? 0) > 0;
@@ -96,8 +114,8 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     public async Task<int> InsertAsync(FeeStructureFormModel model, int createdBy, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            INSERT INTO dbo.FeeStructures (StructureName, ProgramID, Semester, AcademicYear, IsActive, CreatedBy, CreatedAt)
-            VALUES (@StructureName, @ProgramId, @Semester, @AcademicYear, @IsActive, @CreatedBy, SYSUTCDATETIME());
+            INSERT INTO dbo.FeeStructures (StructureName, ProgramID, ClassID, Semester, AcademicYear, IsActive, CreatedBy, CreatedAt)
+            VALUES (@StructureName, @ProgramId, @ClassId, @Semester, @AcademicYear, @IsActive, @CreatedBy, SYSUTCDATETIME());
             SELECT CAST(SCOPE_IDENTITY() AS int);
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -112,8 +130,8 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     {
         const string sql = """
             UPDATE dbo.FeeStructures SET
-                StructureName = @StructureName, ProgramID = @ProgramId, Semester = @Semester,
-                AcademicYear = @AcademicYear, IsActive = @IsActive,
+                StructureName = @StructureName, ProgramID = @ProgramId, ClassID = @ClassId,
+                Semester = @Semester, AcademicYear = @AcademicYear, IsActive = @IsActive,
                 UpdatedBy = @UpdatedBy, UpdatedAt = SYSUTCDATETIME()
             WHERE Uid = @Uid;
             """;
@@ -209,7 +227,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     public async Task<IReadOnlyList<FeeStructureDetailLine>> GetDetailsForStructureAsync(int structureId, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT fsd.Uid, fsd.StructureID, fsd.FeeHeadID, fh.HeadName, fsd.Amount, fsd.DueDate,
+            SELECT fsd.Uid, fsd.StructureID, fsd.FeeHeadID, fh.HeadCode, fh.HeadName, fsd.Amount, fsd.DueDate,
                    fsd.LateFinePerDay, fsd.MaxLateFine
             FROM dbo.FeeStructureDetails fsd
             INNER JOIN dbo.ref_FeeHeads fh ON fsd.FeeHeadID = fh.Uid
@@ -230,6 +248,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
                 Uid = FeeSql.ToInt32(reader, "Uid"),
                 StructureId = FeeSql.ToInt32(reader, "StructureID"),
                 FeeHeadId = FeeSql.ToInt16(reader, "FeeHeadID"),
+                FeeHeadCode = reader["HeadCode"] as string ?? "",
                 FeeHeadName = reader["HeadName"] as string ?? "",
                 Amount = FeeSql.ToDecimal(reader, "Amount"),
                 DueDate = FeeSql.ToNullableDateOnly(reader, "DueDate"),
@@ -245,6 +264,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     {
         command.Parameters.AddWithValue("@StructureName", model.StructureName.Trim());
         command.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+        command.Parameters.AddWithValue("@ClassId", model.ClassId.HasValue && model.ClassId.Value > 0 ? model.ClassId.Value : DBNull.Value);
         command.Parameters.AddWithValue("@Semester", model.Semester.Trim());
         command.Parameters.AddWithValue("@AcademicYear", model.AcademicYear);
         command.Parameters.AddWithValue("@IsActive", model.IsActive);

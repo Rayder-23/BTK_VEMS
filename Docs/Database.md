@@ -1,7 +1,7 @@
 # Database Schema Documentation: Virtual Education Management System
 
-- *VERSION: 1.8*
-- *UPDATED AT: 2026-05-19 03:45pm*
+- *VERSION: 1.9*
+- *UPDATED AT: 2026-06-12*
 
 ### Project-Wide Rules:-
 1. **Uid Mandate:** The primary key of every table is `Uid` (except `StudentContacts`, which uses `ContactID` as PK and also carries a separate `Uid` column).
@@ -328,19 +328,21 @@ Per-period enrollment linking a student to a program, section, and roll number.
 | **Uid**          | INT           | **PK**, Identity(1,1)                                       |
 | StudentID        | INT           | **FK** → Students.Uid, NOT NULL                             |
 | ProgramID        | INT           | **FK** → ref_Programs.Uid, NOT NULL                         |
+| ClassID          | INT           | **FK** → Classes.Uid — Nullable                             |
 | AcademicYear     | SMALLINT      | NOT NULL — e.g. `2025`                                      |
 | GradeOrSemester  | TINYINT       | NOT NULL                                                    |
-| SectionID        | INT           | NOT NULL — No FK constraint in DB                           |
 | RollNo           | NVARCHAR(30)  | NOT NULL                                                    |
 | EnrollmentDate   | DATE          | NOT NULL                                                    |
-| CompletionDate   | DATE          | Nullable — Populated on completion/withdrawal               |
 | EnrollmentStatus | NVARCHAR(20)  | DEFAULT `'Active'` — From Configurations                    |
-| FeeStatus        | NVARCHAR(20)  | DEFAULT `'Pending'` — From Configurations                   |
-| Remarks          | NVARCHAR(300) | Nullable                                                    |
-| CreatedBy        | INT           | NOT NULL                                                    |
-| CreatedAt        | DATETIME2(7)  | DEFAULT sysutcdatetime()                                    |
-| UpdatedBy        | INT           | Nullable                                                    |
-| UpdatedAt        | DATETIME2(7)  | Nullable                                                    |
+| IsActive         | BIT           | DEFAULT 1                                                   |
+| CreatedAt        | DATETIME2(7)  | DEFAULT sysdatetime()                                       |
+| [REMOVED] SectionID | INT        | Replaced by `ClassID` in live schema                        |
+| [REMOVED] CompletionDate | DATE   | No longer present in live schema                            |
+| [REMOVED] FeeStatus | NVARCHAR(20) | No longer present in live schema                          |
+| [REMOVED] Remarks | NVARCHAR(300) | No longer present in live schema                           |
+| [REMOVED] CreatedBy | INT       | No longer present in live schema                            |
+| [REMOVED] UpdatedBy | INT       | No longer present in live schema                            |
+| [REMOVED] UpdatedAt | DATETIME2(7) | No longer present in live schema                         |
 
 Unique constraints:
 - `(StudentID, ProgramID, AcademicYear, GradeOrSemester)` — one enrollment per period
@@ -377,6 +379,7 @@ Header record for a program's fee schedule in a given semester and academic year
 | **Uid**       | INT            | **PK**, Identity(1,1)                                         |
 | StructureName | NVARCHAR(150)  | NOT NULL                                                      |
 | ProgramID     | INT            | **FK** → ref_Programs.Uid, NOT NULL                           |
+| ClassID       | INT            | **FK** → Classes.Uid — Nullable (section-specific fee schedule) |
 | Semester      | NVARCHAR(20)   | NOT NULL                                                      |
 | AcademicYear  | SMALLINT       | NOT NULL — e.g. `2025`                                        |
 | IsActive      | BIT            | DEFAULT 1                                                     |
@@ -385,7 +388,9 @@ Header record for a program's fee schedule in a given semester and academic year
 | UpdatedBy     | INT            | Nullable                                                      |
 | UpdatedAt     | DATETIME2(7)   | Nullable                                                      |
 
-Unique constraint on `(ProgramID, Semester, AcademicYear)`.
+Filtered unique indexes:
+- `(ProgramID, Semester, AcademicYear)` where `ClassID IS NULL` — one program-wide structure per period
+- `(ProgramID, Semester, AcademicYear, ClassID)` where `ClassID IS NOT NULL` — one structure per class/section per period
 
 ### FeeStructureDetails
 
@@ -436,13 +441,14 @@ Per-student fee discounts/concessions, optionally scoped to a specific fee head.
 
 ### Challans
 
-Parent payment voucher record for a student.
+Parent payment voucher record for a student or admission applicant.
 
 | Header         | Type          | Constraints / Role                                          |
 | :------------- | :------------ | :---------------------------------------------------------- |
 | **Uid**        | INT           | **PK**, Identity(1,1)                                       |
 | ChallanNo      | NVARCHAR(30)  | **UNIQUE**, NOT NULL — System generated voucher number      |
-| StudentID      | INT           | **FK** → Students.Uid, NOT NULL                             |
+| StudentID      | INT           | **FK** → Students.Uid — Nullable (student fee challans)     |
+| ApplicationUid | INT           | **FK** → StudentApplications.Uid — Nullable (admission challans) |
 | StructureID    | INT           | **FK** → FeeStructures.Uid — Nullable                       |
 | Semester       | NVARCHAR(20)  | NOT NULL                                                    |
 | AcademicYear   | SMALLINT      | NOT NULL — e.g. `2025`                                      |
