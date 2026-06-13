@@ -3,24 +3,25 @@
     var search = ViewData["Search"] as string;
     var showInactive = ViewData["ShowInactive"] as bool? ?? false;
     var message = TempData["StatusMessage"] as string;
+    var error = TempData["ErrorMessage"] as string;
 }
 
 <section class="portal-card page-summary-compact mb-3">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
-            <li class="breadcrumb-item"><a href="/adminportal/students">Student Management</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/settings">Settings</a></li>
             <li class="breadcrumb-item active">Programs</li>
         </ol>
     </nav>
     <div class="page-summary-head">
         <div class="page-summary-title-block">
             <span class="page-summary-title">Programs</span>
-            <span class="page-summary-meta">Manage dbo.ref_Programs</span>
+            <span class="page-summary-meta">Manage dbo.Programs</span>
         </div>
         <div class="d-flex flex-wrap gap-2 flex-shrink-0">
-            <a class="btn btn-sm btn-outline-primary rounded-pill" href="/adminportal/students/programs/courses">
-                <i class="bi bi-grid me-1"></i>Courses by program
+            <a class="btn btn-sm btn-outline-primary rounded-pill" href="/adminportal/settings/courses">
+                <i class="bi bi-grid me-1"></i>All courses
             </a>
             <a class="btn btn-sm btn-primary rounded-pill" href="/adminportal/students/programs/create">
                 <i class="bi bi-plus-lg me-1"></i>Add program
@@ -33,12 +34,16 @@
 {
     <div class="alert alert-success mb-3" role="alert">@message</div>
 }
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger mb-3" role="alert">@error</div>
+}
 
 <section class="portal-card">
     <form method="get" class="row g-2 align-items-end mb-3">
         <div class="col-md-6">
             <label class="form-label" for="search">Search</label>
-            <input type="search" class="form-control" id="search" name="search" value="@search" placeholder="Code, name, or short name" />
+            <input type="search" class="form-control" id="search" name="search" value="@search" placeholder="Code or name" />
         </div>
         <div class="col-md-3">
             <div class="form-check mt-4">
@@ -55,9 +60,9 @@
         <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Code</th>
                     <th>Name</th>
-                    <th>Short name</th>
                     <th>Duration</th>
                     <th>Active</th>
                     <th>Created</th>
@@ -72,23 +77,37 @@
             @foreach (var row in Model)
             {
                 <tr>
+                    <td>@row.ProgramId</td>
                     <td>@row.ProgramCode</td>
                     <td>@row.ProgramName</td>
-                    <td>@(row.ShortName ?? "—")</td>
                     <td>@(row.DurationYears.HasValue ? $"{row.DurationYears} yr(s)" : "—")</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
-                    <td>@row.CreatedAt.ToString("yyyy-MM-dd")</td>
+                    <td>@row.CreatedOn.ToString("yyyy-MM-dd")</td>
                     <td class="text-end">
-                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/students/programs/details/@row.Uid">View</a>
-                        <a class="btn btn-sm btn-outline-success" href="/adminportal/students/programs/edit/@row.Uid">Edit</a>
+                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/students/programs/details/@row.ProgramId">View</a>
+                        <a class="btn btn-sm btn-outline-success" href="/adminportal/students/programs/edit/@row.ProgramId">Edit</a>
                         @if (row.IsActive)
                         {
-                            <form method="post" action="/adminportal/students/programs/delete/@row.Uid" class="d-inline"
+                            <form method="post" action="/adminportal/students/programs/deactivate/@row.ProgramId" class="d-inline"
                                   onsubmit="return confirm('Deactivate this program?');">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                <button type="submit" class="btn btn-sm btn-outline-warning">Deactivate</button>
                             </form>
                         }
+                        else
+                        {
+                            <form method="post" action="/adminportal/students/programs/activate/@row.ProgramId" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+                            </form>
+                        }
+                        <form method="post" action="/adminportal/students/programs/delete/@row.ProgramId" class="d-inline"
+                              onsubmit="return confirm('Permanently delete this program? This cannot be undone.');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash" aria-hidden="true"></i> Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }

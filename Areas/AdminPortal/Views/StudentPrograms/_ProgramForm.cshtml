@@ -2,34 +2,27 @@
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<input type="hidden" asp-for="Uid" />
+<input type="hidden" asp-for="ProgramId" />
 
 <div class="student-mgmt-admin-form-grid">
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="ProgramCode"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="ProgramCode" class="form-control form-control-sm" maxlength="10" />
+            <input asp-for="ProgramCode" class="form-control form-control-sm" maxlength="20" />
             <span asp-validation-for="ProgramCode" class="text-danger small"></span>
         </div>
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="ProgramName"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="ProgramName" class="form-control form-control-sm" maxlength="100" />
+            <input asp-for="ProgramName" class="form-control form-control-sm" maxlength="200" />
             <span asp-validation-for="ProgramName" class="text-danger small"></span>
         </div>
     </div>
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="ShortName"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="ShortName" class="form-control form-control-sm" maxlength="50" />
-            <span asp-validation-for="ShortName" class="text-danger small"></span>
-        </div>
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="DurationYears"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="DurationYears" class="form-control form-control-sm" type="number" min="1" max="255" />
+            <input asp-for="DurationYears" class="form-control form-control-sm" type="number" min="1" max="100" />
             <span asp-validation-for="DurationYears" class="text-danger small"></span>
         </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="IsActive"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <div class="form-check mb-0">
@@ -37,11 +30,13 @@
                 <label asp-for="IsActive" class="form-check-label"></label>
             </div>
         </div>
-        @if (Model.CreatedAt.HasValue)
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        @if (Model.CreatedOn.HasValue)
         {
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="CreatedAt"></label>
+            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="CreatedOn"></label>
             <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input class="form-control form-control-sm" value="@Model.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm")" readonly disabled />
+                <input class="form-control form-control-sm" value="@Model.CreatedOn.Value.ToString("yyyy-MM-dd HH:mm")" readonly disabled />
             </div>
         }
     </div>

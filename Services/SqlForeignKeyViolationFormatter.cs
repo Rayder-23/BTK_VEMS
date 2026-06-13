@@ -11,7 +11,7 @@ public static class SqlForeignKeyViolationFormatter
     private static readonly Dictionary<string, string> ConstraintHints = new(StringComparer.OrdinalIgnoreCase)
     {
         ["FK_Students_Program"] =
-            "Program: the application's Program code must match an active program in Reference Data (ref_Programs). Edit the applicant's program or activate the program in the system.",
+            "Program: the application's Program code must match an active program in Reference Data (Programs). Edit the applicant's program or activate the program in the system.",
         ["FK_Students_Country"] =
             "Country: no matching active country was found in ref_Countries. Ensure reference countries exist and are active.",
         ["FK_Students_Province"] =

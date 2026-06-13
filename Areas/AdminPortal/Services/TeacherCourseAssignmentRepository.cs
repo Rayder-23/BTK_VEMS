@@ -27,9 +27,9 @@ public sealed class TeacherCourseAssignmentRepository : ITeacherCourseAssignment
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Uid, EmployeeCode, FirstName, LastName
+            SELECT TeacherID, EmployeeNo, TeacherName
             FROM dbo.Teachers
-            WHERE Uid = @TeacherId;
+            WHERE TeacherID = @TeacherId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
@@ -42,13 +42,11 @@ public sealed class TeacherCourseAssignmentRepository : ITeacherCourseAssignment
             return null;
         }
 
-        var first = reader["FirstName"] as string ?? string.Empty;
-        var last = reader["LastName"] as string ?? string.Empty;
         return new TeacherAssignmentSummaryViewModel
         {
-            TeacherId = Convert.ToInt32(reader["Uid"]),
-            EmployeeCode = reader["EmployeeCode"] as string ?? string.Empty,
-            FullName = $"{first} {last}".Trim()
+            TeacherId = Convert.ToInt32(reader["TeacherID"]),
+            EmployeeCode = reader["EmployeeNo"] as string ?? string.Empty,
+            FullName = reader["TeacherName"] as string ?? string.Empty
         };
     }
 
@@ -62,7 +60,7 @@ public sealed class TeacherCourseAssignmentRepository : ITeacherCourseAssignment
                 tca.Uid,
                 c.ClassName,
                 c.ClassCode,
-                co.CourseTitle,
+                co.CourseName,
                 co.CourseCode,
                 tca.Semester,
                 tca.AcademicYear,
@@ -72,8 +70,8 @@ public sealed class TeacherCourseAssignmentRepository : ITeacherCourseAssignment
                 tca.RoomNo,
                 tca.IsActive
             FROM dbo.TeacherCourseAssignments tca
-            INNER JOIN dbo.Classes c ON tca.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON tca.CourseID = co.Uid
+            INNER JOIN dbo.Classes c ON tca.ClassID = c.ClassID
+            INNER JOIN dbo.Courses co ON tca.CourseID = co.CourseID
             WHERE tca.TeacherID = @TeacherId
             """ + (activeOnly ? " AND tca.IsActive = 1" : "") + """
              ORDER BY tca.AcademicYear DESC, tca.Semester, c.ClassCode, co.CourseCode, tca.DayOfWeek;
@@ -92,7 +90,7 @@ public sealed class TeacherCourseAssignmentRepository : ITeacherCourseAssignment
                 Uid = Convert.ToInt32(reader["Uid"]),
                 ClassName = reader["ClassName"] as string ?? string.Empty,
                 ClassCode = reader["ClassCode"] as string ?? string.Empty,
-                CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
+                CourseName = reader["CourseName"] as string ?? string.Empty,
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
                 Semester = reader["Semester"] as string ?? string.Empty,
                 AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
@@ -143,14 +141,14 @@ public sealed class TeacherCourseAssignmentRepository : ITeacherCourseAssignment
     public async Task<TeacherCourseAssignmentLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
     {
         const string classesSql = """
-            SELECT Uid, ClassCode + ' - ' + ClassName
+            SELECT ClassID, ClassCode + ' · ' + ClassName
             FROM dbo.Classes
             WHERE IsActive = 1
-            ORDER BY ClassCode;
+            ORDER BY SortOrder, ClassCode;
             """;
 
         const string coursesSql = """
-            SELECT Uid, CourseCode + ' - ' + CourseTitle
+            SELECT CourseID, CourseCode + ' - ' + CourseName
             FROM dbo.Courses
             WHERE IsActive = 1
             ORDER BY CourseCode;

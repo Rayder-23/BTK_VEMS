@@ -67,9 +67,9 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
             return View(model);
         }
 
-        if (await _enrollments.ExistsAsync(model.Form.StudentId, model.Form.ClassCourseId, null, cancellationToken))
+        if (await _enrollments.ExistsAsync(model.Form.StudentId, model.Form.ClassSectionCourseId, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This student is already enrolled in the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This student is already enrolled in the selected class course.");
             model.Lookups = await _enrollments.GetLookupsAsync(model.Form.StudentId, cancellationToken);
             return View(model);
         }
@@ -82,7 +82,7 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This student is already enrolled in the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This student is already enrolled in the selected class course.");
             model.Lookups = await _enrollments.GetLookupsAsync(model.Form.StudentId, cancellationToken);
             return View(model);
         }
@@ -132,9 +132,9 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
             return View(model);
         }
 
-        if (await _enrollments.ExistsAsync(model.Form.StudentId, model.Form.ClassCourseId, id, cancellationToken))
+        if (await _enrollments.ExistsAsync(model.Form.StudentId, model.Form.ClassSectionCourseId, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This student is already enrolled in the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This student is already enrolled in the selected class course.");
             model.Lookups = await _enrollments.GetLookupsAsync(model.Form.StudentId, cancellationToken);
             return View(model);
         }
@@ -152,7 +152,7 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This student is already enrolled in the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This student is already enrolled in the selected class course.");
             model.Lookups = await _enrollments.GetLookupsAsync(model.Form.StudentId, cancellationToken);
             return View(model);
         }
@@ -199,9 +199,9 @@ public sealed class StudentCourseEnrollmentsController : StudentMgmtBaseControll
             ModelState.AddModelError(nameof(form.StudentId), "Select a valid student.");
         }
 
-        if (lookups.ClassCourses.All(c => c.Id != form.ClassCourseId))
+        if (lookups.ClassSectionCourses.All(c => c.Id != form.ClassSectionCourseId))
         {
-            ModelState.AddModelError(nameof(form.ClassCourseId), "Select a valid class course.");
+            ModelState.AddModelError(nameof(form.ClassSectionCourseId), "Select a valid class course.");
         }
 
         if (!await _enrollments.EnrollmentBelongsToStudentAsync(form.EnrollmentId, form.StudentId, cancellationToken))

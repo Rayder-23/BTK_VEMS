@@ -1,0 +1,56 @@
+@model StudentEnrollmentLinkFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Form.StudentEnrollmentId" />
+
+<div class="student-mgmt-admin-form-grid">
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AcademicYearId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.AcademicYearId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.AcademicYears, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select academic year —</option>
+            </select>
+            <span asp-validation-for="Form.AcademicYearId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.StudentId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.StudentId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Students, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select student —</option>
+            </select>
+            <span asp-validation-for="Form.StudentId" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ProgramId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Select program —</option>
+            </select>
+            <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassSectionId"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <select asp-for="Form.ClassSectionId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.ClassSections, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+                <option value="">— Optional class section —</option>
+            </select>
+            <span asp-validation-for="Form.ClassSectionId" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.RollNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.RollNo" class="form-control form-control-sm" />
+            <span asp-validation-for="Form.RollNo" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.EnrollmentDate"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Form.EnrollmentDate" class="form-control form-control-sm" type="date" />
+            <span asp-validation-for="Form.EnrollmentDate" class="text-danger small"></span>
+        </div>
+    </div>
+</div>

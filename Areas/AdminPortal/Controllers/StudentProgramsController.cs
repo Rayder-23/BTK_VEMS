@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
 using VEMS.Areas.AdminPortal.Services;
 
@@ -8,12 +9,10 @@ namespace VEMS.Areas.AdminPortal.Controllers;
 public sealed class StudentProgramsController : StudentMgmtBaseController
 {
     private readonly IProgramRepository _programs;
-    private readonly ICourseRepository _courses;
 
-    public StudentProgramsController(IProgramRepository programs, ICourseRepository courses)
+    public StudentProgramsController(IProgramRepository programs)
     {
         _programs = programs;
-        _courses = courses;
     }
 
     protected override string ModuleKey => "Programs";
@@ -83,7 +82,7 @@ public sealed class StudentProgramsController : StudentMgmtBaseController
         ViewData["Title"] = "Edit Program";
         ViewData["PageTitle"] = "Programs · Edit";
 
-        if (id != form.Uid)
+        if (id != form.ProgramId)
         {
             return NotFound();
         }
@@ -109,66 +108,49 @@ public sealed class StudentProgramsController : StudentMgmtBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost("delete/{id:int}")]
+    [HttpPost("deactivate/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Deactivate(int id, CancellationToken cancellationToken)
     {
-        var ok = await _programs.DeactivateAsync(id, cancellationToken);
+        var ok = await _programs.SetActiveAsync(id, isActive: false, cancellationToken);
         TempData["StatusMessage"] = ok ? "Program deactivated." : "Program not found.";
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet("details/{id:int}")]
-    public Task<IActionResult> Details(
-        int id,
-        string? search,
-        bool showInactive = false,
-        CancellationToken cancellationToken = default) =>
-        ProgramCoursesAsync(id, search, showInactive, cancellationToken);
-
-    [HttpGet("courses")]
-    public Task<IActionResult> Courses(
-        int? programId,
-        string? search,
-        bool showInactive = false,
-        CancellationToken cancellationToken = default) =>
-        ProgramCoursesAsync(programId, search, showInactive, cancellationToken);
-
-    private async Task<IActionResult> ProgramCoursesAsync(
-        int? programId,
-        string? search,
-        bool showInactive,
-        CancellationToken cancellationToken)
+    [HttpPost("activate/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Activate(int id, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = programId.HasValue ? "Program Courses" : "Courses by Program";
-        ViewData["PageTitle"] = programId.HasValue ? "Programs · Courses" : "Programs · Select Program";
-        ViewData["Search"] = search;
-        ViewData["ShowInactive"] = showInactive;
+        var ok = await _programs.SetActiveAsync(id, isActive: true, cancellationToken);
+        TempData["StatusMessage"] = ok ? "Program activated." : "Program not found.";
+        return RedirectToAction(nameof(Index));
+    }
 
-        var model = new ProgramCoursesPageViewModel
+    [HttpPost("delete/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        try
         {
-            SelectedProgramId = programId,
-            Search = search,
-            ShowInactive = showInactive,
-            Programs = await _programs.GetProgramOptionsAsync(activeOnly: false, cancellationToken)
-        };
-
-        if (programId.HasValue)
+            var ok = await _programs.DeleteAsync(id, cancellationToken);
+            TempData["StatusMessage"] = ok
+                ? "Program deleted permanently."
+                : "Program not found.";
+        }
+        catch (SqlException ex) when (ex.Number == 547)
         {
-            model.ProgramSummary = await _programs.GetListItemAsync(programId.Value, cancellationToken);
-            model.Program = await _programs.GetAsync(programId.Value, cancellationToken);
-            if (model.Program is null)
-            {
-                return NotFound();
-            }
-
-            model.Courses = await _courses.ListAsync(
-                search,
-                activeOnly: !showInactive,
-                programId: programId.Value,
-                cancellationToken);
+            TempData["ErrorMessage"] =
+                "Program could not be deleted because enrollments or other records still reference it. Deactivate it instead, or remove those links first.";
         }
 
-        return View("ProgramCourses", model);
+        return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet("details/{id:int}")]
+    public IActionResult Details(int id) =>
+        Redirect("/adminportal/settings/courses");
+
+    [HttpGet("courses")]
+    public IActionResult Courses() =>
+        Redirect("/adminportal/settings/courses");
 }

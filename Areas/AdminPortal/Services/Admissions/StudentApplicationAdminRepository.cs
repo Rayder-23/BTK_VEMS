@@ -105,7 +105,7 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
                 p.ProgramCode,
                 p.ProgramName,
                 p.DurationYears
-            FROM dbo.ref_Programs p
+            FROM dbo.Programs p
             WHERE p.IsActive = 1
             ORDER BY p.ProgramName;
             """;
@@ -407,7 +407,7 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         const string sql = """
             SELECT TOP (1) fsd.Amount
             FROM dbo.FeeStructures fs
-            INNER JOIN dbo.ref_Programs p ON p.Uid = fs.ProgramID
+            INNER JOIN dbo.Programs p ON p.ProgramID = fs.ProgramID
             INNER JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
             INNER JOIN dbo.ref_FeeHeads fh ON fh.Uid = fsd.FeeHeadID
             WHERE fs.IsActive = 1
@@ -462,7 +462,7 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
                 fs.AcademicYear,
                 fsd.Amount
             FROM dbo.FeeStructures fs
-            INNER JOIN dbo.ref_Programs p ON p.Uid = fs.ProgramID
+            INNER JOIN dbo.Programs p ON p.ProgramID = fs.ProgramID
             INNER JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
             INNER JOIN dbo.ref_FeeHeads fh ON fh.Uid = fsd.FeeHeadID
             WHERE fs.IsActive = 1
@@ -539,8 +539,8 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
 
         if (application.ConvertedStudentID.HasValue)
         {
-            await using var existsCmd = new SqlCommand("SELECT 1 FROM dbo.Students WHERE Uid = @Uid;", connection);
-            existsCmd.Parameters.AddWithValue("@Uid", application.ConvertedStudentID.Value);
+            await using var existsCmd = new SqlCommand("SELECT 1 FROM dbo.Students WHERE StudentID = @StudentId;", connection);
+            existsCmd.Parameters.AddWithValue("@StudentId", application.ConvertedStudentID.Value);
             var linkedStudent = await existsCmd.ExecuteScalarAsync(cancellationToken);
             if (linkedStudent is not null and not DBNull)
             {
@@ -563,45 +563,62 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
 
             const string insertStudentSql = """
                 INSERT INTO dbo.Students (
-                    RegistrationNo, ProgramID, AdmissionYear, AdmissionDate,
-                    FirstName, LastName, FatherName, DateOfBirth, Gender,
-                    AddressLine1, CountryID, ProvinceID, CityID,
-                    NIC_No, BFORM_No, Nationality, IsActive, StatusRemark,
-                    PreviousGradeOrSem, CreatedBy
+                    RegistrationNo,
+                    StudentName,
+                    Email,
+                    IsActive
                 )
-                OUTPUT INSERTED.Uid
+                OUTPUT INSERTED.StudentID
                 VALUES (
-                    @RegistrationNo, @ProgramID, @AdmissionYear, @AdmissionDate,
-                    @FirstName, @LastName, @FatherName, @DateOfBirth, @Gender,
-                    @AddressLine1, @CountryID, @ProvinceID, @CityID,
-                    @NIC_No, @BFORM_No, @Nationality, @IsActive, @StatusRemark,
-                    @PreviousGradeOrSem, @CreatedBy
+                    @RegistrationNo,
+                    @StudentName,
+                    @Email,
+                    @IsActive
                 );
                 """;
 
             await using var insertCmd = new SqlCommand(insertStudentSql, connection, transaction);
             insertCmd.Parameters.AddWithValue("@RegistrationNo", registrationNo);
-            insertCmd.Parameters.AddWithValue("@ProgramID", programId);
-            insertCmd.Parameters.AddWithValue("@AdmissionYear", application.DesiredYear);
-            insertCmd.Parameters.AddWithValue("@AdmissionDate", application.ApplicationDate!.Value.Date);
-            insertCmd.Parameters.AddWithValue("@FirstName", application.FirstName.Trim());
-            insertCmd.Parameters.AddWithValue("@LastName", application.LastName.Trim());
-            insertCmd.Parameters.AddWithValue("@FatherName", application.FatherName.Trim());
-            insertCmd.Parameters.AddWithValue("@DateOfBirth", application.DateOfBirth!.Value.Date);
-            insertCmd.Parameters.AddWithValue("@Gender", StudentConversionValidator.NormalizeGenderCode(application.Gender));
-            insertCmd.Parameters.AddWithValue("@AddressLine1", application.AddressLine1.Trim());
-            insertCmd.Parameters.AddWithValue("@CountryID", countryId);
-            insertCmd.Parameters.AddWithValue("@ProvinceID", provinceId);
-            insertCmd.Parameters.AddWithValue("@CityID", cityId);
-            insertCmd.Parameters.AddWithValue("@NIC_No", (object?)application.NIC_No?.Trim() ?? DBNull.Value);
-            insertCmd.Parameters.AddWithValue("@BFORM_No", (object?)application.BFORM_No?.Trim() ?? DBNull.Value);
-            insertCmd.Parameters.AddWithValue("@Nationality", "Pakistani");
+            insertCmd.Parameters.AddWithValue("@StudentName", $"{application.FirstName.Trim()} {application.LastName.Trim()}".Trim());
+            insertCmd.Parameters.AddWithValue("@Email", (object?)application.EmailAddress?.Trim() ?? DBNull.Value);
             insertCmd.Parameters.AddWithValue("@IsActive", true);
-            insertCmd.Parameters.AddWithValue("@StatusRemark", $"Converted from application {application.ApplicationNo}");
-            insertCmd.Parameters.AddWithValue("@PreviousGradeOrSem", application.DesiredGradeOrSemester.ToString());
-            insertCmd.Parameters.AddWithValue("@CreatedBy", createdBy);
 
             var studentId = Convert.ToInt32(await insertCmd.ExecuteScalarAsync(cancellationToken));
+
+            const string insertEnrollmentSql = """
+                INSERT INTO dbo.StudentEnrollments (
+                    StudentID,
+                    ProgramID,
+                    ClassID,
+                    RollNo,
+                    AcademicYear,
+                    GradeOrSemester,
+                    EnrollmentDate,
+                    EnrollmentStatus,
+                    IsActive
+                )
+                VALUES (
+                    @StudentID,
+                    @ProgramID,
+                    (SELECT TOP 1 ClassID FROM dbo.Classes WHERE IsActive = 1 ORDER BY SortOrder, ClassID),
+                    @RollNo,
+                    @AcademicYear,
+                    @GradeOrSemester,
+                    @EnrollmentDate,
+                    @EnrollmentStatus,
+                    1
+                );
+                """;
+
+            await using var enrollmentCmd = new SqlCommand(insertEnrollmentSql, connection, transaction);
+            enrollmentCmd.Parameters.AddWithValue("@StudentID", studentId);
+            enrollmentCmd.Parameters.AddWithValue("@ProgramID", programId);
+            enrollmentCmd.Parameters.AddWithValue("@RollNo", registrationNo);
+            enrollmentCmd.Parameters.AddWithValue("@AcademicYear", application.DesiredYear);
+            enrollmentCmd.Parameters.AddWithValue("@GradeOrSemester", application.DesiredGradeOrSemester);
+            enrollmentCmd.Parameters.AddWithValue("@EnrollmentDate", application.ApplicationDate!.Value.Date);
+            enrollmentCmd.Parameters.AddWithValue("@EnrollmentStatus", "Active");
+            await enrollmentCmd.ExecuteNonQueryAsync(cancellationToken);
 
             const string updateAppSql = """
                 UPDATE dbo.StudentApplications
@@ -641,14 +658,14 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         string programCode,
         CancellationToken cancellationToken)
     {
-        const string sql = "SELECT Uid FROM dbo.ref_Programs WHERE ProgramCode = @ProgramCode AND IsActive = 1;";
+        const string sql = "SELECT ProgramID FROM dbo.Programs WHERE ProgramCode = @ProgramCode AND IsActive = 1;";
         await using var command = new SqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("@ProgramCode", programCode.Trim());
         var result = await command.ExecuteScalarAsync(cancellationToken);
         if (result is null or DBNull)
         {
             throw new InvalidOperationException(
-                $"Program code '{programCode.Trim()}' was not found among active programs (ref_Programs). Edit the applicant and choose a valid program, or activate the program in the system.");
+                $"Program code '{programCode.Trim()}' was not found among active programs (Programs). Edit the applicant and choose a valid program, or activate the program in the system.");
         }
 
         return Convert.ToInt32(result);
@@ -838,7 +855,7 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
     {
         const string sql = """
             SELECT
-                CASE WHEN EXISTS (SELECT 1 FROM dbo.ref_Programs WHERE Uid = @ProgramID AND IsActive = 1) THEN 1 ELSE 0 END,
+                CASE WHEN EXISTS (SELECT 1 FROM dbo.Programs WHERE ProgramID = @ProgramID AND IsActive = 1) THEN 1 ELSE 0 END,
                 CASE WHEN EXISTS (SELECT 1 FROM dbo.ref_Countries WHERE Uid = @CountryID AND IsActive = 1) THEN 1 ELSE 0 END,
                 CASE WHEN EXISTS (SELECT 1 FROM dbo.ref_Provinces WHERE Uid = @ProvinceID AND IsActive = 1) THEN 1 ELSE 0 END,
                 CASE WHEN EXISTS (SELECT 1 FROM dbo.ref_Cities WHERE Uid = @CityID AND IsActive = 1) THEN 1 ELSE 0 END;
@@ -858,7 +875,7 @@ public sealed class StudentApplicationAdminRepository : IStudentApplicationAdmin
         var issues = new List<string>();
         if (reader.GetInt32(0) == 0)
         {
-            issues.Add("Program reference is missing or inactive (ref_Programs).");
+            issues.Add("Program reference is missing or inactive (Programs).");
         }
 
         if (reader.GetInt32(1) == 0)

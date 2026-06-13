@@ -6,7 +6,7 @@
 <section class="portal-card page-summary-compact mb-3">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="/adminportal/students">Student Management</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/settings">Settings</a></li>
             <li class="breadcrumb-item"><a href="/adminportal/students/programs">Programs</a></li>
             <li class="breadcrumb-item active">Edit</li>
         </ol>
@@ -20,7 +20,7 @@
 </section>
 
 <section class="portal-card">
-    <form method="post" asp-action="Edit" asp-route-id="@Model.Uid">
+    <form method="post" asp-action="Edit" asp-route-id="@Model.ProgramId">
         @Html.AntiForgeryToken()
         <partial name="_ProgramForm" model="Model" />
         <div class="mt-4 d-flex gap-2">

@@ -4,42 +4,37 @@ namespace VEMS.Areas.AdminPortal.Models;
 
 public sealed class ProgramListItem
 {
-    public int Uid { get; init; }
+    public int ProgramId { get; init; }
     public string ProgramCode { get; init; } = string.Empty;
     public string ProgramName { get; init; } = string.Empty;
-    public string? ShortName { get; init; }
-    public byte? DurationYears { get; init; }
+    public int? DurationYears { get; init; }
     public bool IsActive { get; init; }
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedOn { get; init; }
 }
 
 public sealed class ProgramFormModel
 {
-    public int Uid { get; set; }
+    public int ProgramId { get; set; }
 
     [Required(ErrorMessage = "Program code is required.")]
-    [StringLength(10)]
+    [StringLength(20)]
     [Display(Name = "Program code")]
     public string ProgramCode { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Program name is required.")]
-    [StringLength(100)]
+    [StringLength(200)]
     [Display(Name = "Program name")]
     public string ProgramName { get; set; } = string.Empty;
 
-    [StringLength(50)]
-    [Display(Name = "Short name")]
-    public string? ShortName { get; set; }
-
     [Display(Name = "Duration (years)")]
-    [Range(1, 255)]
-    public byte? DurationYears { get; set; }
+    [Range(1, 100)]
+    public int? DurationYears { get; set; }
 
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
-    [Display(Name = "Created at")]
-    public DateTime? CreatedAt { get; set; }
+    [Display(Name = "Created on")]
+    public DateTime? CreatedOn { get; set; }
 }
 
 public sealed class ProgramCoursesPageViewModel

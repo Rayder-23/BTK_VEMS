@@ -19,12 +19,12 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     {
         const string sql = """
             SELECT p.Uid, p.ChallanID, c.ChallanNo,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    p.AmountPaid, p.PaymentDate, p.PaymentMode, p.Status, pr.ReceiptNo
             FROM dbo.Payments p
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             LEFT JOIN dbo.PaymentReceipts pr ON pr.PaymentID = p.Uid
             WHERE p.IsActive = 1
@@ -38,12 +38,12 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     {
         const string sql = """
             SELECT c.Uid, c.ChallanNo, c.ApplicationUid,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    COALESCE(s.RegistrationNo, a.ApplicationNo) AS PartyNo,
                    c.NetPayable, c.AmountPaid
             FROM dbo.Challans c
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE c.Uid = @Uid AND c.IsActive = 1 AND c.Status <> 'Cancelled';
             """;
@@ -162,7 +162,7 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
         const string sql = """
             SELECT p.Uid AS PaymentId, pr.ReceiptNo, pr.IssuedAt, pr.IssuedBy,
                    c.ChallanNo,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
                    p.AmountPaid, p.PaymentMode, p.PaymentDate, p.TransactionRef,
@@ -170,7 +170,7 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
             FROM dbo.Payments p
             INNER JOIN dbo.PaymentReceipts pr ON pr.PaymentID = p.Uid
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE p.Uid = @PaymentId;
             """;
@@ -221,13 +221,13 @@ public sealed class FeePaymentRepository : IFeePaymentRepository
     {
         const string sql = """
             SELECT p.Uid, p.ChallanID, c.ChallanNo,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    p.AmountPaid, p.PaymentDate, p.PaymentMode, p.Status, pr.ReceiptNo
             FROM dbo.PaymentReceipts pr
             INNER JOIN dbo.Payments p ON pr.PaymentID = p.Uid
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE p.IsActive = 1
             ORDER BY pr.IssuedAt DESC;

@@ -9,7 +9,7 @@ public sealed class StudentCourseEnrollmentListItem
     public string RegistrationNo { get; init; } = string.Empty;
     public string ClassCode { get; init; } = string.Empty;
     public string CourseCode { get; init; } = string.Empty;
-    public string CourseTitle { get; init; } = string.Empty;
+    public string CourseName { get; init; } = string.Empty;
     public short AcademicYear { get; init; }
     public byte GradeOrSemester { get; init; }
     public string Status { get; init; } = string.Empty;
@@ -19,7 +19,7 @@ public sealed class StudentCourseEnrollmentListItem
 public sealed class StudentCourseEnrollmentLookups
 {
     public IReadOnlyList<StudentLookupItem> Students { get; init; } = [];
-    public IReadOnlyList<StudentLookupItem> ClassCourses { get; init; } = [];
+    public IReadOnlyList<StudentLookupItem> ClassSectionCourses { get; init; } = [];
     public IReadOnlyList<StudentLookupItem> ProgramEnrollments { get; init; } = [];
     public IReadOnlyList<string> Statuses { get; init; } = [];
 }
@@ -44,10 +44,10 @@ public sealed class StudentCourseEnrollmentFormModel
     [Range(1, int.MaxValue)]
     public int EnrollmentId { get; set; }
 
-    [Required(ErrorMessage = "Class course is required.")]
-    [Display(Name = "Class / course")]
+    [Required(ErrorMessage = "Class section course is required.")]
+    [Display(Name = "Class section / course")]
     [Range(1, int.MaxValue)]
-    public int ClassCourseId { get; set; }
+    public int ClassSectionCourseId { get; set; }
 
     [Required(ErrorMessage = "Status is required.")]
     [StringLength(20)]
@@ -57,5 +57,5 @@ public sealed class StudentCourseEnrollmentFormModel
     public bool IsActive { get; set; } = true;
 
     public string? StudentDisplay { get; set; }
-    public string? ClassCourseDisplay { get; set; }
+    public string? ClassSectionCourseDisplay { get; set; }
 }

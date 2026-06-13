@@ -6,6 +6,14 @@
 }
 <div class="fee-erp-sidebar-inner d-flex flex-column h-100 settings-mgmt-sidebar-inner">
     <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Settings navigation">
+        <ul class="nav flex-column gap-1 fee-erp-nav-list settings-mgmt-placeholder-nav mb-1">
+            @foreach (var item in SettingsNavCatalog.SidebarPlaceholderNav)
+            {
+                <li class="nav-item">
+                    <a class="fee-erp-nav-link settings-mgmt-nav-blank" href="@item.Url" aria-hidden="true" tabindex="-1">&nbsp;</a>
+                </li>
+            }
+        </ul>
         <ul class="nav flex-column gap-1 fee-erp-nav-list">
             @foreach (var item in SettingsNavCatalog.SidebarNav)
             {

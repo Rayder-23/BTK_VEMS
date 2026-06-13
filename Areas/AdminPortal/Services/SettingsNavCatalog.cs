@@ -10,21 +10,89 @@ public sealed class SettingsNavItem
 
 public static class SettingsNavCatalog
 {
+    public static IReadOnlyList<SettingsNavItem> SidebarPlaceholderNav { get; } =
+    [
+        new() { Key = "placeholder-1", Name = "", Url = "#", IconClass = "" }
+    ];
+
     public static IReadOnlyList<SettingsNavItem> SidebarNav { get; } =
     [
         new() { Key = "dashboard", Name = "Dashboard", Url = "/adminportal/settings", IconClass = "fa-gauge-high" },
+        new() { Key = "academic-year", Name = "AcademicYear", Url = "/adminportal/settings/academic-years", IconClass = "fa-calendar-days" },
+        new() { Key = "programs", Name = "Programs", Url = "/adminportal/students/programs", IconClass = "fa-graduation-cap" },
+        new() { Key = "classes", Name = "Classes", Url = "/adminportal/students/classes", IconClass = "fa-chalkboard" },
+        new() { Key = "courses", Name = "Courses", Url = "/adminportal/settings/courses", IconClass = "fa-book" },
+        new() { Key = "program-courses", Name = "Link_ProgramCourses", Url = "/adminportal/settings/program-courses", IconClass = "fa-link" },
+        new() { Key = "teacher-courses", Name = "Link_TeacherCourses", Url = "/adminportal/settings/teacher-courses", IconClass = "fa-link" },
+        new() { Key = "sections", Name = "Sections", Url = "/adminportal/settings/sections", IconClass = "fa-layer-group" },
+        new() { Key = "class-sections", Name = "Link_ClassSections", Url = "/adminportal/settings/class-sections", IconClass = "fa-link" },
+        new() { Key = "class-section-courses", Name = "Link_ClassSectionCoursees", Url = "/adminportal/settings/class-section-courses", IconClass = "fa-link" },
         new() { Key = "add", Name = "Add Configuration", Url = "/adminportal/settings/create", IconClass = "fa-plus" }
     ];
 
     public static bool IsSettingsController(string controller) =>
-        string.Equals(controller, "Settings", StringComparison.OrdinalIgnoreCase);
+        string.Equals(controller, "Settings", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "AcademicYears", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "StudentPrograms", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "Classes", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "Sections", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "ClassSections", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "StudentCourses", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "ProgramCourses", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "TeacherCourseLinks", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(controller, "ClassSectionCourseLinks", StringComparison.OrdinalIgnoreCase);
 
     public static string ResolveActiveKey(string path, string action)
     {
         path = path.TrimEnd('/').ToLowerInvariant();
         action = action.ToLowerInvariant();
 
-        if (path.Contains("/create", StringComparison.Ordinal))
+        if (path.Contains("/programs", StringComparison.Ordinal))
+        {
+            return "programs";
+        }
+
+        if (path.Contains("/teacher-courses", StringComparison.Ordinal))
+        {
+            return "teacher-courses";
+        }
+
+        if (path.Contains("/program-courses", StringComparison.Ordinal))
+        {
+            return "program-courses";
+        }
+
+        if (path.Contains("/settings/courses", StringComparison.Ordinal))
+        {
+            return "courses";
+        }
+
+        if (path.Contains("/class-section-courses", StringComparison.Ordinal))
+        {
+            return "class-section-courses";
+        }
+
+        if (path.Contains("/class-sections", StringComparison.Ordinal))
+        {
+            return "class-sections";
+        }
+
+        if (path.Contains("/sections", StringComparison.Ordinal))
+        {
+            return "sections";
+        }
+
+        if (path.Contains("/classes", StringComparison.Ordinal))
+        {
+            return "classes";
+        }
+
+        if (path.Contains("/academic-years", StringComparison.Ordinal))
+        {
+            return "academic-year";
+        }
+
+        if (path.Contains("/settings/create", StringComparison.Ordinal))
         {
             return "add";
         }

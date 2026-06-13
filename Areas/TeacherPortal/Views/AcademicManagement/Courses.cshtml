@@ -26,7 +26,7 @@
         <div class="col-md-6">
             <label class="form-label" for="search">Search</label>
             <input type="search" class="form-control" id="search" name="search" value="@search"
-                   placeholder="Code, title, program" />
+                   placeholder="Code or name" />
         </div>
         <div class="col-md-3">
             <div class="form-check mt-4">
@@ -45,28 +45,22 @@
             <thead>
                 <tr>
                     <th>Code</th>
-                    <th>Title</th>
-                    <th>Program</th>
+                    <th>Name</th>
                     <th>Credits</th>
-                    <th>Semester</th>
-                    <th>Mandatory</th>
                     <th>Active</th>
                 </tr>
             </thead>
             <tbody>
             @if (Model.Count == 0)
             {
-                <tr><td colspan="7" class="text-center text-muted py-4">No assigned courses found.</td></tr>
+                <tr><td colspan="4" class="text-center text-muted py-4">No assigned courses found.</td></tr>
             }
             @foreach (var row in Model)
             {
                 <tr>
-                    <td class="fw-semibold">@row.CourseCode</td>
-                    <td>@row.CourseTitle</td>
-                    <td>@row.ProgramName</td>
-                    <td>@row.CreditHours</td>
-                    <td>@(row.SemesterNo?.ToString() ?? "—")</td>
-                    <td>@(row.IsMandatory ? "Yes" : "No")</td>
+                    <td class="fw-semibold">@(string.IsNullOrEmpty(row.CourseCode) ? "—" : row.CourseCode)</td>
+                    <td>@row.CourseName</td>
+                    <td>@(row.CreditHours?.ToString() ?? "—")</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
                 </tr>
             }

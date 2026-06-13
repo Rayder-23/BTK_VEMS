@@ -17,40 +17,34 @@ public sealed class StudentProfileRepository : IStudentProfileRepository
     {
         const string sql = """
             SELECT
-                s.Uid,
+                s.StudentID,
                 s.RegistrationNo,
-                s.RollNo,
-                s.FirstName,
-                s.MiddleName,
-                s.LastName,
-                s.FatherName,
-                s.DateOfBirth,
-                s.Gender,
-                s.Nationality,
-                s.NIC_No,
-                s.BFORM_No,
-                s.AdmissionYear,
-                s.AdmissionDate,
-                s.AddressLine1,
-                s.AddressLine2,
-                s.PostalCode,
+                s.StudentName,
+                s.MobileNo,
+                s.Email,
                 s.IsActive,
-                s.StatusRemark,
-                p.ProgramName,
-                c.CountryName,
-                pr.ProvinceName,
-                ci.CityName,
+                se.ProgramName,
+                se.RollNo,
+                se.AcademicYear,
+                se.EnrollmentDate,
                 sl.Username,
-                sl.Email,
+                sl.Email AS LoginEmail,
                 sl.Status AS LoginStatus,
                 sl.LastLoginAt
             FROM dbo.Students s
-            LEFT JOIN dbo.ref_Programs p ON s.ProgramID = p.Uid
-            LEFT JOIN dbo.ref_Countries c ON s.CountryID = c.Uid
-            LEFT JOIN dbo.ref_Provinces pr ON s.ProvinceID = pr.Uid
-            LEFT JOIN dbo.ref_Cities ci ON s.CityID = ci.Uid
-            LEFT JOIN dbo.StudentsLogin sl ON sl.StudentId = s.Uid
-            WHERE s.Uid = @StudentUid;
+            LEFT JOIN dbo.StudentsLogin sl ON sl.StudentId = s.StudentID
+            OUTER APPLY (
+                SELECT TOP 1
+                    p.ProgramName,
+                    e.RollNo,
+                    e.AcademicYear,
+                    e.EnrollmentDate
+                FROM dbo.StudentEnrollments e
+                INNER JOIN dbo.Programs p ON e.ProgramID = p.ProgramID
+                WHERE e.StudentID = s.StudentID AND e.IsActive = 1
+                ORDER BY e.AcademicYear DESC, e.GradeOrSemester DESC
+            ) se
+            WHERE s.StudentID = @StudentUid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
@@ -63,38 +57,25 @@ public sealed class StudentProfileRepository : IStudentProfileRepository
             return null;
         }
 
-        var first = reader["FirstName"] as string ?? string.Empty;
-        var middle = reader["MiddleName"] as string;
-        var last = reader["LastName"] as string ?? string.Empty;
-        var fullName = string.IsNullOrWhiteSpace(middle)
-            ? $"{first} {last}".Trim()
-            : $"{first} {middle} {last}".Trim();
+        var enrollmentDate = reader["EnrollmentDate"] is DBNull
+            ? DateTime.UtcNow.Date
+            : reader.GetDateTime(reader.GetOrdinal("EnrollmentDate"));
 
         return new StudentProfileViewModel
         {
-            Uid = ToInt32(reader, "Uid"),
+            Uid = ToInt32(reader, "StudentID"),
             RegistrationNo = reader["RegistrationNo"] as string ?? string.Empty,
             RollNo = reader["RollNo"] as string,
-            FullName = fullName,
-            FatherName = reader["FatherName"] as string ?? string.Empty,
-            DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth")),
-            Gender = (reader["Gender"] as string ?? "M").Trim(),
-            Nationality = reader["Nationality"] as string,
-            NicNo = reader["NIC_No"] as string,
-            BformNo = reader["BFORM_No"] as string,
-            AdmissionYear = reader.GetInt16(reader.GetOrdinal("AdmissionYear")),
-            AdmissionDate = reader.GetDateTime(reader.GetOrdinal("AdmissionDate")),
-            AddressLine1 = reader["AddressLine1"] as string ?? string.Empty,
-            AddressLine2 = reader["AddressLine2"] as string,
-            PostalCode = reader["PostalCode"] as string,
+            FullName = reader["StudentName"] as string ?? string.Empty,
+            FatherName = string.Empty,
+            DateOfBirth = DateTime.MinValue,
+            Gender = string.Empty,
+            AdmissionYear = reader["AcademicYear"] is DBNull ? (short)0 : reader.GetInt16(reader.GetOrdinal("AcademicYear")),
+            AdmissionDate = enrollmentDate,
             IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
-            StatusRemark = reader["StatusRemark"] as string,
             ProgramName = reader["ProgramName"] as string,
-            CountryName = reader["CountryName"] as string,
-            ProvinceName = reader["ProvinceName"] as string,
-            CityName = reader["CityName"] as string,
             PortalUsername = reader["Username"] as string,
-            PortalEmail = reader["Email"] as string,
+            PortalEmail = reader["LoginEmail"] as string ?? reader["Email"] as string,
             PortalStatus = reader["LoginStatus"] as string,
             LastLoginAt = reader["LastLoginAt"] is DBNull ? null : reader.GetDateTime(reader.GetOrdinal("LastLoginAt"))
         };

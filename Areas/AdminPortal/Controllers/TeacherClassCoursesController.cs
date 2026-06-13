@@ -55,9 +55,9 @@ public sealed class TeacherClassCoursesController : AdminBaseController
             return View(model);
         }
 
-        if (await _links.ExistsAsync(model.Form.TeacherId, model.Form.ClassCourseId, null, cancellationToken))
+        if (await _links.ExistsAsync(model.Form.TeacherId, model.Form.ClassSectionCourseId, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This teacher is already linked to the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This teacher is already linked to the selected class course.");
             model.Lookups = await _links.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -70,7 +70,7 @@ public sealed class TeacherClassCoursesController : AdminBaseController
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This teacher is already linked to the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This teacher is already linked to the selected class course.");
             model.Lookups = await _links.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -120,9 +120,9 @@ public sealed class TeacherClassCoursesController : AdminBaseController
             return View(model);
         }
 
-        if (await _links.ExistsAsync(model.Form.TeacherId, model.Form.ClassCourseId, id, cancellationToken))
+        if (await _links.ExistsAsync(model.Form.TeacherId, model.Form.ClassSectionCourseId, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This teacher is already linked to the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This teacher is already linked to the selected class course.");
             model.Lookups = await _links.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -140,7 +140,7 @@ public sealed class TeacherClassCoursesController : AdminBaseController
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "This teacher is already linked to the selected class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "This teacher is already linked to the selected class course.");
             model.Lookups = await _links.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -175,9 +175,9 @@ public sealed class TeacherClassCoursesController : AdminBaseController
             ModelState.AddModelError(nameof(form.TeacherId), "Select a valid teacher.");
         }
 
-        if (lookups.ClassCourses.All(c => c.Id != form.ClassCourseId))
+        if (lookups.ClassSectionCourses.All(c => c.Id != form.ClassSectionCourseId))
         {
-            ModelState.AddModelError(nameof(form.ClassCourseId), "Select a valid class course.");
+            ModelState.AddModelError(nameof(form.ClassSectionCourseId), "Select a valid class course.");
         }
 
         var matchedRole = lookups.Roles.FirstOrDefault(r =>
@@ -203,7 +203,7 @@ public sealed class TeacherClassCoursesController : AdminBaseController
 
         if (ex.Message.Contains("FK_TCC_ClassCourse", StringComparison.OrdinalIgnoreCase))
         {
-            ModelState.AddModelError(nameof(model.Form.ClassCourseId), "Select a valid class course.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionCourseId), "Select a valid class course.");
         }
     }
 }

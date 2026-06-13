@@ -2,7 +2,7 @@ namespace VEMS.Services;
 
 public static class StudentApplicationFieldDefaults
 {
-    /// <summary>Used when ref_Programs no longer supplies institution type.</summary>
+    /// <summary>Used when Programs no longer supplies institution type.</summary>
     public const string InstTypeCodeNotApplicable = "NA";
 
     public static string ResolveInstTypeCode(string? value) =>

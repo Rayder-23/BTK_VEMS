@@ -16,11 +16,11 @@ public sealed class FeeConcessionRepository : IFeeConcessionRepository
     public async Task<IReadOnlyList<ConcessionListItem>> ListAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT c.Uid, s.FirstName + ' ' + s.LastName AS StudentName,
+            SELECT c.Uid, s.StudentName AS StudentName,
                    fh.HeadName AS FeeHeadName, c.ConcessionType, c.DiscountPercent, c.DiscountAmount,
                    c.ValidFrom, c.ValidTo, c.IsActive
             FROM dbo.Concessions c
-            INNER JOIN dbo.Students s ON c.StudentID = s.Uid
+            INNER JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.ref_FeeHeads fh ON c.FeeHeadID = fh.Uid
             ORDER BY c.ValidFrom DESC, c.Uid DESC;
             """;

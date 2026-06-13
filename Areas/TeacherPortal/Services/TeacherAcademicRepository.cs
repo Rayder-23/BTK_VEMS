@@ -25,9 +25,9 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
         if (!string.IsNullOrWhiteSpace(employeeCode))
         {
             await using var byCode = new SqlCommand(
-                "SELECT TOP (1) Uid FROM dbo.Teachers WHERE EmployeeCode = @EmployeeCode;",
+                "SELECT TOP (1) TeacherID FROM dbo.Teachers WHERE EmployeeNo = @EmployeeNo;",
                 connection);
-            byCode.Parameters.AddWithValue("@EmployeeCode", employeeCode.Trim());
+            byCode.Parameters.AddWithValue("@EmployeeNo", employeeCode.Trim());
             var byCodeResult = await byCode.ExecuteScalarAsync(cancellationToken);
             if (byCodeResult is not null and not DBNull)
             {
@@ -39,9 +39,9 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
         {
             await using var byEmployee = new SqlCommand(
                 """
-                SELECT TOP (1) t.Uid
+                SELECT TOP (1) t.TeacherID
                 FROM dbo.Teachers t
-                INNER JOIN dbo.Employee e ON e.EmployeeId = t.EmployeeCode
+                INNER JOIN dbo.Employee e ON e.EmployeeId = t.EmployeeNo
                 WHERE e.Uid = @EmployeeUid;
                 """,
                 connection);
@@ -64,31 +64,20 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
     {
         var sql = """
             SELECT DISTINCT
-                c.Uid,
+                c.ClassID,
                 c.ClassName,
                 c.ClassCode,
-                p.ProgramName,
-                c.SemesterNo,
-                c.Semester,
-                c.AcademicYear,
-                c.Section,
-                c.Shift,
-                c.RoomNo,
-                c.MaxStrength,
-                c.IsActive,
-                c.CreatedAt
+                c.SortOrder,
+                c.IsActive
             FROM dbo.TeacherCourseAssignments tca
-            INNER JOIN dbo.Classes c ON tca.ClassID = c.Uid
-            INNER JOIN dbo.ref_Programs p ON c.ProgramID = p.Uid
+            INNER JOIN dbo.Classes c ON tca.ClassID = c.ClassID
             WHERE tca.TeacherID = @TeacherId
               AND tca.IsActive = 1
               AND (@Search IS NULL
                    OR c.ClassName LIKE @Search
-                   OR c.ClassCode LIKE @Search
-                   OR p.ProgramName LIKE @Search
-                   OR c.Section LIKE @Search)
+                   OR c.ClassCode LIKE @Search)
             """ + (activeOnly ? " AND c.IsActive = 1" : "") + """
-             ORDER BY c.AcademicYear DESC, c.ClassCode;
+             ORDER BY c.SortOrder, c.ClassName;
             """;
 
         return await ReadClassesAsync(sql, teacherId, search, cancellationToken);
@@ -102,28 +91,20 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
     {
         var sql = """
             SELECT DISTINCT
-                co.Uid,
+                co.CourseID,
                 co.CourseCode,
-                co.CourseTitle,
-                p.ProgramName,
-                co.ShortName,
+                co.CourseName,
                 co.CreditHours,
-                co.SemesterNo,
-                co.IsMandatory,
-                co.IsActive,
-                co.CreatedAt
+                co.IsActive
             FROM dbo.TeacherCourseAssignments tca
-            INNER JOIN dbo.Courses co ON tca.CourseID = co.Uid
-            INNER JOIN dbo.ref_Programs p ON co.ProgramID = p.Uid
+            INNER JOIN dbo.Courses co ON tca.CourseID = co.CourseID
             WHERE tca.TeacherID = @TeacherId
               AND tca.IsActive = 1
               AND (@Search IS NULL
                    OR co.CourseCode LIKE @Search
-                   OR co.CourseTitle LIKE @Search
-                   OR co.ShortName LIKE @Search
-                   OR p.ProgramName LIKE @Search)
+                   OR co.CourseName LIKE @Search)
             """ + (activeOnly ? " AND co.IsActive = 1" : "") + """
-             ORDER BY co.CourseCode;
+             ORDER BY co.CourseCode, co.CourseName;
             """;
 
         var list = new List<CourseListItem>();
@@ -137,16 +118,11 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
         {
             list.Add(new CourseListItem
             {
-                Uid = Convert.ToInt32(reader["Uid"]),
+                CourseId = Convert.ToInt32(reader["CourseID"]),
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
-                CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
-                ProgramName = reader["ProgramName"] as string ?? string.Empty,
-                ShortName = reader["ShortName"] as string,
-                CreditHours = Convert.ToByte(reader["CreditHours"]),
-                SemesterNo = reader["SemesterNo"] is DBNull ? null : Convert.ToByte(reader["SemesterNo"]),
-                IsMandatory = Convert.ToBoolean(reader["IsMandatory"]),
-                IsActive = Convert.ToBoolean(reader["IsActive"]),
-                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                CourseName = reader["CourseName"] as string ?? string.Empty,
+                CreditHours = reader["CreditHours"] is DBNull ? null : Convert.ToInt32(reader["CreditHours"]),
+                IsActive = Convert.ToBoolean(reader["IsActive"])
             });
         }
 
@@ -170,19 +146,11 @@ public sealed class TeacherAcademicRepository : ITeacherAcademicRepository
         {
             list.Add(new ClassListItem
             {
-                Uid = Convert.ToInt32(reader["Uid"]),
+                ClassId = Convert.ToInt32(reader["ClassID"]),
                 ClassName = reader["ClassName"] as string ?? string.Empty,
                 ClassCode = reader["ClassCode"] as string ?? string.Empty,
-                ProgramName = reader["ProgramName"] as string ?? string.Empty,
-                SemesterNo = Convert.ToByte(reader["SemesterNo"]),
-                Semester = reader["Semester"] as string ?? string.Empty,
-                AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-                Section = reader["Section"] as string,
-                Shift = reader["Shift"] as string,
-                RoomNo = reader["RoomNo"] as string,
-                MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
-                IsActive = Convert.ToBoolean(reader["IsActive"]),
-                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                SortOrder = reader["SortOrder"] is DBNull ? null : Convert.ToInt32(reader["SortOrder"]),
+                IsActive = Convert.ToBoolean(reader["IsActive"])
             });
         }
 

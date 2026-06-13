@@ -1,0 +1,201 @@
+@model TimetableIndexViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Timetable";
+    var message = TempData["StatusMessage"] as string;
+
+    string FormatTime(TimeSpan? value) =>
+        value?.ToString(@"hh\:mm", CultureInfo.InvariantCulture) ?? "—";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/portals/timetable-portal.css" asp-append-version="true" />
+}
+
+<section class="module-page-header accent-pink">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Timetable</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+        <div class="d-flex align-items-center gap-3">
+            <span class="module-page-icon"><i class="bi bi-calendar-week"></i></span>
+            <div>
+                <h1 class="h3 fw-bold mb-1">Class timetable</h1>
+                <p class="text-muted mb-0">Weekly schedules from <code>dbo.TeacherCourseAssignments</code></p>
+            </div>
+        </div>
+        <a class="btn btn-outline-primary rounded-pill px-4" href="/adminportal/teachers/all">
+            <i class="bi bi-person-badge me-2"></i>Manage teacher assignments
+        </a>
+    </div>
+</section>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-4 mb-0" role="alert">@message</div>
+}
+
+<section class="portal-card mt-4">
+    <form method="get" class="row g-3 align-items-end mb-4">
+        <div class="col-md-2">
+            <label class="form-label" for="viewMode">View</label>
+            <select class="form-select" id="viewMode" name="viewMode">
+                @if (Model.ViewMode == "teacher")
+                {
+                    <option value="class">By class</option>
+                    <option value="teacher" selected>By teacher</option>
+                }
+                else
+                {
+                    <option value="class" selected>By class</option>
+                    <option value="teacher">By teacher</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 view-filter view-filter--class @(Model.ViewMode == "class" ? "" : "d-none")">
+            <label class="form-label" for="classId">Class</label>
+            <select class="form-select" id="classId" name="classId"
+                    asp-items="@(new SelectList(Model.Lookups.Classes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name), Model.ClassId))">
+                <option value="">— Select class —</option>
+            </select>
+        </div>
+        <div class="col-md-3 view-filter view-filter--teacher @(Model.ViewMode == "teacher" ? "" : "d-none")">
+            <label class="form-label" for="teacherId">Teacher</label>
+            <select class="form-select" id="teacherId" name="teacherId"
+                    asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name), Model.TeacherId))">
+                <option value="">— Select teacher —</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="semester">Semester</label>
+            <select class="form-select" id="semester" name="semester"
+                    asp-items="@(new SelectList(Model.Lookups.Semesters, Model.Semester))"></select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="academicYear">Year</label>
+            <select class="form-select" id="academicYear" name="academicYear"
+                    asp-items="@(new SelectList(Model.Lookups.AcademicYears, Model.AcademicYear))"></select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Show timetable</button>
+        </div>
+    </form>
+
+    @if (Model.ScheduledSlots.Count == 0)
+    {
+        <div class="timetable-empty text-center py-5 text-muted">
+            <i class="bi bi-calendar-x fs-2 d-block mb-2" aria-hidden="true"></i>
+            <p class="mb-1 fw-semibold">No scheduled periods found</p>
+            <p class="mb-0 small">Assign teachers with day, time, and room under Teachers → Assignments.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive timetable-grid-wrap">
+            <table class="table timetable-grid align-middle mb-0">
+                <thead>
+                    <tr>
+                        @foreach (var day in Model.Lookups.DaysOfWeek)
+                        {
+                            <th scope="col">@day</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @foreach (var day in Model.Lookups.DaysOfWeek)
+                        {
+                            var daySlots = Model.SlotsByDay[day];
+                            <td class="timetable-day-cell">
+                                @if (daySlots.Count == 0)
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                                else
+                                {
+                                    @foreach (var slot in daySlots)
+                                    {
+                                        <article class="timetable-slot">
+                                            <div class="timetable-slot__time">
+                                                @FormatTime(slot.StartTime) – @FormatTime(slot.EndTime)
+                                            </div>
+                                            <div class="timetable-slot__course fw-semibold">@slot.CourseName</div>
+                                            @if (Model.ViewMode == "teacher")
+                                            {
+                                                <div class="timetable-slot__meta">@slot.ClassName</div>
+                                            }
+                                            else
+                                            {
+                                                <div class="timetable-slot__meta">@slot.TeacherName</div>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(slot.RoomNo))
+                                            {
+                                                <div class="timetable-slot__room">
+                                                    <i class="bi bi-geo-alt" aria-hidden="true"></i> @slot.RoomNo
+                                                </div>
+                                            }
+                                        </article>
+                                    }
+                                }
+                            </td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@if (Model.UnscheduledSlots.Count > 0)
+{
+    <section class="portal-card mt-4">
+        <h2 class="h6 fw-bold mb-3">Assignments without schedule</h2>
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Course</th>
+                        <th>Teacher</th>
+                        <th>Semester</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var row in Model.UnscheduledSlots)
+                {
+                    <tr>
+                        <td>@row.ClassName</td>
+                        <td>@row.CourseName</td>
+                        <td>@row.TeacherName</td>
+                        <td>@row.Semester</td>
+                        <td>@row.AcademicYear</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            const viewMode = document.getElementById('viewMode');
+            const classFilter = document.querySelector('.view-filter--class');
+            const teacherFilter = document.querySelector('.view-filter--teacher');
+
+            function syncFilters() {
+                const mode = viewMode?.value ?? 'class';
+                classFilter?.classList.toggle('d-none', mode !== 'class');
+                teacherFilter?.classList.toggle('d-none', mode !== 'teacher');
+            }
+
+            viewMode?.addEventListener('change', syncFilters);
+            syncFilters();
+        })();
+    </script>
+}

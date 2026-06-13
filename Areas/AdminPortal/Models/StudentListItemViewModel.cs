@@ -2,12 +2,17 @@ namespace VEMS.Areas.AdminPortal.Models;
 
 public sealed class StudentListItemViewModel
 {
-    public int Uid { get; init; }
+    public int StudentId { get; init; }
+
     public string RegistrationNo { get; init; } = string.Empty;
-    public string DisplayName { get; init; } = string.Empty;
-    public string FatherName { get; init; } = string.Empty;
-    public string? ProgramName { get; init; }
-    public string? RollNo { get; init; }
-    public DateTime AdmissionDate { get; init; }
+
+    public string StudentName { get; init; } = string.Empty;
+
+    public string? MobileNo { get; init; }
+
+    public string? Email { get; init; }
+
+    public DateTime CreatedOn { get; init; }
+
     public bool IsActive { get; init; }
 }

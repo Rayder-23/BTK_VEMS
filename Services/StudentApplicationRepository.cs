@@ -32,7 +32,7 @@ public sealed class StudentApplicationRepository : IStudentApplicationRepository
                 p.ProgramCode,
                 p.ProgramName,
                 p.DurationYears
-            FROM dbo.ref_Programs p
+            FROM dbo.Programs p
             WHERE p.IsActive = 1
             ORDER BY p.ProgramName;
             """;

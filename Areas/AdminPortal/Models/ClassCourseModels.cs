@@ -4,21 +4,18 @@ namespace VEMS.Areas.AdminPortal.Models;
 
 public sealed class ClassCourseListItem
 {
-    public int Uid { get; init; }
-    public string ClassCode { get; init; } = string.Empty;
+    public int ClassSectionCourseId { get; init; }
+    public string YearName { get; init; } = string.Empty;
     public string ClassName { get; init; } = string.Empty;
+    public string SectionName { get; init; } = string.Empty;
     public string CourseCode { get; init; } = string.Empty;
-    public string CourseTitle { get; init; } = string.Empty;
-    public string? TeacherName { get; init; }
-    public bool IsActive { get; init; }
-    public DateTime CreatedAt { get; init; }
+    public string CourseName { get; init; } = string.Empty;
 }
 
 public sealed class ClassCourseLookups
 {
-    public IReadOnlyList<StudentLookupItem> Classes { get; init; } = [];
+    public IReadOnlyList<StudentLookupItem> ClassSections { get; init; } = [];
     public IReadOnlyList<StudentLookupItem> Courses { get; init; } = [];
-    public IReadOnlyList<StudentLookupItem> Teachers { get; init; } = [];
 }
 
 public sealed class ClassCourseFormPageViewModel
@@ -29,27 +26,15 @@ public sealed class ClassCourseFormPageViewModel
 
 public sealed class ClassCourseFormModel
 {
-    public int Uid { get; set; }
+    public int ClassSectionCourseId { get; set; }
 
-    [Required(ErrorMessage = "Class is required.")]
-    [Display(Name = "Class")]
+    [Required(ErrorMessage = "Class section is required.")]
+    [Display(Name = "Class section")]
     [Range(1, int.MaxValue)]
-    public int ClassId { get; set; }
+    public int ClassSectionId { get; set; }
 
     [Required(ErrorMessage = "Course is required.")]
     [Display(Name = "Course")]
     [Range(1, int.MaxValue)]
     public int CourseId { get; set; }
-
-    [Display(Name = "Teacher")]
-    public int? TeacherId { get; set; }
-
-    [Display(Name = "Active")]
-    public bool IsActive { get; set; } = true;
-
-    [Display(Name = "Created at")]
-    public DateTime? CreatedAt { get; set; }
-
-    public string? ClassDisplay { get; set; }
-    public string? CourseDisplay { get; set; }
 }

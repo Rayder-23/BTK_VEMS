@@ -1,0 +1,19 @@
+@model SectionFormModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="SectionId" />
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="SectionName" class="form-label"></label>
+        <input asp-for="SectionName" class="form-control" maxlength="20" />
+        <span asp-validation-for="SectionName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <div class="form-check mt-4">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+</div>

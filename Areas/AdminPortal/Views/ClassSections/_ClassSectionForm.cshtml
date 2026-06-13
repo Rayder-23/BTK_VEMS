@@ -1,0 +1,32 @@
+@model ClassSectionFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Form.ClassSectionId" />
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="Form.AcademicYearId" class="form-label"></label>
+        <select asp-for="Form.AcademicYearId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.AcademicYears, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select academic year —</option>
+        </select>
+        <span asp-validation-for="Form.AcademicYearId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.ClassId" class="form-label"></label>
+        <select asp-for="Form.ClassId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Classes, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select class —</option>
+        </select>
+        <span asp-validation-for="Form.ClassId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.SectionId" class="form-label"></label>
+        <select asp-for="Form.SectionId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Sections, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select section —</option>
+        </select>
+        <span asp-validation-for="Form.SectionId" class="text-danger small"></span>
+    </div>
+</div>

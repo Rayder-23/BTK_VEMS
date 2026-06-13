@@ -1,25 +1,16 @@
 using Microsoft.Data.SqlClient;
 using VEMS.Areas.TeacherPortal.Models;
-using VEMS.Services;
 
 namespace VEMS.Areas.TeacherPortal.Services;
 
 public sealed class ClassRepository : IClassRepository
 {
-    private const string SemesterConfigKey = "Semester";
-    private const string ShiftConfigKey = "Shift";
-
-    private static readonly string[] DefaultSemesters = ["Fall", "Spring", "Summer"];
-    private static readonly string[] DefaultShifts = ["Morning", "Evening", "Weekend"];
-
     private readonly string _connectionString;
-    private readonly IConfigurationValuesProvider _configurations;
 
-    public ClassRepository(IConfiguration configuration, IConfigurationValuesProvider configurations)
+    public ClassRepository(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("DefaultConnection is missing from configuration.");
-        _configurations = configurations;
     }
 
     public async Task<IReadOnlyList<ClassListItem>> ListAsync(
@@ -29,28 +20,17 @@ public sealed class ClassRepository : IClassRepository
     {
         var sql = """
             SELECT
-                c.Uid,
-                c.ClassName,
-                c.ClassCode,
-                p.ProgramName,
-                c.SemesterNo,
-                c.Semester,
-                c.AcademicYear,
-                c.Section,
-                c.Shift,
-                c.RoomNo,
-                c.MaxStrength,
-                c.IsActive,
-                c.CreatedAt
-            FROM dbo.Classes c
-            INNER JOIN dbo.ref_Programs p ON c.ProgramID = p.Uid
+                ClassID,
+                ClassCode,
+                ClassName,
+                SortOrder,
+                IsActive
+            FROM dbo.Classes
             WHERE (@Search IS NULL
-                   OR c.ClassName LIKE @Search
-                   OR c.ClassCode LIKE @Search
-                   OR p.ProgramName LIKE @Search
-                   OR c.Section LIKE @Search)
-            """ + (activeOnly ? " AND c.IsActive = 1" : "") + """
-             ORDER BY c.AcademicYear DESC, c.ClassCode;
+                   OR ClassName LIKE @Search
+                   OR ClassCode LIKE @Search)
+            """ + (activeOnly ? " AND IsActive = 1" : "") + """
+             ORDER BY SortOrder, ClassName;
             """;
 
         var list = new List<ClassListItem>();
@@ -67,85 +47,45 @@ public sealed class ClassRepository : IClassRepository
         return list;
     }
 
-    public async Task<ClassFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default)
+    public async Task<ClassFormModel?> GetAsync(int classId, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT
-                Uid,
-                ProgramID,
+                ClassID,
                 ClassCode,
                 ClassName,
-                SemesterNo,
-                Semester,
-                AcademicYear,
-                Section,
-                Shift,
-                RoomNo,
-                MaxStrength,
-                IsActive,
-                CreatedAt
+                SortOrder,
+                IsActive
             FROM dbo.Classes
-            WHERE Uid = @Uid;
+            WHERE ClassID = @ClassId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@ClassId", classId);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         return await reader.ReadAsync(cancellationToken) ? MapForm(reader) : null;
     }
 
-    public async Task<ClassLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> ClassCodeExistsAsync(string classCode, int? excludeClassId, CancellationToken cancellationToken = default)
     {
-        const string programsSql = """
-            SELECT Uid, ProgramCode + ' - ' + ProgramName
-            FROM dbo.ref_Programs
-            WHERE IsActive = 1
-            ORDER BY ProgramName;
-            """;
-
-        var programs = new List<ClassLookupItem>();
-        await using var connection = new SqlConnection(_connectionString);
-        await connection.OpenAsync(cancellationToken);
-
-        await using (var command = new SqlCommand(programsSql, connection))
-        await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+        if (string.IsNullOrWhiteSpace(classCode))
         {
-            while (await reader.ReadAsync(cancellationToken))
-            {
-                programs.Add(new ClassLookupItem
-                {
-                    Id = Convert.ToInt32(reader[0]),
-                    Name = reader[1] as string ?? string.Empty
-                });
-            }
+            return false;
         }
 
-        var semesters = await _configurations.GetValuesAsync(SemesterConfigKey, cancellationToken);
-        var shifts = await _configurations.GetValuesAsync(ShiftConfigKey, cancellationToken);
-
-        return new ClassLookups
-        {
-            Programs = programs,
-            Semesters = semesters.Count > 0 ? semesters : DefaultSemesters,
-            Shifts = shifts.Count > 0 ? shifts : DefaultShifts
-        };
-    }
-
-    public async Task<bool> ClassCodeExistsAsync(string classCode, int? excludeUid, CancellationToken cancellationToken = default)
-    {
         const string sql = """
             SELECT COUNT(1)
             FROM dbo.Classes
             WHERE ClassCode = @ClassCode
-              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+              AND (@ExcludeClassId IS NULL OR ClassID <> @ExcludeClassId);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@ClassCode", classCode.Trim());
-        command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
+        command.Parameters.AddWithValue("@ExcludeClassId", (object?)excludeClassId ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
@@ -154,29 +94,15 @@ public sealed class ClassRepository : IClassRepository
     {
         const string sql = """
             INSERT INTO dbo.Classes (
-                ProgramID,
                 ClassCode,
                 ClassName,
-                SemesterNo,
-                Semester,
-                AcademicYear,
-                Section,
-                Shift,
-                RoomNo,
-                MaxStrength,
+                SortOrder,
                 IsActive
             )
             VALUES (
-                @ProgramID,
                 @ClassCode,
                 @ClassName,
-                @SemesterNo,
-                @Semester,
-                @AcademicYear,
-                @Section,
-                @Shift,
-                @RoomNo,
-                @MaxStrength,
+                @SortOrder,
                 @IsActive
             );
             SELECT CAST(SCOPE_IDENTITY() AS int);
@@ -193,88 +119,70 @@ public sealed class ClassRepository : IClassRepository
     {
         const string sql = """
             UPDATE dbo.Classes SET
-                ProgramID = @ProgramID,
                 ClassCode = @ClassCode,
                 ClassName = @ClassName,
-                SemesterNo = @SemesterNo,
-                Semester = @Semester,
-                AcademicYear = @AcademicYear,
-                Section = @Section,
-                Shift = @Shift,
-                RoomNo = @RoomNo,
-                MaxStrength = @MaxStrength,
+                SortOrder = @SortOrder,
                 IsActive = @IsActive
-            WHERE Uid = @Uid;
+            WHERE ClassID = @ClassId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", model.Uid);
+        command.Parameters.AddWithValue("@ClassId", model.ClassId);
         Bind(command, model);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default)
+    public async Task<bool> SetActiveAsync(int classId, bool isActive, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.Classes SET IsActive = 0
-            WHERE Uid = @Uid;
+            UPDATE dbo.Classes SET IsActive = @IsActive
+            WHERE ClassID = @ClassId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@ClassId", classId);
+        command.Parameters.AddWithValue("@IsActive", isActive);
+        await connection.OpenAsync(cancellationToken);
+        return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
+    }
+
+    public async Task<bool> DeleteAsync(int classId, CancellationToken cancellationToken = default)
+    {
+        const string sql = "DELETE FROM dbo.Classes WHERE ClassID = @ClassId;";
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ClassId", classId);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
     private static ClassListItem MapListItem(SqlDataReader reader) => new()
     {
-        Uid = Convert.ToInt32(reader["Uid"]),
-        ClassName = reader["ClassName"] as string ?? string.Empty,
+        ClassId = Convert.ToInt32(reader["ClassID"]),
         ClassCode = reader["ClassCode"] as string ?? string.Empty,
-        ProgramName = reader["ProgramName"] as string ?? string.Empty,
-        SemesterNo = Convert.ToByte(reader["SemesterNo"]),
-        Semester = reader["Semester"] as string ?? string.Empty,
-        AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-        Section = reader["Section"] as string,
-        Shift = reader["Shift"] as string,
-        RoomNo = reader["RoomNo"] as string,
-        MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
-        IsActive = Convert.ToBoolean(reader["IsActive"]),
-        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+        ClassName = reader["ClassName"] as string ?? string.Empty,
+        SortOrder = reader["SortOrder"] is DBNull ? null : Convert.ToInt32(reader["SortOrder"]),
+        IsActive = Convert.ToBoolean(reader["IsActive"])
     };
 
     private static ClassFormModel MapForm(SqlDataReader reader) => new()
     {
-        Uid = Convert.ToInt32(reader["Uid"]),
-        ProgramId = Convert.ToInt32(reader["ProgramID"]),
-        ClassCode = reader["ClassCode"] as string ?? string.Empty,
+        ClassId = Convert.ToInt32(reader["ClassID"]),
+        ClassCode = reader["ClassCode"] as string,
         ClassName = reader["ClassName"] as string ?? string.Empty,
-        SemesterNo = Convert.ToByte(reader["SemesterNo"]),
-        Semester = reader["Semester"] as string ?? string.Empty,
-        AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-        Section = reader["Section"] as string,
-        Shift = reader["Shift"] as string,
-        RoomNo = reader["RoomNo"] as string,
-        MaxStrength = Convert.ToInt16(reader["MaxStrength"]),
-        IsActive = Convert.ToBoolean(reader["IsActive"]),
-        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+        SortOrder = reader["SortOrder"] is DBNull ? null : Convert.ToInt32(reader["SortOrder"]),
+        IsActive = Convert.ToBoolean(reader["IsActive"])
     };
 
     private static void Bind(SqlCommand command, ClassFormModel model)
     {
-        command.Parameters.AddWithValue("@ProgramID", model.ProgramId);
-        command.Parameters.AddWithValue("@ClassCode", model.ClassCode.Trim());
+        command.Parameters.AddWithValue("@ClassCode", string.IsNullOrWhiteSpace(model.ClassCode) ? DBNull.Value : model.ClassCode.Trim());
         command.Parameters.AddWithValue("@ClassName", model.ClassName.Trim());
-        command.Parameters.AddWithValue("@SemesterNo", model.SemesterNo);
-        command.Parameters.AddWithValue("@Semester", model.Semester.Trim());
-        command.Parameters.AddWithValue("@AcademicYear", model.AcademicYear);
-        command.Parameters.AddWithValue("@Section", (object?)model.Section?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Shift", (object?)model.Shift?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@RoomNo", (object?)model.RoomNo?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@MaxStrength", model.MaxStrength);
+        command.Parameters.AddWithValue("@SortOrder", (object?)model.SortOrder ?? DBNull.Value);
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
     }
 }

@@ -1,4 +1,4 @@
-@model TeacherFormPageViewModel
+@model TeacherFormModel
 @{
     ViewData["Title"] = "Edit teacher";
 }
@@ -12,11 +12,11 @@
         </ol>
     </nav>
     <h1 class="h3 fw-bold mb-0">Edit teacher</h1>
-    <p class="text-muted mb-0 mt-2">Update <strong>@Model.Form.EmployeeCode</strong>.</p>
+    <p class="text-muted mb-0 mt-2">Update <strong>@Model.TeacherName</strong>.</p>
 </section>
 
 <section class="portal-card mt-4">
-    <form asp-action="Edit" asp-route-id="@Model.Form.Uid" method="post" novalidate>
+    <form asp-action="Edit" asp-route-id="@Model.TeacherId" method="post" novalidate>
         @Html.AntiForgeryToken()
         <partial name="_TeacherForm" model="Model" />
         <div class="d-flex gap-2 mt-4">

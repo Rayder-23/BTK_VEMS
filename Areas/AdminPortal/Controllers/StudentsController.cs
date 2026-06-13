@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
@@ -40,62 +39,42 @@ public sealed class StudentsController : StudentMgmtBaseController
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken cancellationToken)
+    public IActionResult Create()
     {
         ViewData["Title"] = "Add Student";
         ViewData["PageTitle"] = "Students · Add";
-        var lookups = await _students.GetLookupsAsync(cancellationToken);
-        return View(new StudentFormViewModel
-        {
-            Lookups = lookups,
-            Form = CreateDefaultForm(lookups)
-        });
+        return View(new StudentFormModel { IsActive = true });
     }
 
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(StudentFormViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(StudentFormModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Add Student";
         ViewData["PageTitle"] = "Students · Add";
 
-        ValidateStudentForm(model.Form);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
         try
         {
-            var newId = await _students.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
-            TempData["StatusMessage"] = $"Student created (id {newId}) with program enrollment.";
+            var newId = await _students.InsertAsync(model, ResolveActorId(), cancellationToken);
+            TempData["StatusMessage"] = $"Student created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            if (ex.Message.Contains("RollNo", StringComparison.OrdinalIgnoreCase)
-                || ex.Message.Contains("UQ_Enrollments", StringComparison.OrdinalIgnoreCase))
+            if (ex.Message.Contains("RegistrationNo", StringComparison.OrdinalIgnoreCase))
             {
-                ModelState.AddModelError("Form.RollNo", "Roll number already exists for this program, year, and semester.");
-            }
-            else if (ex.Message.Contains("RegistrationNo", StringComparison.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError("Form.RegistrationNo", "Registration number already exists.");
+                ModelState.AddModelError(nameof(model.RegistrationNo), "Registration number already exists.");
             }
             else
             {
                 ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
             }
 
-            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
-            return View(model);
-        }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ModelState.AddModelError(string.Empty,
-                "Student could not be saved because a selected reference is invalid. Check that the chosen Program, Country, Province, and City exist.");
-            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
             return View(model);
         }
     }
@@ -112,40 +91,50 @@ public sealed class StudentsController : StudentMgmtBaseController
             return NotFound();
         }
 
-        return View(new StudentFormViewModel
-        {
-            Form = row,
-            Lookups = await _students.GetLookupsAsync(cancellationToken)
-        });
+        return View(row);
     }
 
     [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(StudentFormViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(int id, StudentFormModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Edit Student";
         ViewData["PageTitle"] = "Students · Edit";
 
-        if (model.Form.Uid <= 0)
+        if (id != model.StudentId)
         {
             return NotFound();
         }
 
-        ValidateStudentForm(model.Form);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _students.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
-        var ok = await _students.UpdateAsync(model.Form, ResolveActorId(), cancellationToken);
-        if (!ok)
+        try
         {
-            return NotFound();
-        }
+            var ok = await _students.UpdateAsync(model, ResolveActorId(), cancellationToken);
+            if (!ok)
+            {
+                return NotFound();
+            }
 
-        TempData["StatusMessage"] = "Student updated.";
-        return RedirectToAction(nameof(Index));
+            TempData["StatusMessage"] = "Student updated.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            if (ex.Message.Contains("RegistrationNo", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(model.RegistrationNo), "Registration number already exists.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
+            }
+
+            return View(model);
+        }
     }
 
     [HttpPost("delete/{id:int}")]
@@ -165,39 +154,6 @@ public sealed class StudentsController : StudentMgmtBaseController
         }
 
         return RedirectToAction(nameof(Index));
-    }
-
-    private void ValidateStudentForm(StudentFormModel form)
-    {
-        var results = new List<ValidationResult>();
-        Validator.TryValidateObject(form, new ValidationContext(form), results, validateAllProperties: true);
-        foreach (var result in results)
-        {
-            var members = result.MemberNames.Any()
-                ? result.MemberNames.Select(m => $"Form.{m}")
-                : ["Form"];
-            foreach (var key in members)
-            {
-                ModelState.AddModelError(key, result.ErrorMessage ?? "Invalid value.");
-            }
-        }
-    }
-
-    private static StudentFormModel CreateDefaultForm(StudentLookups lookups)
-    {
-        return new StudentFormModel
-        {
-            AdmissionYear = (short)DateTime.Today.Year,
-            AdmissionDate = DateTime.Today,
-            DateOfBirth = DateTime.Today.AddYears(-18),
-            Gender = "M",
-            Nationality = "Pakistani",
-            IsActive = true,
-            CountryId = lookups.Countries.FirstOrDefault()?.Id ?? 1,
-            ProvinceId = lookups.Provinces.FirstOrDefault()?.Id ?? 1,
-            CityId = lookups.Cities.FirstOrDefault()?.Id ?? 1,
-            ProgramId = lookups.Programs.FirstOrDefault()?.Id ?? 1
-        };
     }
 
     private int ResolveActorId() => 1;

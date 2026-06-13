@@ -1,0 +1,24 @@
+@model ProgramCourseFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Form.ProgramCourseId" />
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Form.ProgramId" class="form-label"></label>
+        <select asp-for="Form.ProgramId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select program —</option>
+        </select>
+        <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.CourseId" class="form-label"></label>
+        <select asp-for="Form.CourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select course —</option>
+        </select>
+        <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
+    </div>
+</div>

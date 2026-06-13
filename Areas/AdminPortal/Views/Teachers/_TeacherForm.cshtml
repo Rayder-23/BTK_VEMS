@@ -1,196 +1,41 @@
-@model TeacherFormPageViewModel
-@{
-    var requireEmployeeLookup = ViewData["RequireEmployeeLookup"] as bool? == true;
-}
+@model TeacherFormModel
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<input type="hidden" asp-for="Form.Uid" />
+<input type="hidden" asp-for="TeacherId" />
 
 <div class="student-mgmt-admin-form-grid">
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.EmployeeCode"></label>
-        <div class="col-6 col-lg-@(requireEmployeeLookup ? "5" : "3") student-mgmt-admin-form-field">
-            <div class="@(requireEmployeeLookup ? "input-group input-group-sm" : "")">
-                <input asp-for="Form.EmployeeCode" class="form-control form-control-sm" id="employeeIdInput"
-                       autocomplete="off" placeholder="@(requireEmployeeLookup ? "Search employee ID" : null)" />
-                @if (requireEmployeeLookup)
-                {
-                    <button type="button" class="btn btn-outline-primary" id="employeeLookupBtn">Search</button>
-                }
-            </div>
-            <span asp-validation-for="Form.EmployeeCode" class="text-danger small"></span>
-            @if (requireEmployeeLookup)
-            {
-                <p id="employeeLookupStatus" class="form-text mb-0 text-muted">
-                    Search for an employee ID to unlock the form.
-                </p>
-            }
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="EmployeeNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="EmployeeNo" class="form-control form-control-sm" maxlength="50" />
+            <span asp-validation-for="EmployeeNo" class="text-danger small"></span>
         </div>
-        @if (!requireEmployeeLookup)
-        {
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FirstName"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.FirstName" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
-            </div>
-        }
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="TeacherName"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="TeacherName" class="form-control form-control-sm" maxlength="200" />
+            <span asp-validation-for="TeacherName" class="text-danger small"></span>
+        </div>
     </div>
-    @if (requireEmployeeLookup)
-    {
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.FirstName"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.FirstName" class="form-control form-control-sm js-teacher-detail-field" disabled />
-                <span asp-validation-for="Form.FirstName" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.LastName"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.LastName" class="form-control form-control-sm js-teacher-detail-field" disabled />
-                <span asp-validation-for="Form.LastName" class="text-danger small"></span>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="MobileNo"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="MobileNo" class="form-control form-control-sm" maxlength="30" />
+            <span asp-validation-for="MobileNo" class="text-danger small"></span>
+        </div>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Email"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <input asp-for="Email" class="form-control form-control-sm" type="email" maxlength="200" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="IsActive"></label>
+        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
             </div>
         </div>
-    }
-    else
-    {
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.LastName"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.LastName" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.LastName" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.JoiningDate"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.JoiningDate" class="form-control form-control-sm" type="date" />
-                <span asp-validation-for="Form.JoiningDate" class="text-danger small"></span>
-            </div>
-        </div>
-    }
-    @if (requireEmployeeLookup)
-    {
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.JoiningDate"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.JoiningDate" class="form-control form-control-sm js-teacher-detail-field" type="date" disabled />
-                <span asp-validation-for="Form.JoiningDate" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Designation"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <select asp-for="Form.Designation" class="form-select form-select-sm js-teacher-detail-field" disabled
-                        asp-items="@(new SelectList(Model.Lookups.Designations))">
-                    <option value="">— None —</option>
-                </select>
-                <span asp-validation-for="Form.Designation" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Qualification"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Qualification" class="form-control form-control-sm js-teacher-detail-field" disabled />
-                <span asp-validation-for="Form.Qualification" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Specialization"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Specialization" class="form-control form-control-sm js-teacher-detail-field" disabled />
-                <span asp-validation-for="Form.Specialization" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramId"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <select asp-for="Form.ProgramId" class="form-select form-select-sm js-teacher-detail-field" disabled
-                        asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-                    <option value="">— None —</option>
-                </select>
-                <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Email"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Email" class="form-control form-control-sm js-teacher-detail-field" type="email" disabled />
-                <span asp-validation-for="Form.Email" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Phone"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Phone" class="form-control form-control-sm js-teacher-detail-field" disabled />
-                <span asp-validation-for="Form.Phone" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <div class="form-check mb-0">
-                    <input asp-for="Form.IsActive" class="form-check-input js-teacher-detail-field" disabled />
-                    <label asp-for="Form.IsActive" class="form-check-label"></label>
-                </div>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-start">
-            <label class="col-12 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Remarks"></label>
-            <div class="col-12 col-lg-9 student-mgmt-admin-form-field">
-                <textarea asp-for="Form.Remarks" class="form-control form-control-sm js-teacher-detail-field" rows="2" disabled></textarea>
-                <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Designation"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <select asp-for="Form.Designation" class="form-select form-select-sm"
-                        asp-items="@(new SelectList(Model.Lookups.Designations))">
-                    <option value="">— None —</option>
-                </select>
-                <span asp-validation-for="Form.Designation" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Qualification"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Qualification" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.Qualification" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Specialization"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Specialization" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.Specialization" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramId"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <select asp-for="Form.ProgramId" class="form-select form-select-sm"
-                        asp-items="@(new SelectList(Model.Lookups.Programs, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
-                    <option value="">— None —</option>
-                </select>
-                <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Email"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Email" class="form-control form-control-sm" type="email" />
-                <span asp-validation-for="Form.Email" class="text-danger small"></span>
-            </div>
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Phone"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input asp-for="Form.Phone" class="form-control form-control-sm" />
-                <span asp-validation-for="Form.Phone" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-start">
-            <label class="col-12 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Remarks"></label>
-            <div class="col-12 col-lg-9 student-mgmt-admin-form-field">
-                <textarea asp-for="Form.Remarks" class="form-control form-control-sm" rows="2"></textarea>
-                <span asp-validation-for="Form.Remarks" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <div class="form-check mb-0">
-                    <input asp-for="Form.IsActive" class="form-check-input" />
-                    <label asp-for="Form.IsActive" class="form-check-label"></label>
-                </div>
-            </div>
-        </div>
-    }
+    </div>
 </div>

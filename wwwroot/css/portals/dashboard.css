@@ -752,6 +752,13 @@ body.teachers-mgmt-shell .teachers-mgmt-nav-blank {
     pointer-events: none;
 }
 
+body.settings-mgmt-shell .settings-mgmt-nav-blank {
+    cursor: default;
+    min-height: 2.25rem;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
 body.student-mgmt-shell .fee-erp-navbar {
     top: var(--fee-erp-module-bar-h);
 }

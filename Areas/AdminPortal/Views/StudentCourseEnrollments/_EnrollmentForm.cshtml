@@ -25,13 +25,13 @@
         </div>
     </div>
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassCourseId"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassSectionCourseId"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.ClassCourseId" class="form-select form-select-sm"
-                    asp-items="@(new SelectList(Model.Lookups.ClassCourses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <select asp-for="Form.ClassSectionCourseId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(Model.Lookups.ClassSectionCourses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
                 <option value="">— Select class / course —</option>
             </select>
-            <span asp-validation-for="Form.ClassCourseId" class="text-danger small"></span>
+            <span asp-validation-for="Form.ClassSectionCourseId" class="text-danger small"></span>
         </div>
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Status"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">

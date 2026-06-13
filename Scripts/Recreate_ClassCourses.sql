@@ -45,7 +45,7 @@ CREATE TABLE [dbo].[ClassCourses](
     CONSTRAINT [FK_ClassCourses_Class] FOREIGN KEY ([ClassID])
         REFERENCES [dbo].[Classes] ([Uid]),
     CONSTRAINT [FK_ClassCourses_Course] FOREIGN KEY ([CourseID])
-        REFERENCES [dbo].[Courses] ([Uid])
+        REFERENCES [dbo].[Courses] ([CourseID])
 );
 GO
 

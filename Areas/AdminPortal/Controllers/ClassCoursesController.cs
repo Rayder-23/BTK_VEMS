@@ -19,27 +19,25 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
 
     [HttpGet("")]
     [HttpGet("Index")]
-    public async Task<IActionResult> Index(string? search, bool showInactive = false, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Index(string? search, CancellationToken cancellationToken = default)
     {
-        ViewData["Title"] = "Class courses";
-        ViewData["PageTitle"] = "Class Courses · All";
+        ViewData["Title"] = "Class section courses";
+        ViewData["PageTitle"] = "Class Section Courses · All";
         ViewData["Search"] = search;
-        ViewData["ShowInactive"] = showInactive;
 
-        var items = await _classCourses.ListAsync(search, activeOnly: !showInactive, cancellationToken);
+        var items = await _classCourses.ListAsync(search, cancellationToken);
         return View(items);
     }
 
     [HttpGet("create")]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Assign course to class";
-        ViewData["PageTitle"] = "Class Courses · Assign";
+        ViewData["Title"] = "Assign course to class section";
+        ViewData["PageTitle"] = "Class Section Courses · Assign";
 
         return View(new ClassCourseFormPageViewModel
         {
-            Lookups = await _classCourses.GetLookupsAsync(cancellationToken),
-            Form = new ClassCourseFormModel { IsActive = true }
+            Lookups = await _classCourses.GetLookupsAsync(cancellationToken)
         });
     }
 
@@ -47,8 +45,8 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ClassCourseFormPageViewModel model, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Assign course to class";
-        ViewData["PageTitle"] = "Class Courses · Assign";
+        ViewData["Title"] = "Assign course to class section";
+        ViewData["PageTitle"] = "Class Section Courses · Assign";
 
         await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
@@ -57,9 +55,9 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
             return View(model);
         }
 
-        if (await _classCourses.ExistsAsync(model.Form.ClassId, model.Form.CourseId, null, cancellationToken))
+        if (await _classCourses.ExistsAsync(model.Form.ClassSectionId, model.Form.CourseId, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class.");
+            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class section.");
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -67,12 +65,12 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
         try
         {
             var newId = await _classCourses.InsertAsync(model.Form, cancellationToken);
-            TempData["StatusMessage"] = $"Class course assignment created (id {newId}).";
+            TempData["StatusMessage"] = $"Class section course link created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class.");
+            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class section.");
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -93,8 +91,8 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
             return NotFound();
         }
 
-        ViewData["Title"] = "Edit class course";
-        ViewData["PageTitle"] = "Class Courses · Edit";
+        ViewData["Title"] = "Edit class section course";
+        ViewData["PageTitle"] = "Class Section Courses · Edit";
 
         return View(new ClassCourseFormPageViewModel
         {
@@ -107,10 +105,10 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ClassCourseFormPageViewModel model, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Edit class course";
-        ViewData["PageTitle"] = "Class Courses · Edit";
+        ViewData["Title"] = "Edit class section course";
+        ViewData["PageTitle"] = "Class Section Courses · Edit";
 
-        if (id != model.Form.Uid)
+        if (id != model.Form.ClassSectionCourseId)
         {
             return NotFound();
         }
@@ -122,9 +120,9 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
             return View(model);
         }
 
-        if (await _classCourses.ExistsAsync(model.Form.ClassId, model.Form.CourseId, id, cancellationToken))
+        if (await _classCourses.ExistsAsync(model.Form.ClassSectionId, model.Form.CourseId, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class.");
+            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class section.");
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -137,12 +135,12 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
                 return NotFound();
             }
 
-            TempData["StatusMessage"] = "Class course assignment updated.";
+            TempData["StatusMessage"] = "Class section course link updated.";
             return RedirectToAction(nameof(Index));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class.");
+            ModelState.AddModelError(nameof(model.Form.CourseId), "This course is already linked to the selected class section.");
             model.Lookups = await _classCourses.GetLookupsAsync(cancellationToken);
             return View(model);
         }
@@ -158,8 +156,16 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var ok = await _classCourses.DeactivateAsync(id, cancellationToken);
-        TempData["StatusMessage"] = ok ? "Class course assignment deactivated." : "Record not found.";
+        try
+        {
+            var ok = await _classCourses.DeleteAsync(id, cancellationToken);
+            TempData["StatusMessage"] = ok ? "Class section course link deleted." : "Record not found.";
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            TempData["ErrorMessage"] = "This link could not be deleted because enrollments or teacher assignments still reference it.";
+        }
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -172,31 +178,26 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
 
         var lookups = await _classCourses.GetLookupsAsync(cancellationToken);
 
-        if (lookups.Classes.All(c => c.Id != form.ClassId))
+        if (lookups.ClassSections.All(c => c.Id != form.ClassSectionId))
         {
-            ModelState.AddModelError(nameof(form.ClassId), "Select a valid class.");
+            ModelState.AddModelError(nameof(form.ClassSectionId), "Select a valid class section.");
         }
 
         if (lookups.Courses.All(c => c.Id != form.CourseId))
         {
             ModelState.AddModelError(nameof(form.CourseId), "Select a valid course.");
         }
-
-        if (form.TeacherId.HasValue && lookups.Teachers.All(t => t.Id != form.TeacherId.Value))
-        {
-            ModelState.AddModelError(nameof(form.TeacherId), "Select a valid teacher.");
-        }
     }
 
     private void ApplyForeignKeyError(SqlException ex, ClassCourseFormPageViewModel model)
     {
-        if (ex.Message.Contains("FK_ClassCourses_Class", StringComparison.OrdinalIgnoreCase))
+        if (ex.Message.Contains("FK_ClassSectionCourses_ClassSection", StringComparison.OrdinalIgnoreCase))
         {
-            ModelState.AddModelError(nameof(model.Form.ClassId), "Select a valid class.");
+            ModelState.AddModelError(nameof(model.Form.ClassSectionId), "Select a valid class section.");
             return;
         }
 
-        if (ex.Message.Contains("FK_ClassCourses_Course", StringComparison.OrdinalIgnoreCase))
+        if (ex.Message.Contains("FK_ClassSectionCourses_Course", StringComparison.OrdinalIgnoreCase))
         {
             ModelState.AddModelError(nameof(model.Form.CourseId), "Select a valid course.");
         }

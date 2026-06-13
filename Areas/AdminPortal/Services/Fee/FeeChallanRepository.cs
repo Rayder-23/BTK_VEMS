@@ -24,24 +24,29 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
     {
         const string sql = """
             SELECT c.Uid, c.ChallanNo,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
                    c.Semester, c.AcademicYear, c.DueDate, c.NetPayable, c.AmountPaid, c.Status
             FROM dbo.Challans c
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             LEFT JOIN dbo.FeeStructures fs ON c.StructureID = fs.Uid
-            LEFT JOIN dbo.ref_Programs ap ON ap.ProgramCode = a.ProgramCode
+            LEFT JOIN dbo.Programs ap ON ap.ProgramCode = a.ProgramCode
             WHERE c.IsActive = 1
               AND (@Search IS NULL OR c.ChallanNo LIKE @Search
                    OR s.RegistrationNo LIKE @Search OR a.ApplicationNo LIKE @Search
-                   OR s.FirstName LIKE @Search OR s.LastName LIKE @Search
+                   OR s.StudentName LIKE @Search
                    OR a.FirstName LIKE @Search OR a.LastName LIKE @Search)
               AND (@ProgramId IS NULL
-                   OR s.ProgramID = @ProgramId
+                   OR EXISTS (
+                       SELECT 1
+                       FROM dbo.StudentEnrollments se
+                       WHERE se.StudentID = s.StudentID
+                         AND se.ProgramID = @ProgramId
+                         AND se.IsActive = 1)
                    OR fs.ProgramID = @ProgramId
-                   OR ap.Uid = @ProgramId)
+                   OR ap.ProgramID = @ProgramId)
             ORDER BY c.Uid DESC;
             """;
 
@@ -81,12 +86,12 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
     {
         const string headerSql = """
             SELECT c.Uid, c.ChallanNo,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
                    c.Semester, c.AcademicYear, c.DueDate, c.NetPayable, c.AmountPaid, c.Status
             FROM dbo.Challans c
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE c.Uid = @Uid;
             """;
@@ -153,12 +158,12 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
 
         const string paymentsSql = """
             SELECT p.Uid, p.ChallanID, c.ChallanNo,
-                   COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    p.AmountPaid, p.PaymentDate, p.PaymentMode, p.Status, pr.ReceiptNo
             FROM dbo.Payments p
             INNER JOIN dbo.Challans c ON p.ChallanID = c.Uid
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             LEFT JOIN dbo.PaymentReceipts pr ON pr.PaymentID = p.Uid
             WHERE p.ChallanID = @ChallanId AND p.IsActive = 1
@@ -466,15 +471,15 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
     {
         const string sql = """
             SELECT
-                s.Uid AS StudentID,
+                s.StudentID,
                 s.RegistrationNo,
-                s.RollNo,
-                LTRIM(RTRIM(s.FirstName + ISNULL(' ' + s.MiddleName, '') + ' ' + s.LastName)) AS StudentName,
+                se.RollNo,
+                s.StudentName,
                 p.ProgramName,
                 CASE WHEN EXISTS (
                     SELECT 1
                     FROM dbo.Concessions con
-                    WHERE con.StudentID = s.Uid
+                    WHERE con.StudentID = s.StudentID
                       AND con.IsActive = 1
                       AND con.ValidFrom <= CONVERT(date, SYSUTCDATETIME())
                       AND (con.ValidTo IS NULL OR con.ValidTo >= CONVERT(date, SYSUTCDATETIME()))
@@ -482,14 +487,15 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                 CASE WHEN EXISTS (
                     SELECT 1
                     FROM dbo.Challans ch
-                    WHERE ch.StudentID = s.Uid
+                    WHERE ch.StudentID = s.StudentID
                       AND ch.Semester = @Semester
                       AND ch.AcademicYear = @AcademicYear
                       AND ch.IsActive = 1
                 ) THEN 1 ELSE 0 END AS AlreadyHasChallan
             FROM dbo.Students s
-            INNER JOIN dbo.ref_Programs p ON s.ProgramID = p.Uid
-            WHERE s.ProgramID = @ProgramId
+            INNER JOIN dbo.StudentEnrollments se ON se.StudentID = s.StudentID AND se.IsActive = 1
+            INNER JOIN dbo.Programs p ON se.ProgramID = p.ProgramID
+            WHERE se.ProgramID = @ProgramId
               AND s.IsActive = 1
             ORDER BY s.RegistrationNo;
             """;

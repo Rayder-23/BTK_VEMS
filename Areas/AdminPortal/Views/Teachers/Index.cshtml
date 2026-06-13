@@ -35,7 +35,7 @@
         <div class="col-md-6">
             <label class="form-label" for="search">Search</label>
             <input type="search" class="form-control form-control-sm" id="search" name="search" value="@search"
-                   placeholder="Code, name, designation" />
+                   placeholder="Employee no., name, email, mobile" />
         </div>
         <div class="col-md-3">
             <div class="form-check mt-4">
@@ -53,10 +53,10 @@
         <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
             <thead>
                 <tr>
-                    <th>Code</th>
+                    <th>Employee no.</th>
                     <th>Name</th>
-                    <th>Designation</th>
-                    <th>Program</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
                     <th>Active</th>
                     <th class="text-end">Actions</th>
                 </tr>
@@ -69,19 +69,19 @@
             @foreach (var row in Model)
             {
                 <tr>
-                    <td class="fw-semibold">@row.EmployeeCode</td>
-                    <td>@row.FullName</td>
-                    <td>@(row.Designation ?? "—")</td>
-                    <td>@(row.ProgramName ?? "—")</td>
+                    <td class="fw-semibold">@(string.IsNullOrWhiteSpace(row.EmployeeNo) ? "—" : row.EmployeeNo)</td>
+                    <td>@row.TeacherName</td>
+                    <td>@(row.MobileNo ?? "—")</td>
+                    <td>@(row.Email ?? "—")</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
                     <td class="text-end text-nowrap">
-                        <a class="btn btn-sm btn-outline-primary" asp-action="Assignments" asp-route-teacherId="@row.Uid">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Assignments" asp-route-teacherId="@row.TeacherId">
                             Assignments
                         </a>
-                        <a class="btn btn-sm btn-outline-success" asp-action="Edit" asp-route-id="@row.Uid">Edit</a>
+                        <a class="btn btn-sm btn-outline-success" asp-action="Edit" asp-route-id="@row.TeacherId">Edit</a>
                         @if (row.IsActive)
                         {
-                            <form asp-action="Delete" asp-route-id="@row.Uid" method="post" class="d-inline"
+                            <form asp-action="Delete" asp-route-id="@row.TeacherId" method="post" class="d-inline"
                                   onsubmit="return confirm('Deactivate this teacher?');">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>

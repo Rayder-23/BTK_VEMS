@@ -20,26 +20,20 @@ public sealed class TeacherRepository : ITeacherRepository
     {
         var sql = """
             SELECT
-                t.Uid,
-                t.EmployeeCode,
-                t.FirstName,
-                t.LastName,
-                t.Designation,
-                p.ProgramName,
+                t.TeacherID,
+                t.EmployeeNo,
+                t.TeacherName,
                 t.Email,
-                t.Phone,
+                t.MobileNo,
                 t.IsActive
             FROM dbo.Teachers t
-            LEFT JOIN dbo.ref_Programs p ON t.ProgramID = p.Uid
             WHERE (@Search IS NULL
-                   OR t.EmployeeCode LIKE @Search
-                   OR t.FirstName LIKE @Search
-                   OR t.LastName LIKE @Search
+                   OR t.EmployeeNo LIKE @Search
+                   OR t.TeacherName LIKE @Search
                    OR t.Email LIKE @Search
-                   OR t.Designation LIKE @Search
-                   OR p.ProgramName LIKE @Search)
+                   OR t.MobileNo LIKE @Search)
             """ + (activeOnly ? " AND t.IsActive = 1" : "") + """
-             ORDER BY t.EmployeeCode;
+             ORDER BY t.TeacherName, t.EmployeeNo;
             """;
 
         var list = new List<TeacherListItemViewModel>();
@@ -52,14 +46,11 @@ public sealed class TeacherRepository : ITeacherRepository
         {
             list.Add(new TeacherListItemViewModel
             {
-                Uid = Convert.ToInt32(reader["Uid"]),
-                EmployeeCode = reader["EmployeeCode"] as string ?? string.Empty,
-                FirstName = reader["FirstName"] as string ?? string.Empty,
-                LastName = reader["LastName"] as string ?? string.Empty,
-                Designation = reader["Designation"] as string,
-                ProgramName = reader["ProgramName"] as string,
+                TeacherId = Convert.ToInt32(reader["TeacherID"]),
+                EmployeeNo = reader["EmployeeNo"] as string ?? string.Empty,
+                TeacherName = reader["TeacherName"] as string ?? string.Empty,
                 Email = reader["Email"] as string,
-                Phone = reader["Phone"] as string,
+                MobileNo = reader["MobileNo"] as string,
                 IsActive = Convert.ToBoolean(reader["IsActive"])
             });
         }
@@ -67,88 +58,51 @@ public sealed class TeacherRepository : ITeacherRepository
         return list;
     }
 
-    public async Task<TeacherFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default)
+    public async Task<TeacherFormModel?> GetAsync(int teacherId, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT
-                Uid,
-                EmployeeCode,
-                FirstName,
-                LastName,
-                Designation,
-                Qualification,
-                Specialization,
-                ProgramID,
+                TeacherID,
+                EmployeeNo,
+                TeacherName,
                 Email,
-                Phone,
-                JoiningDate,
-                IsActive,
-                Remarks
+                MobileNo,
+                IsActive
             FROM dbo.Teachers
-            WHERE Uid = @Uid;
+            WHERE TeacherID = @TeacherId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@TeacherId", teacherId);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        if (!await reader.ReadAsync(cancellationToken))
-        {
-            return null;
-        }
-
-        return Map(reader);
+        return await reader.ReadAsync(cancellationToken) ? Map(reader) : null;
     }
 
-    public async Task<TeacherLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> EmployeeNoExistsAsync(string? employeeNo, int? excludeTeacherId, CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            SELECT Uid, ProgramCode + ' - ' + ProgramName
-            FROM dbo.ref_Programs
-            WHERE IsActive = 1
-            ORDER BY ProgramName;
-            """;
-
-        var programs = new List<StudentLookupItem>();
-        await using var connection = new SqlConnection(_connectionString);
-        await using var command = new SqlCommand(sql, connection);
-        await connection.OpenAsync(cancellationToken);
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        while (await reader.ReadAsync(cancellationToken))
+        if (string.IsNullOrWhiteSpace(employeeNo))
         {
-            programs.Add(new StudentLookupItem
-            {
-                Id = Convert.ToInt32(reader[0]),
-                Name = reader[1] as string ?? string.Empty
-            });
+            return false;
         }
 
-        return new TeacherLookups
-        {
-            Programs = programs,
-            Designations = TeacherDesignationCatalog.Allowed
-        };
-    }
-
-    public async Task<bool> EmployeeCodeExistsAsync(string employeeCode, int? excludeUid, CancellationToken cancellationToken = default)
-    {
         const string sql = """
             SELECT COUNT(1)
             FROM dbo.Teachers
-            WHERE EmployeeCode = @EmployeeCode
-              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+            WHERE EmployeeNo = @EmployeeNo
+              AND (@ExcludeTeacherId IS NULL OR TeacherID <> @ExcludeTeacherId);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@EmployeeCode", employeeCode.Trim());
-        command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
+        command.Parameters.AddWithValue("@EmployeeNo", employeeNo.Trim());
+        command.Parameters.AddWithValue("@ExcludeTeacherId", (object?)excludeTeacherId ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
 
-    public async Task<bool> EmailExistsAsync(string? email, int? excludeUid, CancellationToken cancellationToken = default)
+    public async Task<bool> EmailExistsAsync(string? email, int? excludeTeacherId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
@@ -159,13 +113,13 @@ public sealed class TeacherRepository : ITeacherRepository
             SELECT COUNT(1)
             FROM dbo.Teachers
             WHERE Email = @Email
-              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+              AND (@ExcludeTeacherId IS NULL OR TeacherID <> @ExcludeTeacherId);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Email", email.Trim());
-        command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
+        command.Parameters.AddWithValue("@ExcludeTeacherId", (object?)excludeTeacherId ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
@@ -174,36 +128,18 @@ public sealed class TeacherRepository : ITeacherRepository
     {
         const string sql = """
             INSERT INTO dbo.Teachers (
-                EmployeeCode,
-                FirstName,
-                LastName,
-                Designation,
-                Qualification,
-                Specialization,
-                ProgramID,
+                EmployeeNo,
+                TeacherName,
                 Email,
-                Phone,
-                JoiningDate,
-                IsActive,
-                Remarks,
-                CreatedBy,
-                CreatedAt
+                MobileNo,
+                IsActive
             )
             VALUES (
-                @EmployeeCode,
-                @FirstName,
-                @LastName,
-                @Designation,
-                @Qualification,
-                @Specialization,
-                @ProgramID,
+                @EmployeeNo,
+                @TeacherName,
                 @Email,
-                @Phone,
-                @JoiningDate,
-                @IsActive,
-                @Remarks,
-                @CreatedBy,
-                SYSUTCDATETIME()
+                @MobileNo,
+                @IsActive
             );
             SELECT CAST(SCOPE_IDENTITY() AS int);
             """;
@@ -211,7 +147,6 @@ public sealed class TeacherRepository : ITeacherRepository
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         Bind(command, model);
-        command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
     }
@@ -220,80 +155,53 @@ public sealed class TeacherRepository : ITeacherRepository
     {
         const string sql = """
             UPDATE dbo.Teachers SET
-                EmployeeCode = @EmployeeCode,
-                FirstName = @FirstName,
-                LastName = @LastName,
-                Designation = @Designation,
-                Qualification = @Qualification,
-                Specialization = @Specialization,
-                ProgramID = @ProgramID,
+                EmployeeNo = @EmployeeNo,
+                TeacherName = @TeacherName,
                 Email = @Email,
-                Phone = @Phone,
-                JoiningDate = @JoiningDate,
-                IsActive = @IsActive,
-                Remarks = @Remarks,
-                UpdatedBy = @UpdatedBy,
-                UpdatedAt = SYSUTCDATETIME()
-            WHERE Uid = @Uid;
+                MobileNo = @MobileNo,
+                IsActive = @IsActive
+            WHERE TeacherID = @TeacherId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", model.Uid);
+        command.Parameters.AddWithValue("@TeacherId", model.TeacherId);
         Bind(command, model);
-        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> DeactivateAsync(int teacherId, int? updatedBy, CancellationToken cancellationToken = default)
     {
         const string sql = """
             UPDATE dbo.Teachers SET
-                IsActive = 0,
-                UpdatedBy = @UpdatedBy,
-                UpdatedAt = SYSUTCDATETIME()
-            WHERE Uid = @Uid;
+                IsActive = 0
+            WHERE TeacherID = @TeacherId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
-        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
+        command.Parameters.AddWithValue("@TeacherId", teacherId);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
     private static TeacherFormModel Map(SqlDataReader reader) => new()
     {
-        Uid = Convert.ToInt32(reader["Uid"]),
-        EmployeeCode = reader["EmployeeCode"] as string ?? string.Empty,
-        FirstName = reader["FirstName"] as string ?? string.Empty,
-        LastName = reader["LastName"] as string ?? string.Empty,
-        Designation = reader["Designation"] as string,
-        Qualification = reader["Qualification"] as string,
-        Specialization = reader["Specialization"] as string,
-        ProgramId = reader["ProgramID"] is DBNull ? null : Convert.ToInt32(reader["ProgramID"]),
+        TeacherId = Convert.ToInt32(reader["TeacherID"]),
+        EmployeeNo = reader["EmployeeNo"] as string,
+        TeacherName = reader["TeacherName"] as string ?? string.Empty,
         Email = reader["Email"] as string,
-        Phone = reader["Phone"] as string,
-        JoiningDate = reader["JoiningDate"] is DBNull ? null : reader.GetDateTime(reader.GetOrdinal("JoiningDate")),
-        IsActive = Convert.ToBoolean(reader["IsActive"]),
-        Remarks = reader["Remarks"] as string
+        MobileNo = reader["MobileNo"] as string,
+        IsActive = Convert.ToBoolean(reader["IsActive"])
     };
 
     private static void Bind(SqlCommand command, TeacherFormModel model)
     {
-        command.Parameters.AddWithValue("@EmployeeCode", model.EmployeeCode.Trim());
-        command.Parameters.AddWithValue("@FirstName", model.FirstName.Trim());
-        command.Parameters.AddWithValue("@LastName", model.LastName.Trim());
-        command.Parameters.AddWithValue("@Designation", (object?)model.Designation?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Qualification", (object?)model.Qualification?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Specialization", (object?)model.Specialization?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@ProgramID", (object?)model.ProgramId ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Email", (object?)model.Email?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@Phone", (object?)model.Phone?.Trim() ?? DBNull.Value);
-        command.Parameters.AddWithValue("@JoiningDate", model.JoiningDate.HasValue ? model.JoiningDate.Value.Date : DBNull.Value);
+        command.Parameters.AddWithValue("@EmployeeNo", string.IsNullOrWhiteSpace(model.EmployeeNo) ? DBNull.Value : model.EmployeeNo.Trim());
+        command.Parameters.AddWithValue("@TeacherName", model.TeacherName.Trim());
+        command.Parameters.AddWithValue("@Email", string.IsNullOrWhiteSpace(model.Email) ? DBNull.Value : model.Email.Trim());
+        command.Parameters.AddWithValue("@MobileNo", string.IsNullOrWhiteSpace(model.MobileNo) ? DBNull.Value : model.MobileNo.Trim());
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
-        command.Parameters.AddWithValue("@Remarks", (object?)model.Remarks?.Trim() ?? DBNull.Value);
     }
 }

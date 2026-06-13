@@ -14,8 +14,8 @@ SELECT
     se.StudentID,
     se.ProgramID,
     COALESCE(
-        (SELECT TOP 1 c.Uid FROM dbo.Classes c WHERE c.ProgramID = se.ProgramID ORDER BY c.Uid),
-        (SELECT MIN(Uid) FROM dbo.Classes)
+        (SELECT TOP 1 c.ClassID FROM dbo.Classes c ORDER BY c.SortOrder, c.ClassID),
+        (SELECT MIN(ClassID) FROM dbo.Classes)
     ) AS ClassID,
     se.RollNo,
     se.AcademicYear,

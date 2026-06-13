@@ -15,7 +15,7 @@ public interface IStudentCourseEnrollmentRepository
         int? studentId,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsAsync(int studentId, int classCourseId, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(int studentId, int classSectionCourseId, int? excludeUid, CancellationToken cancellationToken = default);
 
     Task<bool> EnrollmentBelongsToStudentAsync(int enrollmentId, int studentId, CancellationToken cancellationToken = default);
 

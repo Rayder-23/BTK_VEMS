@@ -8,6 +8,10 @@
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_TeachersMgmtLayout.cshtml";
     }
+    else if (SettingsNavCatalog.IsSettingsController(controller))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_SettingsMgmtLayout.cshtml";
+    }
     else if (string.Equals(controller, "StudentMgmt", StringComparison.OrdinalIgnoreCase)
         || StudentMgmtNavCatalog.IsStudentMgmtController(controller))
     {
@@ -24,10 +28,6 @@
     else if (FeeMgmtNavCatalog.IsFeeMgmtController(controller))
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_FeeMgmtMgmtLayout.cshtml";
-    }
-    else if (SettingsNavCatalog.IsSettingsController(controller))
-    {
-        Layout = "/Areas/AdminPortal/Views/Shared/_SettingsMgmtLayout.cshtml";
     }
     else if (AccountsNavCatalog.IsAccountsController(controller))
     {

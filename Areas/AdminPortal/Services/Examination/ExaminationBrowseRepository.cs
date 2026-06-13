@@ -118,7 +118,7 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
             SELECT TOP 500 m.Uid, m.SchemeName, p.ProgramName, m.CourseID, m.Semester, m.AcademicYear,
                    t.TypeName, m.WeightPercent, m.TotalMarks, m.IsActive
             FROM dbo.MarkingScheme m
-            INNER JOIN dbo.ref_Programs p ON p.Uid = m.ProgramID
+            INNER JOIN dbo.Programs p ON p.ProgramID = m.ProgramID
             INNER JOIN dbo.ExamTypes t ON t.Uid = m.ExamTypeID
             ORDER BY m.SchemeName, m.AcademicYear DESC;
             """;
@@ -155,7 +155,7 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
                    e.TotalMarks, e.PassingMarks, e.ExamNo, e.IsActive
             FROM dbo.Exams e
             INNER JOIN dbo.ExamTypes t ON t.Uid = e.ExamTypeID
-            INNER JOIN dbo.ref_Programs p ON p.Uid = e.ProgramID
+            INNER JOIN dbo.Programs p ON p.ProgramID = e.ProgramID
             ORDER BY e.AcademicYear DESC, e.ExamTitle;
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -223,7 +223,7 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
             SELECT TOP 500 m.Uid, e.ExamTitle, st.RegistrationNo, m.MarksObtained, m.IsAbsent, m.IsExcused, m.EnteredAt
             FROM dbo.StudentMarks m
             INNER JOIN dbo.Exams e ON e.Uid = m.ExamID
-            INNER JOIN dbo.Students st ON st.Uid = m.StudentID
+            INNER JOIN dbo.Students st ON st.StudentID = m.StudentID
             ORDER BY m.EnteredAt DESC;
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -255,7 +255,7 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
             SELECT TOP 500 a.Uid, e.ExamTitle, st.RegistrationNo, a.SubmissionDate, a.DueDate, a.IsLate, a.FileName
             FROM dbo.AssignmentSubmissions a
             INNER JOIN dbo.Exams e ON e.Uid = a.ExamID
-            INNER JOIN dbo.Students st ON st.Uid = a.StudentID
+            INNER JOIN dbo.Students st ON st.StudentID = a.StudentID
             ORDER BY a.SubmissionDate DESC;
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -287,8 +287,8 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
             SELECT TOP 500 g.Uid, st.RegistrationNo, g.CourseID, p.ProgramName, g.Semester, g.AcademicYear,
                    s.ScaleName, g.PercentageMarks, g.LetterGrade, g.GradePoints, g.IsPassing
             FROM dbo.StudentGrades g
-            INNER JOIN dbo.Students st ON st.Uid = g.StudentID
-            INNER JOIN dbo.ref_Programs p ON p.Uid = g.ProgramID
+            INNER JOIN dbo.Students st ON st.StudentID = g.StudentID
+            INNER JOIN dbo.Programs p ON p.ProgramID = g.ProgramID
             INNER JOIN dbo.GradingScales s ON s.Uid = g.ScaleID
             ORDER BY g.AcademicYear DESC, st.RegistrationNo;
             """;
@@ -325,8 +325,8 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
             SELECT TOP 500 r.Uid, st.RegistrationNo, p.ProgramName, r.Semester, r.AcademicYear,
                    r.TotalCourses, r.CoursesPassed, r.CoursesFailed, r.SemesterGPA, r.CumulativeCGPA, r.ResultStatus, r.IsLocked
             FROM dbo.StudentResults r
-            INNER JOIN dbo.Students st ON st.Uid = r.StudentID
-            INNER JOIN dbo.ref_Programs p ON p.Uid = r.ProgramID
+            INNER JOIN dbo.Students st ON st.StudentID = r.StudentID
+            INNER JOIN dbo.Programs p ON p.ProgramID = r.ProgramID
             ORDER BY r.AcademicYear DESC, st.RegistrationNo;
             """;
         await using var connection = new SqlConnection(_connectionString);
@@ -363,7 +363,7 @@ public sealed class ExaminationBrowseRepository : IExaminationBrowseRepository
             SELECT TOP 500 d.Uid, st.RegistrationNo, sr.Semester, sr.AcademicYear, d.CourseID, d.LetterGrade, d.GradePoints, d.QualityPoints, d.IsPassing
             FROM dbo.ResultDetails d
             INNER JOIN dbo.StudentResults sr ON sr.Uid = d.ResultID
-            INNER JOIN dbo.Students st ON st.Uid = d.StudentID
+            INNER JOIN dbo.Students st ON st.StudentID = d.StudentID
             ORDER BY sr.AcademicYear DESC, st.RegistrationNo;
             """;
         await using var connection = new SqlConnection(_connectionString);

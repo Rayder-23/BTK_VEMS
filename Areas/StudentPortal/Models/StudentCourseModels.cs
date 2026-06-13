@@ -10,14 +10,11 @@ public sealed class StudentEnrollmentContext
 
 public sealed class StudentAssignedCourseItem
 {
-    public int Uid { get; init; }
+    public int CourseId { get; init; }
     public string CourseCode { get; init; } = string.Empty;
-    public string CourseTitle { get; init; } = string.Empty;
-    public string? ShortName { get; init; }
+    public string CourseName { get; init; } = string.Empty;
     public string ProgramName { get; init; } = string.Empty;
-    public byte CreditHours { get; init; }
-    public byte? SemesterNo { get; init; }
-    public bool IsMandatory { get; init; }
+    public int? CreditHours { get; init; }
     public short AcademicYear { get; init; }
     public byte GradeOrSemester { get; init; }
 }

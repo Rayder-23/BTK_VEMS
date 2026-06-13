@@ -1,86 +1,28 @@
 @model VEMS.Areas.TeacherPortal.Models.ClassFormPageViewModel
-@using VEMS.Areas.TeacherPortal.Models
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-@if (Model.Lookups.Programs.Count == 0)
-{
-    <div class="alert alert-warning">
-        No active programs found. Add programs before creating classes.
-    </div>
-}
-
-<input type="hidden" asp-for="Form.Uid" />
+<input type="hidden" asp-for="Form.ClassId" />
 
 <div class="student-mgmt-admin-form-grid">
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassName"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ClassName" class="form-control form-control-sm" />
+            <input asp-for="Form.ClassName" class="form-control form-control-sm" maxlength="100" />
             <span asp-validation-for="Form.ClassName" class="text-danger small"></span>
         </div>
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassCode"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.ClassCode" class="form-control form-control-sm" />
+            <input asp-for="Form.ClassCode" class="form-control form-control-sm" maxlength="20" />
             <span asp-validation-for="Form.ClassCode" class="text-danger small"></span>
         </div>
     </div>
     <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ProgramId"></label>
+        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.SortOrder"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.ProgramId" class="form-select form-select-sm"
-                    asp-items="@(new SelectList(Model.Lookups.Programs, nameof(ClassLookupItem.Id), nameof(ClassLookupItem.Name)))">
-                <option value="">— Select program —</option>
-            </select>
-            <span asp-validation-for="Form.ProgramId" class="text-danger small"></span>
+            <input asp-for="Form.SortOrder" class="form-control form-control-sm" type="number" />
+            <span asp-validation-for="Form.SortOrder" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.AcademicYear"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.AcademicYear" class="form-control form-control-sm" type="number" min="2000" max="2100" />
-            <span asp-validation-for="Form.AcademicYear" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.SemesterNo"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.SemesterNo" class="form-control form-control-sm" type="number" min="1" max="12" />
-            <span asp-validation-for="Form.SemesterNo" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Semester"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.Semester" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Semesters))">
-                <option value="">— Select semester —</option>
-            </select>
-            <span asp-validation-for="Form.Semester" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Section"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.Section" class="form-control form-control-sm" placeholder="e.g. A" />
-            <span asp-validation-for="Form.Section" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.Shift"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <select asp-for="Form.Shift" class="form-select form-select-sm" asp-items="@(new SelectList(Model.Lookups.Shifts))">
-                <option value="">— None —</option>
-            </select>
-            <span asp-validation-for="Form.Shift" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.RoomNo"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.RoomNo" class="form-control form-control-sm" />
-            <span asp-validation-for="Form.RoomNo" class="text-danger small"></span>
-        </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.MaxStrength"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-            <input asp-for="Form.MaxStrength" class="form-control form-control-sm" type="number" min="1" />
-            <span asp-validation-for="Form.MaxStrength" class="text-danger small"></span>
-        </div>
-    </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
         <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
         <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
             <div class="form-check mb-0">
@@ -88,12 +30,5 @@
                 <label asp-for="Form.IsActive" class="form-check-label"></label>
             </div>
         </div>
-        @if (Model.Form.CreatedAt.HasValue)
-        {
-            <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.CreatedAt"></label>
-            <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
-                <input class="form-control form-control-sm" value="@Model.Form.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm")" readonly disabled />
-            </div>
-        }
     </div>
 </div>

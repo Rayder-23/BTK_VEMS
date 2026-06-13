@@ -19,7 +19,7 @@ public sealed class TeacherCourseAssignmentListItem
 
     public string ClassCode { get; init; } = string.Empty;
 
-    public string CourseTitle { get; init; } = string.Empty;
+    public string CourseName { get; init; } = string.Empty;
 
     public string CourseCode { get; init; } = string.Empty;
 

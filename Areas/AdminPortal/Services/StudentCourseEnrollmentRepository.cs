@@ -28,28 +28,28 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         var sql = """
             SELECT
                 sce.Uid,
-                s.FirstName + ' ' + s.LastName AS StudentName,
+                s.StudentName,
                 s.RegistrationNo,
                 c.ClassCode,
                 co.CourseCode,
-                co.CourseTitle,
+                co.CourseName,
                 se.AcademicYear,
                 se.GradeOrSemester,
                 sce.Status,
                 sce.IsActive
             FROM dbo.StudentCourseEnrollments sce
-            INNER JOIN dbo.Students s ON sce.StudentID = s.Uid
+            INNER JOIN dbo.Students s ON sce.StudentID = s.StudentID
             INNER JOIN dbo.StudentEnrollments se ON sce.EnrollmentID = se.Uid
-            INNER JOIN dbo.ClassCourses cc ON sce.ClassCourseID = cc.Uid
-            INNER JOIN dbo.Classes c ON cc.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON cc.CourseID = co.Uid
+            INNER JOIN dbo.ClassSectionCourses csc ON sce.ClassSectionCourseID = csc.UID
+            INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
             WHERE (@Search IS NULL
-                   OR s.FirstName LIKE @Search
-                   OR s.LastName LIKE @Search
+                   OR s.StudentName LIKE @Search
                    OR s.RegistrationNo LIKE @Search
                    OR c.ClassCode LIKE @Search
                    OR co.CourseCode LIKE @Search
-                   OR co.CourseTitle LIKE @Search)
+                   OR co.CourseName LIKE @Search)
             """ + (activeOnly ? " AND sce.IsActive = 1" : "") + """
              ORDER BY s.RegistrationNo, c.ClassCode, co.CourseCode;
             """;
@@ -69,7 +69,7 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 RegistrationNo = reader["RegistrationNo"] as string ?? string.Empty,
                 ClassCode = reader["ClassCode"] as string ?? string.Empty,
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
-                CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
+                CourseName = reader["CourseName"] as string ?? string.Empty,
                 AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
                 GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"]),
                 Status = reader["Status"] as string ?? string.Empty,
@@ -87,16 +87,17 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 sce.Uid,
                 sce.EnrollmentID,
                 sce.StudentID,
-                sce.ClassCourseID,
+                sce.ClassSectionCourseID,
                 sce.Status,
                 sce.IsActive,
-                s.RegistrationNo + ' - ' + s.FirstName + ' ' + s.LastName AS StudentDisplay,
-                c.ClassCode + ' / ' + co.CourseCode + ' - ' + co.CourseTitle AS ClassCourseDisplay
+                s.RegistrationNo + ' - ' + s.StudentName AS StudentDisplay,
+                c.ClassName + ' / ' + co.CourseCode + ' - ' + co.CourseName AS ClassSectionCourseDisplay
             FROM dbo.StudentCourseEnrollments sce
-            INNER JOIN dbo.Students s ON sce.StudentID = s.Uid
-            INNER JOIN dbo.ClassCourses cc ON sce.ClassCourseID = cc.Uid
-            INNER JOIN dbo.Classes c ON cc.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON cc.CourseID = co.Uid
+            INNER JOIN dbo.Students s ON sce.StudentID = s.StudentID
+            INNER JOIN dbo.ClassSectionCourses csc ON sce.ClassSectionCourseID = csc.UID
+            INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
             WHERE sce.Uid = @Uid;
             """;
 
@@ -115,11 +116,11 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
             Uid = Convert.ToInt32(reader["Uid"]),
             EnrollmentId = Convert.ToInt32(reader["EnrollmentID"]),
             StudentId = Convert.ToInt32(reader["StudentID"]),
-            ClassCourseId = Convert.ToInt32(reader["ClassCourseID"]),
+            ClassSectionCourseId = Convert.ToInt32(reader["ClassSectionCourseID"]),
             Status = reader["Status"] as string ?? string.Empty,
             IsActive = Convert.ToBoolean(reader["IsActive"]),
             StudentDisplay = reader["StudentDisplay"] as string,
-            ClassCourseDisplay = reader["ClassCourseDisplay"] as string
+            ClassSectionCourseDisplay = reader["ClassSectionCourseDisplay"] as string
         };
     }
 
@@ -128,28 +129,29 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         CancellationToken cancellationToken = default)
     {
         const string studentsSql = """
-            SELECT Uid, RegistrationNo + ' - ' + FirstName + ' ' + LastName
+            SELECT StudentID, RegistrationNo + ' - ' + StudentName
             FROM dbo.Students
             WHERE IsActive = 1
             ORDER BY RegistrationNo;
             """;
 
-        const string classCoursesSql = """
+        const string classSectionCoursesSql = """
             SELECT
-                cc.Uid,
-                c.ClassCode + ' / ' + co.CourseCode + ' - ' + co.CourseTitle
-            FROM dbo.ClassCourses cc
-            INNER JOIN dbo.Classes c ON cc.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON cc.CourseID = co.Uid
-            WHERE cc.IsActive = 1
-            ORDER BY c.ClassCode, co.CourseCode;
+                csc.UID,
+                c.ClassName + N' / ' + s.SectionName + N' / ' + co.CourseCode + N' - ' + co.CourseName
+            FROM dbo.ClassSectionCourses csc
+            INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Sections s ON cs.SectionID = s.SectionID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
+            ORDER BY c.ClassName, s.SectionName, co.CourseCode;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         var students = await ReadLookupAsync(connection, studentsSql, cancellationToken);
-        var classCourses = await ReadLookupAsync(connection, classCoursesSql, cancellationToken);
+        var classSectionCourses = await ReadLookupAsync(connection, classSectionCoursesSql, cancellationToken);
         var programEnrollments = studentId is > 0
             ? await ReadProgramEnrollmentsAsync(connection, studentId.Value, cancellationToken)
             : [];
@@ -166,26 +168,26 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         return new StudentCourseEnrollmentLookups
         {
             Students = students,
-            ClassCourses = classCourses,
+            ClassSectionCourses = classSectionCourses,
             ProgramEnrollments = programEnrollments,
             Statuses = statuses
         };
     }
 
-    public async Task<bool> ExistsAsync(int studentId, int classCourseId, int? excludeUid, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(int studentId, int classSectionCourseId, int? excludeUid, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT COUNT(1)
             FROM dbo.StudentCourseEnrollments
             WHERE StudentID = @StudentID
-              AND ClassCourseID = @ClassCourseID
+              AND ClassSectionCourseID = @ClassSectionCourseID
               AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@StudentID", studentId);
-        command.Parameters.AddWithValue("@ClassCourseID", classCourseId);
+        command.Parameters.AddWithValue("@ClassSectionCourseID", classSectionCourseId);
         command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
@@ -217,14 +219,14 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
             INSERT INTO dbo.StudentCourseEnrollments (
                 EnrollmentID,
                 StudentID,
-                ClassCourseID,
+                ClassSectionCourseID,
                 Status,
                 IsActive
             )
             VALUES (
                 @EnrollmentID,
                 @StudentID,
-                @ClassCourseID,
+                @ClassSectionCourseID,
                 @Status,
                 @IsActive
             );
@@ -244,7 +246,7 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
             UPDATE dbo.StudentCourseEnrollments SET
                 EnrollmentID = @EnrollmentID,
                 StudentID = @StudentID,
-                ClassCourseID = @ClassCourseID,
+                ClassSectionCourseID = @ClassSectionCourseID,
                 Status = @Status,
                 IsActive = @IsActive
             WHERE Uid = @Uid;
@@ -278,7 +280,7 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
     {
         command.Parameters.AddWithValue("@EnrollmentID", model.EnrollmentId);
         command.Parameters.AddWithValue("@StudentID", model.StudentId);
-        command.Parameters.AddWithValue("@ClassCourseID", model.ClassCourseId);
+        command.Parameters.AddWithValue("@ClassSectionCourseID", model.ClassSectionCourseId);
         command.Parameters.AddWithValue("@Status", model.Status.Trim());
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
     }
@@ -295,7 +297,7 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                     + ' · Sem ' + CAST(se.GradeOrSemester AS nvarchar(3))
                     + ' (' + se.RollNo + ')'
             FROM dbo.StudentEnrollments se
-            INNER JOIN dbo.ref_Programs p ON se.ProgramID = p.Uid
+            INNER JOIN dbo.Programs p ON se.ProgramID = p.ProgramID
             WHERE se.StudentID = @StudentID
               AND se.EnrollmentStatus = 'Active'
             ORDER BY se.AcademicYear DESC, se.GradeOrSemester;

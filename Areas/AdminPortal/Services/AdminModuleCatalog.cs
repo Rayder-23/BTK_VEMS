@@ -150,7 +150,8 @@ public static class AdminModuleCatalog
             Description = "Class schedules and room planning",
             AccentClass = "accent-pink",
             ImageUrl = "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800&q=80&auto=format&fit=crop",
-            IsAvailable = false
+            IsAvailable = true,
+            UrlOverride = "/adminportal/timetable"
         }
     ];
 

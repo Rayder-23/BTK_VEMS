@@ -5,8 +5,8 @@ using VEMS.Areas.AdminPortal.Services;
 
 namespace VEMS.Areas.AdminPortal.Controllers;
 
-[Route("adminportal/students/courses")]
-public sealed class StudentCoursesController : StudentMgmtBaseController
+[Route("adminportal/settings/courses")]
+public sealed class StudentCoursesController : AdminBaseController
 {
     private readonly ICourseRepository _courses;
 
@@ -15,83 +15,57 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
         _courses = courses;
     }
 
-    protected override string ModuleKey => "Courses";
-
     [HttpGet("")]
     [HttpGet("Index")]
     public async Task<IActionResult> Index(string? search, bool showInactive = false, CancellationToken cancellationToken = default)
     {
-        ViewData["Title"] = "All Courses";
-        ViewData["PageTitle"] = "Courses · All Courses";
+        ViewData["Title"] = "Courses";
+        ViewData["PageTitle"] = "Settings · Courses";
         ViewData["Search"] = search;
         ViewData["ShowInactive"] = showInactive;
 
-        var items = await _courses.ListAsync(search, activeOnly: !showInactive, cancellationToken: cancellationToken);
+        var items = await _courses.ListAsync(search, activeOnly: !showInactive, cancellationToken);
         return View(items);
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(int? programId, CancellationToken cancellationToken)
+    public IActionResult Create()
     {
-        ViewData["Title"] = "Add Course";
-        ViewData["PageTitle"] = "Courses · Add";
+        ViewData["Title"] = "Add course";
+        ViewData["PageTitle"] = "Settings · Add course";
 
-        var lookups = await _courses.GetLookupsAsync(cancellationToken);
-        var form = new CourseFormModel
-        {
-            ProgramId = programId is > 0 && lookups.Programs.Any(p => p.Id == programId.Value)
-                ? programId.Value
-                : lookups.Programs.FirstOrDefault()?.Id ?? 0,
-            CreditHours = 3,
-            IsMandatory = true,
-            IsActive = true
-        };
-
-        return View(new CourseFormPageViewModel
-        {
-            Lookups = lookups,
-            Form = form
-        });
+        return View(new CourseFormModel { IsActive = true });
     }
 
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CourseFormPageViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(CourseFormModel form, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Add Course";
-        ViewData["PageTitle"] = "Courses · Add";
+        ViewData["Title"] = "Add course";
+        ViewData["PageTitle"] = "Settings · Add course";
 
-        await ValidateCourseFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return View(form);
         }
 
-        if (await _courses.CourseCodeExistsAsync(model.Form.CourseCode, null, cancellationToken))
+        if (!string.IsNullOrWhiteSpace(form.CourseCode)
+            && await _courses.CourseCodeExistsAsync(form.CourseCode, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.CourseCode), "Course code already exists.");
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
+            ModelState.AddModelError(nameof(form.CourseCode), "Course code already exists.");
+            return View(form);
         }
 
         try
         {
-            var newId = await _courses.InsertAsync(model.Form, cancellationToken);
+            var newId = await _courses.InsertAsync(form, cancellationToken);
             TempData["StatusMessage"] = $"Course created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ApplyUniqueConstraintError(ex, model);
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
-        }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
+            ApplyUniqueConstraintError(ex, form);
+            return View(form);
         }
     }
 
@@ -104,45 +78,38 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
             return NotFound();
         }
 
-        ViewData["Title"] = "Edit Course";
-        ViewData["PageTitle"] = "Courses · Edit";
-
-        return View(new CourseFormPageViewModel
-        {
-            Form = row,
-            Lookups = await _courses.GetLookupsAsync(cancellationToken)
-        });
+        ViewData["Title"] = "Edit course";
+        ViewData["PageTitle"] = "Settings · Edit course";
+        return View(row);
     }
 
     [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, CourseFormPageViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(int id, CourseFormModel form, CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "Edit Course";
-        ViewData["PageTitle"] = "Courses · Edit";
+        ViewData["Title"] = "Edit course";
+        ViewData["PageTitle"] = "Settings · Edit course";
 
-        if (id != model.Form.Uid)
+        if (id != form.CourseId)
         {
             return NotFound();
         }
 
-        await ValidateCourseFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
+            return View(form);
         }
 
-        if (await _courses.CourseCodeExistsAsync(model.Form.CourseCode, id, cancellationToken))
+        if (!string.IsNullOrWhiteSpace(form.CourseCode)
+            && await _courses.CourseCodeExistsAsync(form.CourseCode, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.CourseCode), "Course code already exists.");
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
+            ModelState.AddModelError(nameof(form.CourseCode), "Course code already exists.");
+            return View(form);
         }
 
         try
         {
-            var ok = await _courses.UpdateAsync(model.Form, cancellationToken);
+            var ok = await _courses.UpdateAsync(form, cancellationToken);
             if (!ok)
             {
                 return NotFound();
@@ -153,15 +120,8 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
-            ApplyUniqueConstraintError(ex, model);
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
-        }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
-            model.Lookups = await _courses.GetLookupsAsync(cancellationToken);
-            return View(model);
+            ApplyUniqueConstraintError(ex, form);
+            return View(form);
         }
     }
 
@@ -174,21 +134,11 @@ public sealed class StudentCoursesController : StudentMgmtBaseController
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task ValidateCourseFormAsync(CourseFormModel form, CancellationToken cancellationToken)
+    private void ApplyUniqueConstraintError(SqlException ex, CourseFormModel form)
     {
-        var lookups = await _courses.GetLookupsAsync(cancellationToken);
-        if (lookups.Programs.All(p => p.Id != form.ProgramId))
+        if (ex.Message.Contains("CourseCode", StringComparison.OrdinalIgnoreCase))
         {
-            ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
-        }
-    }
-
-    private void ApplyUniqueConstraintError(SqlException ex, CourseFormPageViewModel model)
-    {
-        if (ex.Message.Contains("CourseCode", StringComparison.OrdinalIgnoreCase)
-            || ex.Message.Contains("UQ_Courses_Code", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.CourseCode), "Course code already exists.");
+            ModelState.AddModelError(nameof(form.CourseCode), "Course code already exists.");
             return;
         }
 

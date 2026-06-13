@@ -1,13 +1,21 @@
 Virtual Education Management System - Database Schema
-Generated: 2026-06-12 (from live database using ConnectionStrings:DefaultConnection in appsettings.Development.json)
+Generated: 2026-06-13 (from live database using ConnectionStrings:DefaultConnection in appsettings.Development.json)
 
-Version: 3.2  (Increment 'Version' by 0.1 at every change)
-UpdatedAt: 2026-06-12  (Update 'UpdatedAt' timestamp at every change)
+Version: 5.2  (Increment 'Version' by 0.1 at every change)
+UpdatedAt: 2026-06-13  (Update 'UpdatedAt' timestamp at every change)
 
 READ @Database.md, @DBworkflows.md and @database-rules.mdc for implementation details.
 IF UPDATING this file, make sure to UPDATE @Database.md aswell while following its formatting.
 
 This file lists database tables and columns only. It does not and should not include data rows or connection credentials.
+Table: dbo.AcademicYears
+  - AcademicYearID: int NOT NULL PK
+  - YearName: varchar(20) NOT NULL
+  - StartDate: date NULL
+  - EndDate: date NULL
+  - IsCurrent: bit NOT NULL DEFAULT ((0))
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - CreatedOn: datetime NOT NULL DEFAULT (getdate())
 Table: dbo.AssignmentSubmissions
   - Uid: int NOT NULL PK
   - StudentMarkID: int NOT NULL
@@ -48,7 +56,6 @@ Table: dbo.Challans
   - Uid: int NOT NULL PK
   - ChallanNo: nvarchar(30) NOT NULL
   - StudentID: int NULL
-  - ApplicationUid: int NULL
   - StructureID: int NULL
   - Semester: nvarchar(20) NOT NULL
   - AcademicYear: smallint NOT NULL
@@ -66,27 +73,22 @@ Table: dbo.Challans
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
-Table: dbo.ClassCourses
-  - Uid: int NOT NULL PK
-  - ClassID: int NOT NULL
-  - CourseID: int NOT NULL
-  - TeacherID: int NULL
-  - IsActive: bit NOT NULL DEFAULT ((1))
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
+  - ApplicationUid: int NULL
 Table: dbo.Classes
-  - Uid: int NOT NULL PK
-  - ProgramID: int NOT NULL
-  - ClassCode: varchar(30) NOT NULL
-  - ClassName: nvarchar(100) NOT NULL
-  - SemesterNo: tinyint NOT NULL
-  - Semester: nvarchar(20) NOT NULL
-  - AcademicYear: smallint NOT NULL
-  - Section: nvarchar(10) NULL
-  - Shift: nvarchar(20) NULL
-  - RoomNo: nvarchar(30) NULL
-  - MaxStrength: smallint NOT NULL DEFAULT ((40))
+  - ClassID: int NOT NULL PK
+  - ClassCode: varchar(20) NULL
+  - ClassName: varchar(100) NOT NULL
+  - SortOrder: int NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
+Table: dbo.ClassSectionCourses
+  - UID: int NOT NULL PK
+  - ClassSectionID: int NOT NULL
+  - CourseID: int NOT NULL
+Table: dbo.ClassSections
+  - ClassSectionID: int NOT NULL PK
+  - AcademicYearID: int NOT NULL
+  - ClassID: int NOT NULL
+  - SectionID: int NOT NULL
 Table: dbo.ClassStudents
   - Uid: int NOT NULL PK
   - ClassID: int NOT NULL
@@ -124,16 +126,11 @@ Table: dbo.Configurations
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
   - UpdatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.Courses
-  - Uid: int NOT NULL PK
-  - ProgramID: int NOT NULL
-  - CourseCode: varchar(20) NOT NULL
-  - CourseTitle: nvarchar(150) NOT NULL
-  - ShortName: nvarchar(50) NULL
-  - CreditHours: tinyint NOT NULL DEFAULT ((3))
-  - SemesterNo: tinyint NULL
-  - IsMandatory: bit NOT NULL DEFAULT ((1))
+  - CourseID: int NOT NULL PK
+  - CourseCode: varchar(20) NULL
+  - CourseName: varchar(200) NOT NULL
+  - CreditHours: int NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.Employee
   - Uid: int NOT NULL PK
   - EmployeeId: varchar(20) NOT NULL
@@ -223,7 +220,6 @@ Table: dbo.FeeStructures
   - Uid: int NOT NULL PK
   - StructureName: nvarchar(150) NOT NULL
   - ProgramID: int NOT NULL
-  - ClassID: int NULL
   - Semester: nvarchar(20) NOT NULL
   - AcademicYear: smallint NOT NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
@@ -231,6 +227,7 @@ Table: dbo.FeeStructures
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
+  - ClassID: int NULL
 Table: dbo.GradeRemarks
   - Uid: smallint NOT NULL PK
   - RemarkCode: varchar(20) NOT NULL
@@ -315,6 +312,17 @@ Table: dbo.Payments
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
+Table: dbo.ProgramCourses
+  - UID: int NOT NULL PK
+  - ProgramID: int NOT NULL
+  - CourseID: int NOT NULL
+Table: dbo.Programs
+  - ProgramID: int NOT NULL PK
+  - ProgramCode: varchar(20) NOT NULL
+  - ProgramName: varchar(200) NOT NULL
+  - DurationYears: int NULL
+  - IsActive: bit NOT NULL DEFAULT ((1))
+  - CreatedOn: datetime NOT NULL DEFAULT (getdate())
 Table: dbo.ref_Cities
   - Uid: int NOT NULL PK
   - ProvinceID: int NOT NULL
@@ -342,14 +350,6 @@ Table: dbo.ref_InstitutionTypes
   - InstTypeCode: char(3) NOT NULL
   - InstTypeName: nvarchar(50) NOT NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-Table: dbo.ref_Programs
-  - Uid: int NOT NULL PK
-  - ProgramCode: nvarchar(10) NOT NULL
-  - ProgramName: nvarchar(100) NOT NULL
-  - ShortName: nvarchar(50) NULL
-  - DurationYears: tinyint NULL
-  - IsActive: bit NOT NULL DEFAULT ((1))
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
 Table: dbo.ref_Provinces
   - Uid: int NOT NULL PK
   - CountryID: int NOT NULL
@@ -370,14 +370,9 @@ Table: dbo.ResultDetails
   - CreatedBy: int NOT NULL
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
 Table: dbo.Sections
-  - Uid: int NOT NULL PK
-  - SectionName: nvarchar(10) NOT NULL
-  - MaxCapacity: int NULL
+  - SectionID: int NOT NULL PK
+  - SectionName: varchar(20) NOT NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
-  - ProgramId: int NOT NULL
-  - GradeLevel: nvarchar(20) NOT NULL
-  - AcademicYear: nvarchar(9) NOT NULL
 Table: dbo.StudentApplications
   - Uid: int NOT NULL PK
   - ApplicationNo: nvarchar(20) NOT NULL
@@ -434,22 +429,18 @@ Table: dbo.StudentCourseEnrollments
   - Uid: int NOT NULL PK
   - EnrollmentID: int NOT NULL
   - StudentID: int NOT NULL
-  - ClassCourseID: int NOT NULL
   - Status: nvarchar(20) NOT NULL DEFAULT ('Active')
   - IsActive: bit NOT NULL DEFAULT ((1))
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
+  - ClassSectionCourseID: int NOT NULL
 Table: dbo.StudentEnrollments
-  - Uid: int NOT NULL PK
+  - UID: int NOT NULL PK
+  - AcademicYearID: int NOT NULL
   - StudentID: int NOT NULL
   - ProgramID: int NOT NULL
-  - ClassID: int NULL
-  - RollNo: nvarchar(30) NOT NULL
-  - AcademicYear: smallint NOT NULL
-  - GradeOrSemester: tinyint NOT NULL
-  - EnrollmentDate: date NOT NULL DEFAULT (getdate())
-  - EnrollmentStatus: nvarchar(20) NOT NULL DEFAULT ('Active')
-  - IsActive: bit NOT NULL DEFAULT ((1))
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
+  - ClassSectionID: int NULL
+  - RollNo: int NULL
+  - EnrollmentDate: date NOT NULL DEFAULT (CONVERT([date],getdate()))
 Table: dbo.StudentGrades
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -538,44 +529,13 @@ Table: dbo.StudentResults
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
 Table: dbo.Students
-  - Uid: int NOT NULL PK
-  - RegistrationNo: nvarchar(30) NOT NULL
-  - ProgramID: int NOT NULL
-  - AdmissionYear: smallint NOT NULL
-  - AdmissionDate: date NOT NULL
-  - FirstName: nvarchar(50) NOT NULL
-  - MiddleName: nvarchar(50) NULL
-  - LastName: nvarchar(50) NOT NULL
-  - FatherName: nvarchar(100) NOT NULL
-  - DateOfBirth: date NOT NULL
-  - Gender: char(1) NOT NULL
-  - Nationality: nvarchar(50) NULL DEFAULT ('Pakistani')
-  - NIC_No: varchar(15) NULL
-  - BFORM_No: varchar(15) NULL
-  - PassportNo: nvarchar(20) NULL
-  - AddressLine1: nvarchar(150) NOT NULL
-  - AddressLine2: nvarchar(150) NULL
-  - CityID: int NULL
-  - ProvinceID: int NULL
-  - CountryID: int NULL
-  - PostalCode: nvarchar(10) NULL
-  - PhotoPath: nvarchar(300) NULL
-  - DocumentPath: nvarchar(300) NULL
-  - PreviousSchool: nvarchar(150) NULL
-  - PreviousGradeOrSem: nvarchar(20) NULL
-  - TransferCertNo: nvarchar(50) NULL
-  - HasSpecialNeeds: bit NOT NULL DEFAULT ((0))
-  - SpecialNeedsDetail: nvarchar(300) NULL
+  - StudentID: int NOT NULL PK
+  - RegistrationNo: varchar(50) NULL
+  - StudentName: varchar(200) NOT NULL
+  - MobileNo: varchar(30) NULL
+  - Email: varchar(200) NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - StatusRemark: nvarchar(200) NULL
-  - CreatedBy: int NOT NULL
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
-  - UpdatedBy: int NULL
-  - UpdatedAt: datetime2(7) NULL
-  - RollNo: nvarchar(30) NULL
-  - Religion: nvarchar(50) NULL
-  - BloodGroup: varchar(5) NULL
-  - SectionId: int NULL
+  - CreatedOn: datetime NOT NULL DEFAULT (getdate())
 Table: dbo.StudentSiblings
   - Uid: int NOT NULL PK
   - StudentID: int NOT NULL
@@ -612,10 +572,16 @@ Table: dbo.StudentsLogin
   - PasswordChangedAt: datetime2(7) NULL
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
+Table: dbo.TeacherAssignments
+  - UID: int NOT NULL PK
+  - AcademicYearID: int NOT NULL
+  - TeacherID: int NOT NULL
+  - CourseID: int NOT NULL
+  - ClassSectionID: int NULL
 Table: dbo.TeacherClassCourses
   - Uid: int NOT NULL PK
   - TeacherID: int NOT NULL
-  - ClassCourseID: int NOT NULL
+  - ClassSectionCourseID: int NOT NULL
   - Role: nvarchar(20) NOT NULL DEFAULT ('Lead')
   - IsActive: bit NOT NULL DEFAULT ((1))
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
@@ -636,24 +602,18 @@ Table: dbo.TeacherCourseAssignments
   - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
   - UpdatedBy: int NULL
   - UpdatedAt: datetime2(7) NULL
+Table: dbo.TeacherCourses
+  - UID: int NOT NULL PK
+  - TeacherID: int NOT NULL
+  - CourseID: int NOT NULL
 Table: dbo.Teachers
-  - Uid: int NOT NULL PK
-  - EmployeeCode: varchar(20) NOT NULL
-  - FirstName: nvarchar(50) NOT NULL
-  - LastName: nvarchar(50) NOT NULL
-  - Designation: nvarchar(100) NULL
-  - Qualification: nvarchar(150) NULL
-  - Specialization: nvarchar(200) NULL
-  - ProgramID: int NULL
-  - Email: nvarchar(100) NULL
-  - Phone: varchar(20) NULL
-  - JoiningDate: date NULL
+  - TeacherID: int NOT NULL PK
+  - EmployeeNo: varchar(50) NULL
+  - TeacherName: varchar(200) NOT NULL
+  - MobileNo: varchar(30) NULL
+  - Email: varchar(200) NULL
   - IsActive: bit NOT NULL DEFAULT ((1))
-  - Remarks: nvarchar(300) NULL
-  - CreatedBy: int NOT NULL
-  - CreatedAt: datetime2(7) NOT NULL DEFAULT (sysutcdatetime())
-  - UpdatedBy: int NULL
-  - UpdatedAt: datetime2(7) NULL
+  - CreatedOn: datetime NOT NULL DEFAULT (getdate())
 Table: dbo.TeacherSections
   - Uid: int NOT NULL PK
   - SectionId: int NOT NULL
@@ -662,4 +622,4 @@ Table: dbo.TeacherSections
   - IsActive: bit NOT NULL DEFAULT ((1))
   - AssignedAt: datetime2(7) NOT NULL DEFAULT (sysdatetime())
   - AssignedBy: int NULL
-Total tables: 46
+Total tables: 51

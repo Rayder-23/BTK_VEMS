@@ -22,8 +22,8 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
                    COUNT(fsd.Uid) AS DetailCount,
                    ISNULL(SUM(fsd.Amount), 0) AS TotalAmount
             FROM dbo.FeeStructures fs
-            INNER JOIN dbo.ref_Programs p ON fs.ProgramID = p.Uid
-            LEFT JOIN dbo.Classes c ON fs.ClassID = c.Uid
+            INNER JOIN dbo.Programs p ON fs.ProgramID = p.ProgramID
+            LEFT JOIN dbo.Classes c ON fs.ClassID = c.ClassID
             LEFT JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
             GROUP BY fs.Uid, fs.StructureName, p.ProgramName, c.ClassCode, fs.Semester, fs.AcademicYear, fs.IsActive
             ORDER BY fs.AcademicYear DESC, fs.StructureName;

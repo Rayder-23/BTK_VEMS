@@ -49,7 +49,7 @@
     }
     else if (Model.Courses.Count == 0)
     {
-        <p class="text-muted mb-0">No courses are assigned for your current program and semester yet.</p>
+        <p class="text-muted mb-0">No courses are assigned for your current enrollment yet.</p>
     }
     else
     {
@@ -64,26 +64,18 @@
                         <th>Course</th>
                         <th>Semester</th>
                         <th>Credits</th>
-                        <th>Mandatory</th>
                         <th class="text-end">Details</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach (var course in Model.Courses)
                 {
-                    var collapseId = $"course-detail-{course.Uid}";
+                    var collapseId = $"course-detail-{course.CourseId}";
                     <tr>
-                        <td class="fw-semibold">@course.CourseCode</td>
-                        <td>
-                            <div>@course.CourseTitle</div>
-                            @if (!string.IsNullOrWhiteSpace(course.ShortName))
-                            {
-                                <div class="small text-muted">@course.ShortName</div>
-                            }
-                        </td>
-                        <td>@(course.SemesterNo?.ToString() ?? course.GradeOrSemester.ToString())</td>
-                        <td>@course.CreditHours</td>
-                        <td>@(course.IsMandatory ? "Yes" : "No")</td>
+                        <td class="fw-semibold">@(string.IsNullOrEmpty(course.CourseCode) ? "—" : course.CourseCode)</td>
+                        <td>@course.CourseName</td>
+                        <td>@course.GradeOrSemester</td>
+                        <td>@(course.CreditHours?.ToString() ?? "—")</td>
                         <td class="text-end">
                             <button class="btn btn-sm btn-outline-primary"
                                     type="button"
@@ -96,7 +88,7 @@
                         </td>
                     </tr>
                     <tr class="collapse-row">
-                        <td colspan="6" class="p-0 border-0">
+                        <td colspan="5" class="p-0 border-0">
                             <div class="collapse" id="@collapseId">
                                 <div class="border-top bg-light bg-opacity-50 p-3 mx-0 mb-2 rounded-bottom">
                                     <div class="row g-3 small">

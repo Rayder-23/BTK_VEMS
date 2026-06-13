@@ -1,0 +1,40 @@
+@model TeacherAssignmentFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Form.TeacherAssignmentId" />
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Form.AcademicYearId" class="form-label"></label>
+        <select asp-for="Form.AcademicYearId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.AcademicYears, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select academic year —</option>
+        </select>
+        <span asp-validation-for="Form.AcademicYearId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.TeacherId" class="form-label"></label>
+        <select asp-for="Form.TeacherId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select teacher —</option>
+        </select>
+        <span asp-validation-for="Form.TeacherId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.CourseId" class="form-label"></label>
+        <select asp-for="Form.CourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select course —</option>
+        </select>
+        <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.ClassSectionId" class="form-label"></label>
+        <select asp-for="Form.ClassSectionId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.ClassSections, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Optional class section —</option>
+        </select>
+        <span asp-validation-for="Form.ClassSectionId" class="text-danger small"></span>
+    </div>
+</div>

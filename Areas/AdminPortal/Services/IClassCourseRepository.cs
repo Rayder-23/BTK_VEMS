@@ -6,18 +6,17 @@ public interface IClassCourseRepository
 {
     Task<IReadOnlyList<ClassCourseListItem>> ListAsync(
         string? search,
-        bool activeOnly,
         CancellationToken cancellationToken = default);
 
-    Task<ClassCourseFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
+    Task<ClassCourseFormModel?> GetAsync(int classSectionCourseId, CancellationToken cancellationToken = default);
 
     Task<ClassCourseLookups> GetLookupsAsync(CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsAsync(int classId, int courseId, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(int classSectionId, int courseId, int? excludeClassSectionCourseId, CancellationToken cancellationToken = default);
 
     Task<int> InsertAsync(ClassCourseFormModel model, CancellationToken cancellationToken = default);
 
     Task<bool> UpdateAsync(ClassCourseFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(int classSectionCourseId, CancellationToken cancellationToken = default);
 }

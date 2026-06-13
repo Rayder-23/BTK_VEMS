@@ -33,8 +33,6 @@ IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_FeeStructures_Progra
     ALTER TABLE dbo.FeeStructures DROP CONSTRAINT FK_FeeStructures_Program;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_MarkingScheme_Program')
     ALTER TABLE dbo.MarkingScheme DROP CONSTRAINT FK_MarkingScheme_Program;
-IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_Sections_Program')
-    ALTER TABLE dbo.Sections DROP CONSTRAINT FK_Sections_Program;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_Enrollments_Program')
     ALTER TABLE dbo.StudentEnrollments DROP CONSTRAINT FK_Enrollments_Program;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_StudentGrades_Program')
@@ -75,8 +73,6 @@ SET IDENTITY_INSERT dbo.ref_Programs OFF;
 GO
 
 -- Restore inbound foreign keys
-ALTER TABLE dbo.Classes
-    ADD CONSTRAINT FK_Classes_Program FOREIGN KEY (ProgramID) REFERENCES dbo.ref_Programs (Uid);
 ALTER TABLE dbo.Courses
     ADD CONSTRAINT FK_Courses_Program FOREIGN KEY (ProgramID) REFERENCES dbo.ref_Programs (Uid);
 ALTER TABLE dbo.Exams
@@ -85,8 +81,6 @@ ALTER TABLE dbo.FeeStructures
     ADD CONSTRAINT FK_FeeStructures_Program FOREIGN KEY (ProgramID) REFERENCES dbo.ref_Programs (Uid);
 ALTER TABLE dbo.MarkingScheme
     ADD CONSTRAINT FK_MarkingScheme_Program FOREIGN KEY (ProgramID) REFERENCES dbo.ref_Programs (Uid);
-ALTER TABLE dbo.Sections
-    ADD CONSTRAINT FK_Sections_Program FOREIGN KEY (ProgramId) REFERENCES dbo.ref_Programs (Uid);
 ALTER TABLE dbo.StudentEnrollments
     ADD CONSTRAINT FK_Enrollments_Program FOREIGN KEY (ProgramID) REFERENCES dbo.ref_Programs (Uid);
 ALTER TABLE dbo.StudentGrades

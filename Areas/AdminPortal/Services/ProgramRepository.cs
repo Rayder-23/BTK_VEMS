@@ -20,18 +20,16 @@ public sealed class ProgramRepository : IProgramRepository
     {
         var sql = """
             SELECT
-                Uid,
+                ProgramID,
                 ProgramCode,
                 ProgramName,
-                ShortName,
                 DurationYears,
                 IsActive,
-                CreatedAt
-            FROM dbo.ref_Programs
+                CreatedOn
+            FROM dbo.Programs
             WHERE (@Search IS NULL
                    OR ProgramCode LIKE @Search
-                   OR ProgramName LIKE @Search
-                   OR ShortName LIKE @Search)
+                   OR ProgramName LIKE @Search)
             """ + (activeOnly ? " AND IsActive = 1" : "") + """
              ORDER BY ProgramCode;
             """;
@@ -50,24 +48,23 @@ public sealed class ProgramRepository : IProgramRepository
         return list;
     }
 
-    public async Task<ProgramListItem?> GetListItemAsync(int uid, CancellationToken cancellationToken = default)
+    public async Task<ProgramListItem?> GetListItemAsync(int programId, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT
-                Uid,
+                ProgramID,
                 ProgramCode,
                 ProgramName,
-                ShortName,
                 DurationYears,
                 IsActive,
-                CreatedAt
-            FROM dbo.ref_Programs
-            WHERE Uid = @Uid;
+                CreatedOn
+            FROM dbo.Programs
+            WHERE ProgramID = @ProgramId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@ProgramId", programId);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         return await reader.ReadAsync(cancellationToken) ? MapListItem(reader) : null;
@@ -78,8 +75,8 @@ public sealed class ProgramRepository : IProgramRepository
         CancellationToken cancellationToken = default)
     {
         var sql = """
-            SELECT Uid, ProgramCode + ' - ' + ProgramName
-            FROM dbo.ref_Programs
+            SELECT ProgramID, ProgramCode + ' - ' + ProgramName
+            FROM dbo.Programs
             """ + (activeOnly ? " WHERE IsActive = 1" : "") + """
              ORDER BY ProgramName;
             """;
@@ -101,42 +98,41 @@ public sealed class ProgramRepository : IProgramRepository
         return list;
     }
 
-    public async Task<ProgramFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default)
+    public async Task<ProgramFormModel?> GetAsync(int programId, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT
-                Uid,
+                ProgramID,
                 ProgramCode,
                 ProgramName,
-                ShortName,
                 DurationYears,
                 IsActive,
-                CreatedAt
-            FROM dbo.ref_Programs
-            WHERE Uid = @Uid;
+                CreatedOn
+            FROM dbo.Programs
+            WHERE ProgramID = @ProgramId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@ProgramId", programId);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         return await reader.ReadAsync(cancellationToken) ? MapForm(reader) : null;
     }
 
-    public async Task<bool> ProgramCodeExistsAsync(string programCode, int? excludeUid, CancellationToken cancellationToken = default)
+    public async Task<bool> ProgramCodeExistsAsync(string programCode, int? excludeProgramId, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT COUNT(1)
-            FROM dbo.ref_Programs
+            FROM dbo.Programs
             WHERE ProgramCode = @ProgramCode
-              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+              AND (@ExcludeProgramId IS NULL OR ProgramID <> @ExcludeProgramId);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@ProgramCode", programCode.Trim());
-        command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
+        command.Parameters.AddWithValue("@ExcludeProgramId", (object?)excludeProgramId ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
@@ -144,17 +140,15 @@ public sealed class ProgramRepository : IProgramRepository
     public async Task<int> InsertAsync(ProgramFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            INSERT INTO dbo.ref_Programs (
+            INSERT INTO dbo.Programs (
                 ProgramCode,
                 ProgramName,
-                ShortName,
                 DurationYears,
                 IsActive
             )
             VALUES (
                 @ProgramCode,
                 @ProgramName,
-                @ShortName,
                 @DurationYears,
                 @IsActive
             );
@@ -171,64 +165,72 @@ public sealed class ProgramRepository : IProgramRepository
     public async Task<bool> UpdateAsync(ProgramFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.ref_Programs SET
+            UPDATE dbo.Programs SET
                 ProgramCode = @ProgramCode,
                 ProgramName = @ProgramName,
-                ShortName = @ShortName,
                 DurationYears = @DurationYears,
                 IsActive = @IsActive
-            WHERE Uid = @Uid;
+            WHERE ProgramID = @ProgramId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", model.Uid);
+        command.Parameters.AddWithValue("@ProgramId", model.ProgramId);
         Bind(command, model);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default)
+    public async Task<bool> SetActiveAsync(int programId, bool isActive, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.ref_Programs SET IsActive = 0
-            WHERE Uid = @Uid;
+            UPDATE dbo.Programs SET IsActive = @IsActive
+            WHERE ProgramID = @ProgramId;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Uid", uid);
+        command.Parameters.AddWithValue("@ProgramId", programId);
+        command.Parameters.AddWithValue("@IsActive", isActive);
+        await connection.OpenAsync(cancellationToken);
+        return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
+    }
+
+    public async Task<bool> DeleteAsync(int programId, CancellationToken cancellationToken = default)
+    {
+        const string sql = "DELETE FROM dbo.Programs WHERE ProgramID = @ProgramId;";
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ProgramId", programId);
         await connection.OpenAsync(cancellationToken);
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
     private static ProgramListItem MapListItem(SqlDataReader reader) => new()
     {
-        Uid = Convert.ToInt32(reader["Uid"]),
+        ProgramId = Convert.ToInt32(reader["ProgramID"]),
         ProgramCode = reader["ProgramCode"] as string ?? string.Empty,
         ProgramName = reader["ProgramName"] as string ?? string.Empty,
-        ShortName = reader["ShortName"] as string,
-        DurationYears = reader["DurationYears"] is DBNull ? null : Convert.ToByte(reader["DurationYears"]),
+        DurationYears = reader["DurationYears"] is DBNull ? null : Convert.ToInt32(reader["DurationYears"]),
         IsActive = Convert.ToBoolean(reader["IsActive"]),
-        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+        CreatedOn = Convert.ToDateTime(reader["CreatedOn"])
     };
 
     private static ProgramFormModel MapForm(SqlDataReader reader) => new()
     {
-        Uid = Convert.ToInt32(reader["Uid"]),
+        ProgramId = Convert.ToInt32(reader["ProgramID"]),
         ProgramCode = reader["ProgramCode"] as string ?? string.Empty,
         ProgramName = reader["ProgramName"] as string ?? string.Empty,
-        ShortName = reader["ShortName"] as string,
-        DurationYears = reader["DurationYears"] is DBNull ? null : Convert.ToByte(reader["DurationYears"]),
+        DurationYears = reader["DurationYears"] is DBNull ? null : Convert.ToInt32(reader["DurationYears"]),
         IsActive = Convert.ToBoolean(reader["IsActive"]),
-        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+        CreatedOn = Convert.ToDateTime(reader["CreatedOn"])
     };
 
     private static void Bind(SqlCommand command, ProgramFormModel model)
     {
         command.Parameters.AddWithValue("@ProgramCode", model.ProgramCode.Trim());
         command.Parameters.AddWithValue("@ProgramName", model.ProgramName.Trim());
-        command.Parameters.AddWithValue("@ShortName", (object?)model.ShortName?.Trim() ?? DBNull.Value);
         command.Parameters.AddWithValue("@DurationYears", (object?)model.DurationYears ?? DBNull.Value);
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
     }

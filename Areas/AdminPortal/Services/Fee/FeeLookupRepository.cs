@@ -16,8 +16,8 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
     public async Task<IReadOnlyList<FeeLookupItem>> GetProgramsAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Uid, ProgramCode + ' - ' + ProgramName
-            FROM dbo.ref_Programs WHERE IsActive = 1 ORDER BY ProgramName;
+            SELECT ProgramID, ProgramCode + ' - ' + ProgramName
+            FROM dbo.Programs WHERE IsActive = 1 ORDER BY ProgramName;
             """;
         return await ReadLookupAsync(sql, cancellationToken);
     }
@@ -27,10 +27,10 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Uid, ClassCode + N' · ' + ClassName AS DisplayName, Semester, AcademicYear
+            SELECT ClassID, ClassCode + N' · ' + ClassName AS DisplayName
             FROM dbo.Classes
-            WHERE IsActive = 1 AND ProgramID = @ProgramId
-            ORDER BY AcademicYear DESC, ClassCode;
+            WHERE IsActive = 1
+            ORDER BY SortOrder, ClassCode;
             """;
 
         var list = new List<FeeClassLookupItem>();
@@ -43,10 +43,10 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
         {
             list.Add(new FeeClassLookupItem
             {
-                Id = FeeSql.ToInt32(reader, "Uid"),
+                Id = FeeSql.ToInt32(reader, "ClassID"),
                 Name = reader["DisplayName"] as string ?? "",
-                Semester = reader["Semester"] as string ?? "",
-                AcademicYear = FeeSql.ToInt16(reader, "AcademicYear")
+                Semester = string.Empty,
+                AcademicYear = 0
             });
         }
 
@@ -170,7 +170,7 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
     public async Task<IReadOnlyList<FeeLookupItem>> GetActiveStudentsAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT Uid, RegistrationNo + ' - ' + FirstName + ' ' + LastName
+            SELECT StudentID, RegistrationNo + ' - ' + StudentName
             FROM dbo.Students WHERE IsActive = 1 ORDER BY RegistrationNo;
             """;
         return await ReadLookupAsync(sql, cancellationToken);
@@ -191,7 +191,7 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
             SELECT fs.Uid,
                    fs.StructureName + ' (' + p.ProgramName + ', ' + fs.Semester + ' ' + CAST(fs.AcademicYear AS varchar(4)) + ')'
             FROM dbo.FeeStructures fs
-            INNER JOIN dbo.ref_Programs p ON fs.ProgramID = p.Uid
+            INNER JOIN dbo.Programs p ON fs.ProgramID = p.ProgramID
             WHERE fs.IsActive = 1
             ORDER BY fs.AcademicYear DESC, fs.StructureName;
             """;
@@ -239,12 +239,12 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
         const string sql = """
             SELECT c.Uid,
                    c.ChallanNo + ' - '
-                   + COALESCE(NULLIF(LTRIM(RTRIM(s.FirstName + ' ' + s.LastName)), ''),
+                   + COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                               NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), ''))
                    + ' [' + COALESCE(s.RegistrationNo, a.ApplicationNo, '') + ']'
                    + ' (Bal: ' + CAST(c.NetPayable - c.AmountPaid AS varchar(20)) + ')'
             FROM dbo.Challans c
-            LEFT JOIN dbo.Students s ON c.StudentID = s.Uid
+            LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
             WHERE c.IsActive = 1
               AND c.Status NOT IN ('Paid', 'Cancelled')

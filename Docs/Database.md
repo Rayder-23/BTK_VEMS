@@ -1,7 +1,7 @@
 # Database Schema Documentation: Virtual Education Management System
 
-- *VERSION: 1.9*
-- *UPDATED AT: 2026-06-12*
+- *VERSION: 3.1*
+- *UPDATED AT: 2026-06-13*
 
 ### Project-Wide Rules:-
 1. **Uid Mandate:** The primary key of every table is `Uid` (except `StudentContacts`, which uses `ContactID` as PK and also carries a separate `Uid` column).
@@ -102,48 +102,17 @@ Isolated from authentication data to protect PII and optimize search performance
 
 ### Students
 
-Full student profile. Linked to geographic reference tables and academic program.
+Simplified student master record. Program, roll number, and enrollment context live in `StudentEnrollments`.
 
-| Header             | Type          | Constraints / Role                                          |
-| :----------------- | :------------ | :---------------------------------------------------------- |
-| **Uid**            | INT           | **PK**, Identity(1,1)                                       |
-| RegistrationNo     | NVARCHAR(30)  | **UNIQUE**, NOT NULL — System registration number           |
-| ProgramID          | INT           | **FK** → ref_Programs.Uid, NOT NULL                         |
-| SectionId          | INT           | **FK** → Sections.Uid — **ON DELETE SET NULL**              |
-| AdmissionYear      | SMALLINT      | NOT NULL                                                    |
-| AdmissionDate      | DATE          | NOT NULL                                                    |
-| FirstName          | NVARCHAR(50)  | NOT NULL                                                    |
-| MiddleName         | NVARCHAR(50)  | Nullable                                                    |
-| LastName           | NVARCHAR(50)  | NOT NULL                                                    |
-| FatherName         | NVARCHAR(100) | NOT NULL                                                    |
-| DateOfBirth        | DATE          | NOT NULL                                                    |
-| Gender             | CHAR(1)       | NOT NULL — e.g. `'M'`, `'F'`                                |
-| Nationality        | NVARCHAR(50)  | DEFAULT `'Pakistani'`                                       |
-| NIC_No             | VARCHAR(15)   | Nullable                                                    |
-| BFORM_No           | VARCHAR(15)   | Nullable                                                    |
-| PassportNo         | NVARCHAR(20)  | Nullable                                                    |
-| AddressLine1       | NVARCHAR(150) | NOT NULL                                                    |
-| AddressLine2       | NVARCHAR(150) | Nullable                                                    |
-| CityID             | INT           | **FK** → ref_Cities.Uid                                     |
-| ProvinceID         | INT           | **FK** → ref_Provinces.Uid                                  |
-| CountryID          | INT           | **FK** → ref_Countries.Uid                                  |
-| PostalCode         | NVARCHAR(10)  | Nullable                                                    |
-| RollNo             | NVARCHAR(30)  | Nullable                                                    |
-| Religion           | NVARCHAR(50)  | Nullable                                                    |
-| BloodGroup         | VARCHAR(5)    | Nullable                                                    |
-| PhotoPath          | NVARCHAR(300) | Nullable                                                    |
-| DocumentPath       | NVARCHAR(300) | Nullable                                                    |
-| PreviousSchool     | NVARCHAR(150) | Nullable                                                    |
-| PreviousGradeOrSem | NVARCHAR(20)  | Nullable                                                    |
-| TransferCertNo     | NVARCHAR(50)  | Nullable                                                    |
-| HasSpecialNeeds    | BIT           | DEFAULT 0                                                   |
-| SpecialNeedsDetail | NVARCHAR(300) | Nullable                                                    |
-| IsActive           | BIT           | DEFAULT 1 — Soft delete flag                                |
-| StatusRemark       | NVARCHAR(200) | Nullable                                                    |
-| CreatedBy          | INT           | NOT NULL                                                    |
-| CreatedAt          | DATETIME2(7)  | DEFAULT sysutcdatetime()                                    |
-| UpdatedBy          | INT           | Nullable                                                    |
-| UpdatedAt          | DATETIME2(7)  | Nullable                                                    |
+| Header           | Type          | Constraints / Role            |
+| :--------------- | :------------ | :---------------------------- |
+| **StudentID**    | INT           | **PK**, Identity(1,1)         |
+| RegistrationNo   | VARCHAR(50)   | Nullable                      |
+| StudentName      | VARCHAR(200)  | NOT NULL                      |
+| MobileNo         | VARCHAR(30)   | Nullable                      |
+| Email            | VARCHAR(200)  | Nullable                      |
+| IsActive         | BIT           | DEFAULT 1                     |
+| CreatedOn        | DATETIME      | DEFAULT GETDATE()             |
 
 ### StudentParents
 
@@ -266,19 +235,92 @@ Sibling records — may link to another enrolled student or store external sibli
 | InstTypeName | NVARCHAR(50)  | NOT NULL                 |
 | IsActive     | BIT           | DEFAULT 1                |
 
-### ref_Programs
+### Programs
 
-Primary academic program catalog (replaces legacy `Programs` table).
+Primary academic program catalog.
 
 | Header        | Type          | Constraints / Role            |
 | :------------ | :------------ | :---------------------------- |
-| **Uid**       | INT           | **PK**, Identity(1,1)         |
-| ProgramCode   | NVARCHAR(10)  | **UNIQUE**, NOT NULL          |
-| ProgramName   | NVARCHAR(100) | NOT NULL                      |
-| ShortName     | NVARCHAR(50)  | Nullable                      |
-| DurationYears | TINYINT       | Nullable                      |
+| **ProgramID** | INT           | **PK**, Identity(1,1)         |
+| ProgramCode   | VARCHAR(20)   | **UNIQUE**, NOT NULL          |
+| ProgramName   | VARCHAR(200)  | NOT NULL                      |
+| DurationYears | INT           | Nullable                      |
 | IsActive      | BIT           | DEFAULT 1                     |
-| CreatedAt     | DATETIME2(7)  | DEFAULT sysdatetime()         |
+| CreatedOn     | DATETIME      | DEFAULT GETDATE()             |
+
+### Courses
+
+Master course catalog (subjects). Not tied to a program; class and teacher links use `ClassCourses` and `TeacherCourseAssignments`.
+
+| Header       | Type          | Constraints / Role            |
+| :----------- | :------------ | :---------------------------- |
+| **CourseID** | INT           | **PK**, Identity(1,1)         |
+| CourseCode   | VARCHAR(20)   | Nullable                      |
+| CourseName   | VARCHAR(200)  | NOT NULL                      |
+| CreditHours  | INT           | Nullable                      |
+| IsActive     | BIT           | DEFAULT 1                     |
+
+### ProgramCourses
+
+Links a course to a program (many-to-many junction).
+
+| Header        | Type | Constraints / Role                              |
+| :------------ | :--- | :---------------------------------------------- |
+| **UID**       | INT  | **PK**, Identity(1,1)                           |
+| ProgramID     | INT  | **FK** → Programs.ProgramID, NOT NULL           |
+| CourseID      | INT  | **FK** → Courses.CourseID, NOT NULL             |
+
+Unique combination of `(ProgramID, CourseID)` enforced at application layer.
+
+### Teachers
+
+Teacher master record.
+
+| Header       | Type          | Constraints / Role            |
+| :----------- | :------------ | :---------------------------- |
+| **TeacherID** | INT          | **PK**, Identity(1,1)         |
+| EmployeeNo   | VARCHAR(50)   | Nullable                      |
+| TeacherName  | VARCHAR(200)  | NOT NULL                      |
+| MobileNo     | VARCHAR(30)   | Nullable                      |
+| Email        | VARCHAR(200)  | Nullable                      |
+| IsActive     | BIT           | DEFAULT 1                     |
+| CreatedOn    | DATETIME      | DEFAULT GETDATE()             |
+
+### TeacherCourses
+
+Links a teacher to a course they may teach.
+
+| Header     | Type | Constraints / Role                              |
+| :--------- | :--- | :---------------------------------------------- |
+| **UID**    | INT  | **PK**, Identity(1,1)                           |
+| TeacherID  | INT  | **FK** → Teachers.TeacherID, NOT NULL           |
+| CourseID   | INT  | **FK** → Courses.CourseID, NOT NULL             |
+
+### Classes
+
+School class/section catalog (e.g. `9-A`, `10-B`). Not tied to a program; program context lives on enrollments and course assignments.
+
+| Header     | Type          | Constraints / Role            |
+| :--------- | :------------ | :---------------------------- |
+| **ClassID** | INT          | **PK**, Identity(1,1)         |
+| ClassCode  | VARCHAR(20)   | Nullable                      |
+| ClassName  | VARCHAR(100)  | NOT NULL                      |
+| SortOrder  | INT           | Nullable — display order      |
+| IsActive   | BIT           | DEFAULT 1                     |
+
+### AcademicYears
+
+Academic year catalog (e.g. `2026-2027`).
+
+| Header         | Type         | Constraints / Role            |
+| :------------- | :----------- | :---------------------------- |
+| **AcademicYearID** | INT      | **PK**, Identity(1,1)         |
+| YearName       | VARCHAR(20)  | NOT NULL                      |
+| StartDate      | DATE         | Nullable                      |
+| EndDate        | DATE         | Nullable                      |
+| IsCurrent      | BIT          | DEFAULT 0                     |
+| IsActive       | BIT          | DEFAULT 1                     |
+| CreatedOn      | DATETIME     | DEFAULT GETDATE()             |
 
 ### ref_FeeHeads
 
@@ -304,20 +346,26 @@ Master list of fee line-item types (replaces legacy `FeeTypes` table).
 
 ### Sections
 
-Class sections within a program, grade, and academic year.
+Section catalog (e.g. `A`, `B`, `Morning`).
 
-| Header       | Type          | Constraints / Role                                          |
-| :----------- | :------------ | :---------------------------------------------------------- |
-| **Uid**      | INT           | **PK**, Identity(1,1)                                       |
-| ProgramId    | INT           | **FK** → ref_Programs.Uid, NOT NULL                         |
-| SectionName  | NVARCHAR(10)  | NOT NULL — e.g. `'A'`, `'B'`                                |
-| GradeLevel   | NVARCHAR(20)  | NOT NULL                                                    |
-| AcademicYear | NVARCHAR(9)   | NOT NULL — e.g. `'2025-2026'`                               |
-| MaxCapacity  | INT           | Nullable                                                    |
-| IsActive     | BIT           | DEFAULT 1                                                   |
-| CreatedAt    | DATETIME2(7)  | DEFAULT sysdatetime()                                       |
+| Header      | Type         | Constraints / Role            |
+| :---------- | :----------- | :---------------------------- |
+| **SectionID** | INT        | **PK**, Identity(1,1)         |
+| SectionName | VARCHAR(20)  | NOT NULL                      |
+| IsActive    | BIT          | DEFAULT 1                     |
 
-Unique constraint on `(ProgramId, GradeLevel, AcademicYear, SectionName)`.
+### ClassSections
+
+Links a class and section for a given academic year (e.g. Matric · Section A for 2025–26).
+
+| Header           | Type | Constraints / Role                                      |
+| :--------------- | :--- | :------------------------------------------------------ |
+| **ClassSectionID** | INT | **PK**, Identity(1,1)                                   |
+| AcademicYearID   | INT  | **FK** → AcademicYears.AcademicYearID, NOT NULL         |
+| ClassID          | INT  | **FK** → Classes.ClassID, NOT NULL                      |
+| SectionID        | INT  | **FK** → Sections.SectionID, NOT NULL                   |
+
+Unique combination of `(AcademicYearID, ClassID, SectionID)` enforced at application layer.
 
 ### StudentEnrollments
 
@@ -327,8 +375,8 @@ Per-period enrollment linking a student to a program, section, and roll number.
 | :--------------- | :------------ | :---------------------------------------------------------- |
 | **Uid**          | INT           | **PK**, Identity(1,1)                                       |
 | StudentID        | INT           | **FK** → Students.Uid, NOT NULL                             |
-| ProgramID        | INT           | **FK** → ref_Programs.Uid, NOT NULL                         |
-| ClassID          | INT           | **FK** → Classes.Uid — Nullable                             |
+| ProgramID        | INT           | **FK** → Programs.ProgramID, NOT NULL                         |
+| ClassID          | INT           | **FK** → Classes.ClassID — Nullable                             |
 | AcademicYear     | SMALLINT      | NOT NULL — e.g. `2025`                                      |
 | GradeOrSemester  | TINYINT       | NOT NULL                                                    |
 | RollNo           | NVARCHAR(30)  | NOT NULL                                                    |
@@ -355,7 +403,7 @@ Assigns an employee (teacher) to a section for a given academic year.
 | Header       | Type          | Constraints / Role                                          |
 | :----------- | :------------ | :---------------------------------------------------------- |
 | **Uid**      | INT           | **PK**, Identity(1,1)                                       |
-| SectionId    | INT           | **FK** → Sections.Uid, NOT NULL                             |
+| SectionId    | INT           | **FK** → Sections.SectionID, NOT NULL                             |
 | EmployeeId   | INT           | **FK** → Employee.Uid, NOT NULL                             |
 | AcademicYear | NVARCHAR(9)   | NOT NULL — e.g. `'2025-2026'`                               |
 | IsActive     | BIT           | DEFAULT 1                                                   |
@@ -368,7 +416,7 @@ Unique constraint on `(SectionId, EmployeeId, AcademicYear)`.
 
 ## 6. Fee & Billing Infrastructure
 
-Billing chain: `StudentEnrollments` → `ref_Programs` → `FeeStructures` → `FeeStructureDetails` → `ref_FeeHeads`.
+Billing chain: `StudentEnrollments` → `Programs` → `FeeStructures` → `FeeStructureDetails` → `ref_FeeHeads`.
 
 ### FeeStructures
 
@@ -378,8 +426,8 @@ Header record for a program's fee schedule in a given semester and academic year
 | :------------ | :------------- | :------------------------------------------------------------ |
 | **Uid**       | INT            | **PK**, Identity(1,1)                                         |
 | StructureName | NVARCHAR(150)  | NOT NULL                                                      |
-| ProgramID     | INT            | **FK** → ref_Programs.Uid, NOT NULL                           |
-| ClassID       | INT            | **FK** → Classes.Uid — Nullable (section-specific fee schedule) |
+| ProgramID     | INT            | **FK** → Programs.ProgramID, NOT NULL                           |
+| ClassID       | INT            | **FK** → Classes.ClassID — Nullable (section-specific fee schedule) |
 | Semester      | NVARCHAR(20)   | NOT NULL                                                      |
 | AcademicYear  | SMALLINT       | NOT NULL — e.g. `2025`                                        |
 | IsActive      | BIT            | DEFAULT 1                                                     |
@@ -551,7 +599,7 @@ Tracks payment reminder notifications sent to students.
 ## 8. Billing Flow Summary
 
 ```
-StudentEnrollments → ref_Programs → FeeStructures → FeeStructureDetails → ref_FeeHeads
+StudentEnrollments → Programs → FeeStructures → FeeStructureDetails → ref_FeeHeads
                                               ↓
                                           Challans (StructureID)
                                               ↓

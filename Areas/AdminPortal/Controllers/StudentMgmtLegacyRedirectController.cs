@@ -15,8 +15,19 @@ public sealed class StudentMgmtLegacyRedirectController : AdminBaseController
 
     [HttpGet("/adminportal/courses")]
     [HttpGet("/adminportal/courses/{*path}")]
-    public IActionResult Courses() =>
-        RedirectPermanent("/adminportal/students/courses");
+    public IActionResult Courses(string? path)
+    {
+        var suffix = string.IsNullOrWhiteSpace(path) ? string.Empty : $"/{path.TrimStart('/')}";
+        return RedirectPermanent($"/adminportal/settings/courses{suffix}");
+    }
+
+    [HttpGet("/adminportal/students/courses")]
+    [HttpGet("/adminportal/students/courses/{*path}")]
+    public IActionResult StudentCourses(string? path)
+    {
+        var suffix = string.IsNullOrWhiteSpace(path) ? string.Empty : $"/{path.TrimStart('/')}";
+        return RedirectPermanent($"/adminportal/settings/courses{suffix}");
+    }
 
     [HttpGet("/adminportal/attendance")]
     [HttpGet("/adminportal/attendance/{*path}")]

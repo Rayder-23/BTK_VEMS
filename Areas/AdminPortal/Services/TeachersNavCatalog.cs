@@ -19,6 +19,8 @@ public static class TeachersNavCatalog
     [
         new() { Key = "add-teachers", Name = "Add Teachers", Url = "/adminportal/teachers/create", IconClass = "fa-user-plus" },
         new() { Key = "all-teachers", Name = "All Teachers", Url = "/adminportal/teachers/all", IconClass = "fa-chalkboard-user" },
+        new() { Key = "link-teacher-course", Name = "Link_TeacherCourse", Url = "/adminportal/teachers/link-teacher-course", IconClass = "fa-link" },
+        new() { Key = "link-teacher-assignment", Name = "Link_TeacherAssignment", Url = "/adminportal/teachers/link-teacher-assignment", IconClass = "fa-link" },
         new() { Key = "teacher-class-courses", Name = "Teachers-Class-Course", Url = "/adminportal/teachers/teacher-class-courses", IconClass = "fa-link" }
     ];
 
@@ -38,6 +40,8 @@ public static class TeachersNavCatalog
         "TeachersMgmt",
         "TeacherDashboard",
         "Teachers",
+        "TeacherCourses",
+        "TeacherAssignments",
         "TeacherClassCourses"
     };
 
@@ -48,6 +52,16 @@ public static class TeachersNavCatalog
     {
         path = path.TrimEnd('/').ToLowerInvariant();
         _ = action;
+
+        if (path.Contains("/link-teacher-assignment", StringComparison.Ordinal))
+        {
+            return "link-teacher-assignment";
+        }
+
+        if (path.Contains("/link-teacher-course", StringComparison.Ordinal))
+        {
+            return "link-teacher-course";
+        }
 
         if (path.Contains("/teacher-class-courses", StringComparison.Ordinal))
         {

@@ -10,7 +10,7 @@ public sealed class TeacherClassCourseListItem
     public string ClassCode { get; init; } = string.Empty;
     public string ClassName { get; init; } = string.Empty;
     public string CourseCode { get; init; } = string.Empty;
-    public string CourseTitle { get; init; } = string.Empty;
+    public string CourseName { get; init; } = string.Empty;
     public string Role { get; init; } = string.Empty;
     public bool IsActive { get; init; }
     public DateTime CreatedAt { get; init; }
@@ -19,7 +19,7 @@ public sealed class TeacherClassCourseListItem
 public sealed class TeacherClassCourseLookups
 {
     public IReadOnlyList<StudentLookupItem> Teachers { get; init; } = [];
-    public IReadOnlyList<StudentLookupItem> ClassCourses { get; init; } = [];
+    public IReadOnlyList<StudentLookupItem> ClassSectionCourses { get; init; } = [];
     public IReadOnlyList<string> Roles { get; init; } = [];
 }
 
@@ -38,10 +38,10 @@ public sealed class TeacherClassCourseFormModel
     [Range(1, int.MaxValue)]
     public int TeacherId { get; set; }
 
-    [Required(ErrorMessage = "Class course is required.")]
-    [Display(Name = "Class / course")]
+    [Required(ErrorMessage = "Class section course is required.")]
+    [Display(Name = "Class section / course")]
     [Range(1, int.MaxValue)]
-    public int ClassCourseId { get; set; }
+    public int ClassSectionCourseId { get; set; }
 
     [Required(ErrorMessage = "Role is required.")]
     [Display(Name = "Role")]
@@ -55,5 +55,5 @@ public sealed class TeacherClassCourseFormModel
     public DateTime? CreatedAt { get; set; }
 
     public string? TeacherDisplay { get; set; }
-    public string? ClassCourseDisplay { get; set; }
+    public string? ClassSectionCourseDisplay { get; set; }
 }

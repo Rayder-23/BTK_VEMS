@@ -9,15 +9,15 @@ public interface IClassRepository
         bool activeOnly,
         CancellationToken cancellationToken = default);
 
-    Task<ClassFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
+    Task<ClassFormModel?> GetAsync(int classId, CancellationToken cancellationToken = default);
 
-    Task<ClassLookups> GetLookupsAsync(CancellationToken cancellationToken = default);
-
-    Task<bool> ClassCodeExistsAsync(string classCode, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<bool> ClassCodeExistsAsync(string classCode, int? excludeClassId, CancellationToken cancellationToken = default);
 
     Task<int> InsertAsync(ClassFormModel model, CancellationToken cancellationToken = default);
 
     Task<bool> UpdateAsync(ClassFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> DeactivateAsync(int uid, CancellationToken cancellationToken = default);
+    Task<bool> SetActiveAsync(int classId, bool isActive, CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteAsync(int classId, CancellationToken cancellationToken = default);
 }

@@ -11,7 +11,7 @@
 <div class="portal-card">
     <form method="post" novalidate
           asp-area="TeacherPortal" asp-controller="AcademicManagement" asp-action="EditClass"
-          asp-route-id="@Model.Form.Uid">
+          asp-route-id="@Model.Form.ClassId">
         @Html.AntiForgeryToken()
         <partial name="_ClassForm" model="Model" />
         <div class="d-flex gap-2 mt-3">

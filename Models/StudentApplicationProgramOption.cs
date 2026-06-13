@@ -13,6 +13,6 @@ public sealed class StudentApplicationProgramOption
             ? (byte)Math.Min(years * 2, 20)
             : (byte)12;
 
-    /// <summary>Dropdown text from ref_Programs.ProgramName.</summary>
+    /// <summary>Dropdown text from Programs.ProgramName.</summary>
     public string DisplayLabel => ProgramName;
 }

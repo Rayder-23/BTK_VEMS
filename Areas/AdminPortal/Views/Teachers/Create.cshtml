@@ -1,4 +1,4 @@
-@model TeacherFormPageViewModel
+@model TeacherFormModel
 @{
     ViewData["Title"] = "Add teacher";
 }
@@ -12,15 +12,15 @@
         </ol>
     </nav>
     <h1 class="h3 fw-bold mb-0">Add teacher</h1>
-    <p class="text-muted mb-0 mt-2">Search an employee ID from <code>dbo.Employee</code>, then complete the teacher record.</p>
+    <p class="text-muted mb-0 mt-2">New row in <code>dbo.Teachers</code>.</p>
 </section>
 
 <section class="portal-card mt-4">
-    <form asp-action="Create" method="post" novalidate id="teacherCreateForm">
+    <form asp-action="Create" method="post" novalidate>
         @Html.AntiForgeryToken()
         <partial name="_TeacherForm" model="Model" />
         <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary" id="teacherSaveBtn" disabled>Save</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
         </div>
     </form>
@@ -29,119 +29,4 @@
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function () {
-            const employeeInput = document.getElementById('employeeIdInput');
-            const lookupBtn = document.getElementById('employeeLookupBtn');
-            const statusEl = document.getElementById('employeeLookupStatus');
-            const detailFields = document.querySelectorAll('.js-teacher-detail-field');
-            const saveBtn = document.getElementById('teacherSaveBtn');
-            const form = document.getElementById('teacherCreateForm');
-
-            if (!employeeInput || !lookupBtn || !statusEl || !saveBtn || !form) return;
-
-            const serverVerified = @(ViewData["EmployeeVerified"] as bool? == true ? "true" : "false");
-            let employeeVerified = serverVerified;
-
-            function setDetailFieldsEnabled(enabled) {
-                detailFields.forEach((field) => {
-                    field.disabled = !enabled;
-                });
-                saveBtn.disabled = !enabled;
-                employeeVerified = enabled;
-            }
-
-            function setStatus(message, isError) {
-                statusEl.textContent = message;
-                statusEl.classList.toggle('text-danger', !!isError);
-                statusEl.classList.toggle('text-success', !isError && employeeVerified);
-                statusEl.classList.toggle('text-muted', !isError && !employeeVerified);
-            }
-
-            function fillField(name, value) {
-                const field = form.querySelector(`[name="${name}"]`);
-                if (!field || value === null || value === undefined) return;
-                field.value = value;
-            }
-
-            function matchDesignation(value) {
-                if (!value) return;
-                const select = form.querySelector('[name="Form.Designation"]');
-                if (!select) return;
-                const match = Array.from(select.options).find(
-                    (opt) => opt.value && opt.value.localeCompare(value, undefined, { sensitivity: 'accent' }) === 0);
-                if (match) select.value = match.value;
-            }
-
-            async function lookupEmployee() {
-                const employeeId = employeeInput.value.trim();
-                setDetailFieldsEnabled(false);
-
-                if (!employeeId) {
-                    setStatus('Enter an employee ID to search.', true);
-                    return;
-                }
-
-                setStatus('Searching employee register…', false);
-
-                try {
-                    const response = await fetch(
-                        `/adminportal/teachers/lookup-employee?employeeId=${encodeURIComponent(employeeId)}`);
-                    const data = await response.json();
-
-                    if (!response.ok || !data.found) {
-                        setStatus(data.message || 'No employee found with this ID.', true);
-                        return;
-                    }
-
-                    if (data.alreadyTeacher) {
-                        setStatus(data.message || 'This employee is already registered as a teacher.', true);
-                        return;
-                    }
-
-                    employeeInput.value = data.employeeId || employeeId;
-                    fillField('Form.FirstName', data.firstName);
-                    fillField('Form.LastName', data.lastName);
-                    fillField('Form.Email', data.email);
-                    fillField('Form.Phone', data.phone);
-                    fillField('Form.Qualification', data.qualification);
-                    fillField('Form.Specialization', data.specialization);
-                    fillField('Form.JoiningDate', data.joiningDate);
-                    matchDesignation(data.designation);
-
-                    setDetailFieldsEnabled(true);
-                    setStatus(`Employee found: ${data.fullName}. You can now complete the teacher details.`, false);
-                } catch {
-                    setStatus('Could not verify the employee ID. Try again.', true);
-                }
-            }
-
-            lookupBtn.addEventListener('click', lookupEmployee);
-            employeeInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    lookupEmployee();
-                }
-            });
-            employeeInput.addEventListener('input', () => {
-                if (employeeVerified) {
-                    setDetailFieldsEnabled(false);
-                    setStatus('Employee ID changed. Search again to unlock the form.', true);
-                }
-            });
-
-            form.addEventListener('submit', () => {
-                if (employeeVerified) {
-                    detailFields.forEach((field) => {
-                        field.disabled = false;
-                    });
-                }
-            });
-
-            if (serverVerified) {
-                setDetailFieldsEnabled(true);
-                setStatus('Employee verified. Complete or correct the teacher details.', false);
-            }
-        })();
-    </script>
 }

@@ -13,7 +13,7 @@ public interface ITeacherClassCourseRepository
 
     Task<TeacherClassCourseLookups> GetLookupsAsync(CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsAsync(int teacherId, int classCourseId, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(int teacherId, int classSectionCourseId, int? excludeUid, CancellationToken cancellationToken = default);
 
     Task<int> InsertAsync(TeacherClassCourseFormModel model, CancellationToken cancellationToken = default);
 

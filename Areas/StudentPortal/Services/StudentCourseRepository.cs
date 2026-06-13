@@ -24,50 +24,39 @@ public sealed class StudentCourseRepository : IStudentCourseRepository
     {
         var activeEnrollmentStatus = await ResolveActiveEnrollmentStatusAsync(cancellationToken);
 
-        const string studentProgramSql = """
-            SELECT
-                p.ProgramName,
-                p.ProgramCode,
-                s.RollNo,
-                s.AdmissionYear
-            FROM dbo.Students s
-            INNER JOIN dbo.ref_Programs p ON s.ProgramID = p.Uid
-            WHERE s.Uid = @StudentUid;
-            """;
-
         const string enrollmentSql = """
             SELECT
                 p.ProgramName,
-                e.AcademicYear,
-                e.GradeOrSemester,
-                e.RollNo
-            FROM dbo.StudentEnrollments e
-            INNER JOIN dbo.ref_Programs p ON p.Uid = e.ProgramID
-            WHERE e.StudentID = @StudentUid
-              AND e.EnrollmentStatus = @EnrollmentStatus
-            ORDER BY e.AcademicYear DESC, e.GradeOrSemester;
+                p.ProgramCode,
+                se.AcademicYear,
+                se.GradeOrSemester,
+                se.RollNo
+            FROM dbo.StudentEnrollments se
+            INNER JOIN dbo.Programs p ON p.ProgramID = se.ProgramID
+            WHERE se.StudentID = @StudentUid
+              AND se.EnrollmentStatus = @EnrollmentStatus
+            ORDER BY se.AcademicYear DESC, se.GradeOrSemester;
             """;
 
         const string coursesSql = """
             SELECT DISTINCT
-                c.Uid,
-                c.CourseCode,
-                c.CourseTitle,
-                c.ShortName,
+                co.CourseID,
+                co.CourseCode,
+                co.CourseName,
                 p.ProgramName,
-                c.CreditHours,
-                c.SemesterNo,
-                c.IsMandatory,
+                co.CreditHours,
                 e.AcademicYear,
                 e.GradeOrSemester
-            FROM dbo.StudentEnrollments e
-            INNER JOIN dbo.Courses c ON c.ProgramID = e.ProgramID
-            INNER JOIN dbo.ref_Programs p ON p.Uid = e.ProgramID
-            WHERE e.StudentID = @StudentUid
-              AND e.EnrollmentStatus = @EnrollmentStatus
-              AND c.IsActive = 1
-              AND (c.SemesterNo IS NULL OR c.SemesterNo = e.GradeOrSemester)
-            ORDER BY e.AcademicYear DESC, c.SemesterNo, c.CourseCode;
+            FROM dbo.StudentCourseEnrollments sce
+            INNER JOIN dbo.ClassSectionCourses csc ON sce.ClassSectionCourseID = csc.UID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
+            INNER JOIN dbo.StudentEnrollments e ON sce.EnrollmentID = e.Uid
+            INNER JOIN dbo.Programs p ON e.ProgramID = p.ProgramID
+            WHERE sce.StudentID = @StudentUid
+              AND sce.IsActive = 1
+              AND sce.Status = @EnrollmentStatus
+              AND co.IsActive = 1
+            ORDER BY e.AcademicYear DESC, co.CourseCode;
             """;
 
         var enrollments = new List<StudentEnrollmentContext>();
@@ -80,19 +69,6 @@ public sealed class StudentCourseRepository : IStudentCourseRepository
         await using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
-        await using (var command = new SqlCommand(studentProgramSql, connection))
-        {
-            command.Parameters.AddWithValue("@StudentUid", studentUid);
-            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-            if (await reader.ReadAsync(cancellationToken))
-            {
-                programName = reader["ProgramName"] as string;
-                programCode = reader["ProgramCode"] as string;
-                rollNo = reader["RollNo"] as string;
-                admissionYear = reader["AdmissionYear"] is DBNull ? null : Convert.ToInt16(reader["AdmissionYear"]);
-            }
-        }
-
         await using (var command = new SqlCommand(enrollmentSql, connection))
         {
             command.Parameters.AddWithValue("@StudentUid", studentUid);
@@ -100,13 +76,19 @@ public sealed class StudentCourseRepository : IStudentCourseRepository
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
             {
-                enrollments.Add(new StudentEnrollmentContext
+                var enrollment = new StudentEnrollmentContext
                 {
                     ProgramName = reader["ProgramName"] as string ?? string.Empty,
                     AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
                     GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"]),
                     RollNo = reader["RollNo"] as string ?? string.Empty
-                });
+                };
+                enrollments.Add(enrollment);
+
+                programName ??= reader["ProgramName"] as string;
+                programCode ??= reader["ProgramCode"] as string;
+                rollNo ??= reader["RollNo"] as string;
+                admissionYear ??= Convert.ToInt16(reader["AcademicYear"]);
             }
         }
 
@@ -119,14 +101,11 @@ public sealed class StudentCourseRepository : IStudentCourseRepository
             {
                 courses.Add(new StudentAssignedCourseItem
                 {
-                    Uid = Convert.ToInt32(reader["Uid"]),
+                    CourseId = Convert.ToInt32(reader["CourseID"]),
                     CourseCode = reader["CourseCode"] as string ?? string.Empty,
-                    CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
-                    ShortName = reader["ShortName"] as string,
+                    CourseName = reader["CourseName"] as string ?? string.Empty,
                     ProgramName = reader["ProgramName"] as string ?? string.Empty,
-                    CreditHours = Convert.ToByte(reader["CreditHours"]),
-                    SemesterNo = reader["SemesterNo"] is DBNull ? null : Convert.ToByte(reader["SemesterNo"]),
-                    IsMandatory = Convert.ToBoolean(reader["IsMandatory"]),
+                    CreditHours = reader["CreditHours"] is DBNull ? null : Convert.ToInt32(reader["CreditHours"]),
                     AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
                     GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"])
                 });

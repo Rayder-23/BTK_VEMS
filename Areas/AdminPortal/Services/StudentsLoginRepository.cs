@@ -26,9 +26,9 @@ public sealed class StudentsLoginRepository : IStudentsLoginRepository
                 sl.LastLoginAt,
                 sl.MustChangePassword,
                 s.RegistrationNo,
-                s.FirstName + ' ' + ISNULL(s.MiddleName + ' ', '') + s.LastName AS StudentName
+                s.StudentName
             FROM dbo.StudentsLogin sl
-            INNER JOIN dbo.Students s ON sl.StudentId = s.Uid
+            INNER JOIN dbo.Students s ON sl.StudentId = s.StudentID
             ORDER BY sl.Uid DESC;
             """;
 
@@ -67,9 +67,9 @@ public sealed class StudentsLoginRepository : IStudentsLoginRepository
                 sl.Status,
                 sl.MustChangePassword,
                 s.RegistrationNo,
-                s.FirstName + ' ' + ISNULL(s.MiddleName + ' ', '') + s.LastName AS StudentName
+                s.StudentName
             FROM dbo.StudentsLogin sl
-            INNER JOIN dbo.Students s ON sl.StudentId = s.Uid
+            INNER JOIN dbo.Students s ON sl.StudentId = s.StudentID
             WHERE sl.Uid = @Uid;
             """;
 
@@ -90,10 +90,10 @@ public sealed class StudentsLoginRepository : IStudentsLoginRepository
     {
         const string sql = """
             SELECT
-                s.Uid,
-                s.RegistrationNo + ' — ' + s.FirstName + ' ' + ISNULL(s.MiddleName + ' ', '') + s.LastName AS DisplayName
+                s.StudentID,
+                s.RegistrationNo + ' — ' + s.StudentName AS DisplayName
             FROM dbo.Students s
-            WHERE NOT EXISTS (SELECT 1 FROM dbo.StudentsLogin sl WHERE sl.StudentId = s.Uid)
+            WHERE NOT EXISTS (SELECT 1 FROM dbo.StudentsLogin sl WHERE sl.StudentId = s.StudentID)
             ORDER BY s.RegistrationNo;
             """;
 

@@ -10,16 +10,13 @@ public sealed class TeachersController : AdminBaseController
 {
     private readonly ITeacherRepository _teachers;
     private readonly ITeacherCourseAssignmentRepository _assignments;
-    private readonly IEmployeeRepository _employees;
 
     public TeachersController(
         ITeacherRepository teachers,
-        ITeacherCourseAssignmentRepository assignments,
-        IEmployeeRepository employees)
+        ITeacherCourseAssignmentRepository assignments)
     {
         _teachers = teachers;
         _assignments = assignments;
-        _employees = employees;
     }
 
     [HttpGet("all")]
@@ -36,131 +33,48 @@ public sealed class TeachersController : AdminBaseController
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken cancellationToken)
+    public IActionResult Create()
     {
         ViewData["Title"] = "Add teacher";
         ViewData["PageTitle"] = "Teachers · Add";
-        ViewData["RequireEmployeeLookup"] = true;
-
-        var lookups = await _teachers.GetLookupsAsync(cancellationToken);
-        return View(new TeacherFormPageViewModel
-        {
-            Lookups = lookups,
-            Form = new TeacherFormModel
-            {
-                JoiningDate = DateTime.Today,
-                IsActive = true
-            }
-        });
-    }
-
-    private async Task<IActionResult> ReturnCreateViewAsync(
-        TeacherFormPageViewModel model,
-        CancellationToken cancellationToken)
-    {
-        model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-        ViewData["RequireEmployeeLookup"] = true;
-        if (await _employees.GetByEmployeeIdForTeacherAsync(model.Form.EmployeeCode, cancellationToken) is not null)
-        {
-            ViewData["EmployeeVerified"] = true;
-        }
-
-        return View(model);
+        return View(new TeacherFormModel { IsActive = true });
     }
 
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(TeacherFormPageViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(TeacherFormModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Add teacher";
         ViewData["PageTitle"] = "Teachers · Add";
-        ViewData["RequireEmployeeLookup"] = true;
 
-        await ValidateFormAsync(model.Form, null, cancellationToken);
         if (!ModelState.IsValid)
         {
-            return await ReturnCreateViewAsync(model, cancellationToken);
+            return View(model);
         }
 
-        if (await _teachers.EmployeeCodeExistsAsync(model.Form.EmployeeCode, null, cancellationToken))
+        if (await _teachers.EmployeeNoExistsAsync(model.EmployeeNo, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.EmployeeCode), "Employee code already exists.");
-            return await ReturnCreateViewAsync(model, cancellationToken);
+            ModelState.AddModelError(nameof(model.EmployeeNo), "Employee number already exists.");
+            return View(model);
         }
 
-        if (await _teachers.EmailExistsAsync(model.Form.Email, null, cancellationToken))
+        if (await _teachers.EmailExistsAsync(model.Email, null, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.Email), "Email already exists.");
-            return await ReturnCreateViewAsync(model, cancellationToken);
+            ModelState.AddModelError(nameof(model.Email), "Email already exists.");
+            return View(model);
         }
 
         try
         {
-            var newId = await _teachers.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            var newId = await _teachers.InsertAsync(model, ResolveActorId(), cancellationToken);
             TempData["StatusMessage"] = $"Teacher created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             ApplyUniqueConstraintError(ex, model);
-            return await ReturnCreateViewAsync(model, cancellationToken);
+            return View(model);
         }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ApplyCheckConstraintError(ex, model);
-            return await ReturnCreateViewAsync(model, cancellationToken);
-        }
-    }
-
-    [HttpGet("lookup-employee")]
-    public async Task<IActionResult> LookupEmployee(string employeeId, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(employeeId))
-        {
-            return BadRequest(new { found = false, message = "Employee ID is required." });
-        }
-
-        var employee = await _employees.GetByEmployeeIdForTeacherAsync(employeeId, cancellationToken);
-        if (employee is null)
-        {
-            return Json(new { found = false, message = "No employee found with this ID." });
-        }
-
-        if (!string.Equals(employee.Status, "Active", StringComparison.OrdinalIgnoreCase))
-        {
-            return Json(new
-            {
-                found = false,
-                message = $"Employee status is '{employee.Status}'. Only active employees can be linked."
-            });
-        }
-
-        var alreadyTeacher = await _teachers.EmployeeCodeExistsAsync(employee.EmployeeId, null, cancellationToken);
-        if (alreadyTeacher)
-        {
-            return Json(new
-            {
-                found = true,
-                alreadyTeacher = true,
-                message = "A teacher record already exists for this employee ID."
-            });
-        }
-
-        return Json(new
-        {
-            found = true,
-            alreadyTeacher = false,
-            employeeId = employee.EmployeeId,
-            fullName = employee.FullName,
-            firstName = employee.FirstName,
-            lastName = employee.LastName,
-            email = employee.Email,
-            phone = employee.Phone,
-            designation = employee.Designation,
-            qualification = employee.Qualification,
-            specialization = employee.Specialization,
-            joiningDate = employee.JoinedDate?.ToString("yyyy-MM-dd")
-        });
     }
 
     [HttpGet("edit/{id:int}")]
@@ -174,50 +88,41 @@ public sealed class TeachersController : AdminBaseController
 
         ViewData["Title"] = "Edit teacher";
         ViewData["PageTitle"] = "Teachers · Edit";
-
-        return View(new TeacherFormPageViewModel
-        {
-            Form = row,
-            Lookups = await _teachers.GetLookupsAsync(cancellationToken)
-        });
+        return View(row);
     }
 
     [HttpPost("edit/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, TeacherFormPageViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(int id, TeacherFormModel model, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Edit teacher";
         ViewData["PageTitle"] = "Teachers · Edit";
 
-        if (id != model.Form.Uid)
+        if (id != model.TeacherId)
         {
             return NotFound();
         }
 
-        await ValidateFormAsync(model.Form, id, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
-        if (await _teachers.EmployeeCodeExistsAsync(model.Form.EmployeeCode, id, cancellationToken))
+        if (await _teachers.EmployeeNoExistsAsync(model.EmployeeNo, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.EmployeeCode), "Employee code already exists.");
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+            ModelState.AddModelError(nameof(model.EmployeeNo), "Employee number already exists.");
             return View(model);
         }
 
-        if (await _teachers.EmailExistsAsync(model.Form.Email, id, cancellationToken))
+        if (await _teachers.EmailExistsAsync(model.Email, id, cancellationToken))
         {
-            ModelState.AddModelError(nameof(model.Form.Email), "Email already exists.");
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
+            ModelState.AddModelError(nameof(model.Email), "Email already exists.");
             return View(model);
         }
 
         try
         {
-            var ok = await _teachers.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            var ok = await _teachers.UpdateAsync(model, ResolveStaffLoginUid(), cancellationToken);
             if (!ok)
             {
                 return NotFound();
@@ -229,13 +134,6 @@ public sealed class TeachersController : AdminBaseController
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             ApplyUniqueConstraintError(ex, model);
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
-            return View(model);
-        }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ApplyCheckConstraintError(ex, model);
-            model.Lookups = await _teachers.GetLookupsAsync(cancellationToken);
             return View(model);
         }
     }
@@ -422,85 +320,23 @@ public sealed class TeachersController : AdminBaseController
         return RedirectToAction(nameof(Assignments), new { teacherId = form.TeacherId });
     }
 
-    private async Task ValidateFormAsync(TeacherFormModel form, int? teacherUid, CancellationToken cancellationToken)
-    {
-        if (!ModelState.IsValid)
-        {
-            return;
-        }
-
-        if (teacherUid is null)
-        {
-            var employee = await _employees.GetByEmployeeIdForTeacherAsync(form.EmployeeCode, cancellationToken);
-            if (employee is null)
-            {
-                ModelState.AddModelError(nameof(form.EmployeeCode), "Enter a valid employee ID from the employee register.");
-                return;
-            }
-
-            if (!string.Equals(employee.Status, "Active", StringComparison.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError(nameof(form.EmployeeCode), "Only active employees can be registered as teachers.");
-                return;
-            }
-
-            form.EmployeeCode = employee.EmployeeId;
-        }
-
-        var lookups = await _teachers.GetLookupsAsync(cancellationToken);
-
-        if (form.ProgramId.HasValue && lookups.Programs.All(p => p.Id != form.ProgramId.Value))
-        {
-            ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
-        }
-
-        if (string.IsNullOrWhiteSpace(form.Designation))
-        {
-            form.Designation = null;
-        }
-        else
-        {
-            var matchedDesignation = lookups.Designations.FirstOrDefault(d =>
-                string.Equals(d, form.Designation, StringComparison.OrdinalIgnoreCase));
-            if (matchedDesignation is null)
-            {
-                ModelState.AddModelError(nameof(form.Designation), "Select a valid designation.");
-            }
-            else
-            {
-                form.Designation = matchedDesignation;
-            }
-        }
-    }
-
-    private void ApplyUniqueConstraintError(SqlException ex, TeacherFormPageViewModel model)
+    private void ApplyUniqueConstraintError(SqlException ex, TeacherFormModel model)
     {
         var message = ex.Message;
 
-        if (message.Contains("EmployeeCode", StringComparison.OrdinalIgnoreCase))
+        if (message.Contains("EmployeeNo", StringComparison.OrdinalIgnoreCase))
         {
-            ModelState.AddModelError(nameof(model.Form.EmployeeCode), "Employee code already exists.");
+            ModelState.AddModelError(nameof(model.EmployeeNo), "Employee number already exists.");
             return;
         }
 
         if (message.Contains("Email", StringComparison.OrdinalIgnoreCase))
         {
-            ModelState.AddModelError(nameof(model.Form.Email), "Email already exists.");
+            ModelState.AddModelError(nameof(model.Email), "Email already exists.");
             return;
         }
 
         ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
-    }
-
-    private void ApplyCheckConstraintError(SqlException ex, TeacherFormPageViewModel model)
-    {
-        if (ex.Message.Contains("CK_Teachers_Designation", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.Designation), "Select a valid designation from the list.");
-            return;
-        }
-
-        ModelState.AddModelError(string.Empty, "One or more values are not allowed by database rules.");
     }
 
     private async Task ValidateAssignmentFormAsync(

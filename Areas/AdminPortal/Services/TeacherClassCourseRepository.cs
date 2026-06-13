@@ -23,31 +23,31 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
         var sql = """
             SELECT
                 tcc.Uid,
-                t.EmployeeCode,
-                t.FirstName + ' ' + t.LastName AS TeacherName,
+                t.EmployeeNo,
+                t.TeacherName,
                 c.ClassCode,
                 c.ClassName,
                 co.CourseCode,
-                co.CourseTitle,
+                co.CourseName,
                 tcc.Role,
                 tcc.IsActive,
                 tcc.CreatedAt
             FROM dbo.TeacherClassCourses tcc
-            INNER JOIN dbo.Teachers t ON tcc.TeacherID = t.Uid
-            INNER JOIN dbo.ClassCourses cc ON tcc.ClassCourseID = cc.Uid
-            INNER JOIN dbo.Classes c ON cc.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON cc.CourseID = co.Uid
+            INNER JOIN dbo.Teachers t ON tcc.TeacherID = t.TeacherID
+            INNER JOIN dbo.ClassSectionCourses csc ON tcc.ClassSectionCourseID = csc.UID
+            INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
             WHERE (@Search IS NULL
-                   OR t.EmployeeCode LIKE @Search
-                   OR t.FirstName LIKE @Search
-                   OR t.LastName LIKE @Search
+                   OR t.EmployeeNo LIKE @Search
+                   OR t.TeacherName LIKE @Search
                    OR c.ClassCode LIKE @Search
                    OR c.ClassName LIKE @Search
                    OR co.CourseCode LIKE @Search
-                   OR co.CourseTitle LIKE @Search
+                   OR co.CourseName LIKE @Search
                    OR tcc.Role LIKE @Search)
             """ + (activeOnly ? " AND tcc.IsActive = 1" : "") + """
-             ORDER BY t.EmployeeCode, c.ClassCode, co.CourseCode;
+             ORDER BY t.EmployeeNo, c.ClassCode, co.CourseCode;
             """;
 
         var list = new List<TeacherClassCourseListItem>();
@@ -61,12 +61,12 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
             list.Add(new TeacherClassCourseListItem
             {
                 Uid = Convert.ToInt32(reader["Uid"]),
-                EmployeeCode = reader["EmployeeCode"] as string ?? string.Empty,
+                EmployeeCode = reader["EmployeeNo"] as string ?? string.Empty,
                 TeacherName = reader["TeacherName"] as string ?? string.Empty,
                 ClassCode = reader["ClassCode"] as string ?? string.Empty,
                 ClassName = reader["ClassName"] as string ?? string.Empty,
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
-                CourseTitle = reader["CourseTitle"] as string ?? string.Empty,
+                CourseName = reader["CourseName"] as string ?? string.Empty,
                 Role = reader["Role"] as string ?? string.Empty,
                 IsActive = Convert.ToBoolean(reader["IsActive"]),
                 CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
@@ -82,17 +82,18 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
             SELECT
                 tcc.Uid,
                 tcc.TeacherID,
-                tcc.ClassCourseID,
+                tcc.ClassSectionCourseID,
                 tcc.Role,
                 tcc.IsActive,
                 tcc.CreatedAt,
-                t.EmployeeCode + ' - ' + t.FirstName + ' ' + t.LastName AS TeacherDisplay,
-                c.ClassCode + ' / ' + co.CourseCode + ' - ' + co.CourseTitle AS ClassCourseDisplay
+                ISNULL(t.EmployeeNo + N' - ', N'') + t.TeacherName AS TeacherDisplay,
+                c.ClassName + N' / ' + co.CourseCode + N' - ' + co.CourseName AS ClassSectionCourseDisplay
             FROM dbo.TeacherClassCourses tcc
-            INNER JOIN dbo.Teachers t ON tcc.TeacherID = t.Uid
-            INNER JOIN dbo.ClassCourses cc ON tcc.ClassCourseID = cc.Uid
-            INNER JOIN dbo.Classes c ON cc.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON cc.CourseID = co.Uid
+            INNER JOIN dbo.Teachers t ON tcc.TeacherID = t.TeacherID
+            INNER JOIN dbo.ClassSectionCourses csc ON tcc.ClassSectionCourseID = csc.UID
+            INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
             WHERE tcc.Uid = @Uid;
             """;
 
@@ -110,33 +111,34 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
         {
             Uid = Convert.ToInt32(reader["Uid"]),
             TeacherId = Convert.ToInt32(reader["TeacherID"]),
-            ClassCourseId = Convert.ToInt32(reader["ClassCourseID"]),
+            ClassSectionCourseId = Convert.ToInt32(reader["ClassSectionCourseID"]),
             Role = reader["Role"] as string ?? "Lead",
             IsActive = Convert.ToBoolean(reader["IsActive"]),
             CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
             TeacherDisplay = reader["TeacherDisplay"] as string,
-            ClassCourseDisplay = reader["ClassCourseDisplay"] as string
+            ClassSectionCourseDisplay = reader["ClassSectionCourseDisplay"] as string
         };
     }
 
     public async Task<TeacherClassCourseLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
     {
         const string teachersSql = """
-            SELECT Uid, EmployeeCode + ' - ' + FirstName + ' ' + LastName
+            SELECT TeacherID, ISNULL(EmployeeNo + N' · ', N'') + TeacherName
             FROM dbo.Teachers
             WHERE IsActive = 1
-            ORDER BY EmployeeCode;
+            ORDER BY EmployeeNo;
             """;
 
-        const string classCoursesSql = """
+        const string classSectionCoursesSql = """
             SELECT
-                cc.Uid,
-                c.ClassCode + ' / ' + co.CourseCode + ' - ' + co.CourseTitle
-            FROM dbo.ClassCourses cc
-            INNER JOIN dbo.Classes c ON cc.ClassID = c.Uid
-            INNER JOIN dbo.Courses co ON cc.CourseID = co.Uid
-            WHERE cc.IsActive = 1
-            ORDER BY c.ClassCode, co.CourseCode;
+                csc.UID,
+                c.ClassName + N' / ' + s.SectionName + N' / ' + co.CourseCode + N' - ' + co.CourseName
+            FROM dbo.ClassSectionCourses csc
+            INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Sections s ON cs.SectionID = s.SectionID
+            INNER JOIN dbo.Courses co ON csc.CourseID = co.CourseID
+            ORDER BY c.ClassName, s.SectionName, co.CourseCode;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
@@ -145,25 +147,25 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
         return new TeacherClassCourseLookups
         {
             Teachers = await ReadLookupAsync(connection, teachersSql, cancellationToken),
-            ClassCourses = await ReadLookupAsync(connection, classCoursesSql, cancellationToken),
+            ClassSectionCourses = await ReadLookupAsync(connection, classSectionCoursesSql, cancellationToken),
             Roles = AllowedRoles.ToList()
         };
     }
 
-    public async Task<bool> ExistsAsync(int teacherId, int classCourseId, int? excludeUid, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(int teacherId, int classSectionCourseId, int? excludeUid, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT COUNT(1)
             FROM dbo.TeacherClassCourses
             WHERE TeacherID = @TeacherID
-              AND ClassCourseID = @ClassCourseID
+              AND ClassSectionCourseID = @ClassSectionCourseID
               AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@TeacherID", teacherId);
-        command.Parameters.AddWithValue("@ClassCourseID", classCourseId);
+        command.Parameters.AddWithValue("@ClassSectionCourseID", classSectionCourseId);
         command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
@@ -174,13 +176,13 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
         const string sql = """
             INSERT INTO dbo.TeacherClassCourses (
                 TeacherID,
-                ClassCourseID,
+                ClassSectionCourseID,
                 Role,
                 IsActive
             )
             VALUES (
                 @TeacherID,
-                @ClassCourseID,
+                @ClassSectionCourseID,
                 @Role,
                 @IsActive
             );
@@ -199,7 +201,7 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
         const string sql = """
             UPDATE dbo.TeacherClassCourses SET
                 TeacherID = @TeacherID,
-                ClassCourseID = @ClassCourseID,
+                ClassSectionCourseID = @ClassSectionCourseID,
                 Role = @Role,
                 IsActive = @IsActive
             WHERE Uid = @Uid;
@@ -230,7 +232,7 @@ public sealed class TeacherClassCourseRepository : ITeacherClassCourseRepository
     private static void Bind(SqlCommand command, TeacherClassCourseFormModel model)
     {
         command.Parameters.AddWithValue("@TeacherID", model.TeacherId);
-        command.Parameters.AddWithValue("@ClassCourseID", model.ClassCourseId);
+        command.Parameters.AddWithValue("@ClassSectionCourseID", model.ClassSectionCourseId);
         command.Parameters.AddWithValue("@Role", model.Role.Trim());
         command.Parameters.AddWithValue("@IsActive", model.IsActive);
     }

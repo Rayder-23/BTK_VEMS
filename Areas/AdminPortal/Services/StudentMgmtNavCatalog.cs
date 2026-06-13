@@ -26,12 +26,9 @@ public static class StudentMgmtNavCatalog
             Key = "settings",
             Name = "Settings",
             IconClass = "fa-gear",
-            DefaultUrl = "/adminportal/students/programs",
+            DefaultUrl = "/adminportal/students/class-courses",
             Links =
             [
-                new() { Key = "programs", Name = "Programs", Url = "/adminportal/students/programs", IconClass = "fa-graduation-cap" },
-                new() { Key = "courses", Name = "Courses", Url = "/adminportal/students/courses", IconClass = "fa-book" },
-                new() { Key = "classes", Name = "Classes", Url = "/adminportal/students/classes", IconClass = "fa-chalkboard" },
                 new() { Key = "class-courses", Name = "Link-Class-Courses", Url = "/adminportal/students/class-courses", IconClass = "fa-layer-group" },
                 new() { Key = "program-enrollments", Name = "Program Enrollment", Url = "/adminportal/students/program-enrollments", IconClass = "fa-id-card" },
                 new() { Key = "course-enrollments", Name = "Course Enrolment", Url = "/adminportal/students/course-enrollments", IconClass = "fa-user-check" },
@@ -59,6 +56,7 @@ public static class StudentMgmtNavCatalog
             Links =
             [
                 new() { Key = "students", Name = "Students", Url = "/adminportal/students/students", IconClass = "fa-users" },
+                new() { Key = "student-enrollments", Name = "Link_StudentEnrollments", Url = "/adminportal/students/student-enrollments", IconClass = "fa-link" },
                 new() { Key = "attendance", Name = "Attendance", Url = "/adminportal/students/attendance", IconClass = "fa-calendar-check" },
                 new() { Key = "results", Name = "Results", Url = "/adminportal/students/results", IconClass = "fa-clipboard-list" }
             ]
@@ -83,15 +81,13 @@ public static class StudentMgmtNavCatalog
         "Students",
         "ProgramEnrollments",
         "StudentLogin",
-        "StudentCourses",
-        "Classes",
         "ClassCourses",
         "StudentCourseEnrollments",
-        "StudentPrograms",
         "StudentAttendance",
         "StudentResults",
         "StudentFee",
-        "StudentChallans"
+        "StudentChallans",
+        "StudentEnrollmentLinks"
     };
 
     public static bool IsStudentMgmtController(string controller) => StudentMgmtControllers.Contains(controller);
@@ -118,6 +114,11 @@ public static class StudentMgmtNavCatalog
         path = path.TrimEnd('/').ToLowerInvariant();
         action = action.ToLowerInvariant();
 
+        if (path.Contains("/student-enrollments", StringComparison.Ordinal))
+        {
+            return "student-enrollments";
+        }
+
         if (path.Contains("/students/students", StringComparison.Ordinal)
             || string.Equals(path, "/adminportal/students/students", StringComparison.Ordinal))
         {
@@ -139,19 +140,9 @@ public static class StudentMgmtNavCatalog
             return "class-courses";
         }
 
-        if (path.Contains("/classes", StringComparison.Ordinal))
-        {
-            return "classes";
-        }
-
         if (path.Contains("/course-enrollments", StringComparison.Ordinal))
         {
             return "course-enrollments";
-        }
-
-        if (path.Contains("/courses", StringComparison.Ordinal))
-        {
-            return "courses";
         }
 
         if (path.Contains("/programs", StringComparison.Ordinal))

@@ -29,7 +29,7 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
             SELECT
                 se.Uid,
                 s.RegistrationNo,
-                s.FirstName + ' ' + ISNULL(s.MiddleName + ' ', '') + s.LastName AS StudentName,
+                s.StudentName,
                 p.ProgramName,
                 c.ClassCode,
                 se.AcademicYear,
@@ -38,13 +38,12 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
                 se.EnrollmentStatus,
                 se.IsActive
             FROM dbo.StudentEnrollments se
-            INNER JOIN dbo.Students s ON se.StudentID = s.Uid
-            INNER JOIN dbo.ref_Programs p ON se.ProgramID = p.Uid
-            INNER JOIN dbo.Classes c ON se.ClassID = c.Uid
+            INNER JOIN dbo.Students s ON se.StudentID = s.StudentID
+            INNER JOIN dbo.Programs p ON se.ProgramID = p.ProgramID
+            INNER JOIN dbo.Classes c ON se.ClassID = c.ClassID
             WHERE (@Search IS NULL
                    OR s.RegistrationNo LIKE @Search
-                   OR s.FirstName LIKE @Search
-                   OR s.LastName LIKE @Search
+                   OR s.StudentName LIKE @Search
                    OR se.RollNo LIKE @Search
                    OR p.ProgramName LIKE @Search
                    OR c.ClassCode LIKE @Search)
@@ -113,25 +112,24 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
         CancellationToken cancellationToken = default)
     {
         const string studentsSql = """
-            SELECT Uid, RegistrationNo + ' - ' + FirstName + ' ' + LastName
+            SELECT StudentID, RegistrationNo + ' - ' + StudentName
             FROM dbo.Students
             WHERE IsActive = 1
             ORDER BY RegistrationNo;
             """;
 
         const string programsSql = """
-            SELECT Uid, ProgramCode + ' - ' + ProgramName
-            FROM dbo.ref_Programs
+            SELECT ProgramID, ProgramCode + ' - ' + ProgramName
+            FROM dbo.Programs
             WHERE IsActive = 1
             ORDER BY ProgramName;
             """;
 
         var classesSql = """
-            SELECT Uid, ClassCode + ' · ' + ClassName
+            SELECT ClassID, ClassCode + ' · ' + ClassName
             FROM dbo.Classes
             WHERE IsActive = 1
-            """ + (programId is > 0 ? " AND ProgramID = @ProgramId" : "") + """
-             ORDER BY ClassCode;
+             ORDER BY SortOrder, ClassCode;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
@@ -139,11 +137,7 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
 
         var students = await ReadLookupAsync(connection, studentsSql, null, cancellationToken);
         var programs = await ReadLookupAsync(connection, programsSql, null, cancellationToken);
-        var classes = await ReadLookupAsync(
-            connection,
-            classesSql,
-            programId is > 0 ? new SqlParameter("@ProgramId", programId.Value) : null,
-            cancellationToken);
+        var classes = await ReadLookupAsync(connection, classesSql, null, cancellationToken);
 
         var enrollmentStatuses = ResolveConfiguredValues(
             await _configurations.GetValuesAsync(EnrollmentStatusConfigKey, cancellationToken),

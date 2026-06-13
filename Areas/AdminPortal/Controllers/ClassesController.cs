@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using VEMS.Areas.AdminPortal.Services;
 using VEMS.Areas.TeacherPortal.Models;
 using VEMS.Areas.TeacherPortal.Services;
 
@@ -32,17 +31,11 @@ public sealed class ClassesController : StudentMgmtBaseController
     }
 
     [HttpGet("create")]
-    public async Task<IActionResult> Create(CancellationToken cancellationToken)
+    public IActionResult Create()
     {
         ViewData["Title"] = "Add class";
         ViewData["PageTitle"] = "Classes · Add";
-
-        var lookups = await _classes.GetLookupsAsync(cancellationToken);
-        return View(new ClassFormPageViewModel
-        {
-            Lookups = lookups,
-            Form = CreateDefaultForm(lookups)
-        });
+        return View(new ClassFormPageViewModel { Form = new ClassFormModel { IsActive = true } });
     }
 
     [HttpPost("create")]
@@ -52,17 +45,14 @@ public sealed class ClassesController : StudentMgmtBaseController
         ViewData["Title"] = "Add class";
         ViewData["PageTitle"] = "Classes · Add";
 
-        await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
-        if (await _classes.ClassCodeExistsAsync(model.Form.ClassCode, null, cancellationToken))
+        if (await _classes.ClassCodeExistsAsync(model.Form.ClassCode ?? string.Empty, null, cancellationToken))
         {
             ModelState.AddModelError(nameof(model.Form.ClassCode), "Class code already exists.");
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
@@ -75,13 +65,6 @@ public sealed class ClassesController : StudentMgmtBaseController
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             ModelState.AddModelError(nameof(model.Form.ClassCode), "Class code already exists.");
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
-            return View(model);
-        }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
     }
@@ -98,11 +81,7 @@ public sealed class ClassesController : StudentMgmtBaseController
         ViewData["Title"] = "Edit class";
         ViewData["PageTitle"] = "Classes · Edit";
 
-        return View(new ClassFormPageViewModel
-        {
-            Form = row,
-            Lookups = await _classes.GetLookupsAsync(cancellationToken)
-        });
+        return View(new ClassFormPageViewModel { Form = row });
     }
 
     [HttpPost("edit/{id:int}")]
@@ -112,22 +91,19 @@ public sealed class ClassesController : StudentMgmtBaseController
         ViewData["Title"] = "Edit class";
         ViewData["PageTitle"] = "Classes · Edit";
 
-        if (id != model.Form.Uid)
+        if (id != model.Form.ClassId)
         {
             return NotFound();
         }
 
-        await ValidateFormAsync(model.Form, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
-        if (await _classes.ClassCodeExistsAsync(model.Form.ClassCode, id, cancellationToken))
+        if (await _classes.ClassCodeExistsAsync(model.Form.ClassCode ?? string.Empty, id, cancellationToken))
         {
             ModelState.AddModelError(nameof(model.Form.ClassCode), "Class code already exists.");
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
@@ -145,70 +121,43 @@ public sealed class ClassesController : StudentMgmtBaseController
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             ModelState.AddModelError(nameof(model.Form.ClassCode), "Class code already exists.");
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
             return View(model);
         }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
-            model.Lookups = await _classes.GetLookupsAsync(cancellationToken);
-            return View(model);
-        }
+    }
+
+    [HttpPost("deactivate/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Deactivate(int id, CancellationToken cancellationToken)
+    {
+        var ok = await _classes.SetActiveAsync(id, isActive: false, cancellationToken);
+        TempData["StatusMessage"] = ok ? "Class deactivated." : "Class not found.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("activate/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Activate(int id, CancellationToken cancellationToken)
+    {
+        var ok = await _classes.SetActiveAsync(id, isActive: true, cancellationToken);
+        TempData["StatusMessage"] = ok ? "Class activated." : "Class not found.";
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost("delete/{id:int}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var ok = await _classes.DeactivateAsync(id, cancellationToken);
-        TempData["StatusMessage"] = ok ? "Class deactivated." : "Class not found.";
+        try
+        {
+            var ok = await _classes.DeleteAsync(id, cancellationToken);
+            TempData["StatusMessage"] = ok ? "Class deleted permanently." : "Class not found.";
+        }
+        catch (SqlException ex) when (ex.Number == 547)
+        {
+            TempData["ErrorMessage"] =
+                "Class could not be deleted because courses, enrollments, or other records still reference it. Deactivate it instead, or remove those links first.";
+        }
+
         return RedirectToAction(nameof(Index));
     }
-
-    private async Task ValidateFormAsync(ClassFormModel form, CancellationToken cancellationToken)
-    {
-        if (!ModelState.IsValid)
-        {
-            return;
-        }
-
-        var lookups = await _classes.GetLookupsAsync(cancellationToken);
-        if (lookups.Programs.All(p => p.Id != form.ProgramId))
-        {
-            ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
-        }
-
-        var semester = ClassFieldCatalog.ResolveSemester(form.Semester);
-        if (semester is null)
-        {
-            ModelState.AddModelError(nameof(form.Semester), "Select a valid semester.");
-        }
-        else
-        {
-            form.Semester = semester;
-        }
-
-        if (!string.IsNullOrWhiteSpace(form.Shift))
-        {
-            var shift = ClassFieldCatalog.ResolveShift(form.Shift);
-            if (shift is null)
-            {
-                ModelState.AddModelError(nameof(form.Shift), "Select a valid shift.");
-            }
-            else
-            {
-                form.Shift = shift;
-            }
-        }
-    }
-
-    private static ClassFormModel CreateDefaultForm(ClassLookups lookups) => new()
-    {
-        ProgramId = lookups.Programs.FirstOrDefault()?.Id ?? 0,
-        Semester = lookups.Semesters.FirstOrDefault() ?? ClassFieldCatalog.AllowedSemesters[0],
-        AcademicYear = (short)DateTime.Today.Year,
-        SemesterNo = 1,
-        MaxStrength = 40,
-        IsActive = true
-    };
 }
