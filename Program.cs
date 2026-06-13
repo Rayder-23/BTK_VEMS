@@ -82,6 +82,10 @@ builder.Services.AddScoped<IConfigurationsRepository, ConfigurationsRepository>(
 builder.Services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<IClassSectionRepository, ClassSectionRepository>();
+builder.Services.AddScoped<ICourseSectionRepository, CourseSectionRepository>();
+builder.Services.AddScoped<IStudentCourseRegistrationRepository, StudentCourseRegistrationRepository>();
+builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
+builder.Services.AddScoped<ITimetablesRepository, TimetablesRepository>();
 builder.Services.AddScoped<IProgramCourseRepository, ProgramCourseRepository>();
 builder.Services.AddScoped<ITeacherCourseLinkRepository, TeacherCourseLinkRepository>();
 builder.Services.AddScoped<ITeacherAssignmentRepository, TeacherAssignmentRepository>();

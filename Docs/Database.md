@@ -1,6 +1,6 @@
 # Database Schema Documentation: Virtual Education Management System
 
-- *VERSION: 3.1*
+- *VERSION: 3.3*
 - *UPDATED AT: 2026-06-13*
 
 ### Project-Wide Rules:-
@@ -366,6 +366,55 @@ Links a class and section for a given academic year (e.g. Matric · Section A fo
 | SectionID        | INT  | **FK** → Sections.SectionID, NOT NULL                   |
 
 Unique combination of `(AcademicYearID, ClassID, SectionID)` enforced at application layer.
+
+### CourseSections
+
+Course offering sections for a given academic year (e.g. Physics · Section A for 2026–27).
+
+| Header            | Type         | Constraints / Role                                      |
+| :---------------- | :----------- | :------------------------------------------------------ |
+| **CourseSectionID** | INT        | **PK**, Identity(1,1)                                   |
+| AcademicYearID    | INT          | **FK** → AcademicYears.AcademicYearID, NOT NULL         |
+| CourseID          | INT          | **FK** → Courses.CourseID, NOT NULL                     |
+| SectionName       | VARCHAR(20)  | Nullable                                                |
+| Capacity          | INT          | Nullable — max enrollment for this section              |
+
+### StudentCourseRegistrations
+
+Links a student to a course section registration.
+
+| Header            | Type         | Constraints / Role                                      |
+| :---------------- | :----------- | :------------------------------------------------------ |
+| **UID**           | INT          | **PK**, Identity(1,1)                                   |
+| StudentID         | INT          | **FK** → Students.StudentID, NOT NULL                     |
+| CourseSectionID   | INT          | **FK** → CourseSections.CourseSectionID, NOT NULL         |
+| RegistrationDate  | DATE         | DEFAULT GETDATE()                                       |
+
+### Periods
+
+Timetable period slots (e.g. Period 1, 08:00–08:45).
+
+| Header     | Type         | Constraints / Role            |
+| :--------- | :----------- | :---------------------------- |
+| **PeriodID** | INT        | **PK**, Identity(1,1)         |
+| PeriodName | VARCHAR(50)  | Nullable                      |
+| StartTime  | TIME(0)      | Nullable                      |
+| EndTime    | TIME(0)      | Nullable                      |
+
+### Timetables
+
+Scheduled teaching slots linking a day, period, course, and teacher. May reference either a class section or a course section.
+
+| Header            | Type         | Constraints / Role                                      |
+| :---------------- | :----------- | :------------------------------------------------------ |
+| **TimetableID**   | INT          | **PK**, Identity(1,1)                                   |
+| DayName           | VARCHAR(20)  | NOT NULL — e.g. `'Monday'`                              |
+| PeriodID          | INT          | **FK** → Periods.PeriodID, NOT NULL                     |
+| ClassSectionID    | INT          | **FK** → ClassSections.ClassSectionID — Nullable        |
+| CourseSectionID   | INT          | **FK** → CourseSections.CourseSectionID — Nullable      |
+| CourseID          | INT          | **FK** → Courses.CourseID, NOT NULL                     |
+| TeacherID         | INT          | **FK** → Teachers.TeacherID, NOT NULL                   |
+| RoomNo            | VARCHAR(50)  | Nullable                                                |
 
 ### StudentEnrollments
 

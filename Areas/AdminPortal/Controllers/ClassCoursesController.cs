@@ -19,15 +19,8 @@ public sealed class ClassCoursesController : StudentMgmtBaseController
 
     [HttpGet("")]
     [HttpGet("Index")]
-    public async Task<IActionResult> Index(string? search, CancellationToken cancellationToken = default)
-    {
-        ViewData["Title"] = "Class section courses";
-        ViewData["PageTitle"] = "Class Section Courses · All";
-        ViewData["Search"] = search;
-
-        var items = await _classCourses.ListAsync(search, cancellationToken);
-        return View(items);
-    }
+    public IActionResult Index(string? search, CancellationToken cancellationToken = default) =>
+        RedirectPermanent("/adminportal/students/students");
 
     [HttpGet("create")]
     public async Task<IActionResult> Create(CancellationToken cancellationToken)

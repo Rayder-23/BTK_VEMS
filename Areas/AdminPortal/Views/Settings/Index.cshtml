@@ -1,153 +1,32 @@
-@model IReadOnlyList<ConfigurationListItemViewModel>
 @{
     ViewData["Title"] = "Dashboard";
     ViewData["PageTitle"] = "Settings · Dashboard";
-    var message = TempData["StatusMessage"] as string;
-    var error = TempData["ErrorMessage"] as string;
 }
 
 <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-3">
     <div>
-        <h1 class="h4 fw-bold mb-1">Configurations</h1>
-        <p class="text-muted mb-0">Manage <code>dbo.Configurations</code> system keys and values.</p>
+        <h1 class="h4 fw-bold mb-1">Settings dashboard</h1>
+        <p class="text-muted mb-0">Manage academic structure, links, timetable data, and system configuration keys.</p>
     </div>
-    <a class="btn btn-primary rounded-pill px-4" asp-action="Create">
-        <i class="bi bi-plus-lg me-2"></i>Add configuration
-    </a>
 </div>
 
-@if (!string.IsNullOrEmpty(error))
-{
-    <div class="alert alert-warning mb-3" role="alert">@error</div>
-}
-
-@if (!string.IsNullOrEmpty(message))
-{
-    <div class="alert alert-success mb-3" role="alert">@message</div>
-}
-
 <section class="portal-card">
-    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
-        <div>
-            <h2 class="h5 fw-bold mb-1">Configuration keys</h2>
-            <p class="text-muted mb-0">@Model.Count row(s).</p>
+    <h2 class="h5 fw-bold mb-3">Quick links</h2>
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-4">
+            <a class="btn btn-outline-primary w-100" href="/adminportal/settings/configurations">
+                <i class="bi bi-sliders me-2"></i>Configurations
+            </a>
         </div>
-        <div class="ms-md-auto" style="max-width: 420px;">
-            <label for="configSearch" class="visually-hidden">Search configurations</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input id="configSearch"
-                       type="search"
-                       class="form-control"
-                       placeholder="Search by key, value, description…"
-                       autocomplete="off" />
-                <button id="configSearchClear" class="btn btn-outline-secondary" type="button">Clear</button>
-            </div>
-            <div class="form-text" id="configSearchCount"></div>
+        <div class="col-md-6 col-lg-4">
+            <a class="btn btn-outline-primary w-100" href="/adminportal/settings/academic-years">
+                <i class="bi bi-calendar3 me-2"></i>Academic years
+            </a>
         </div>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table admin-table align-middle">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Key</th>
-                    <th scope="col">Value (preview)</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Active</th>
-                    <th scope="col">Updated (UTC)</th>
-                    <th scope="col" class="text-end">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            @if (Model.Count == 0)
-            {
-                <tr>
-                    <td colspan="7" class="text-muted py-4 text-center">No configuration rows. Add one to get started.</td>
-                </tr>
-            }
-            @foreach (var c in Model)
-            {
-                <tr>
-                    <td>@c.Uid</td>
-                    <td><code>@c.ConfigKey</code></td>
-                    <td class="text-break"><small>@c.ConfigValuesPreview</small></td>
-                    <td>@(c.Description ?? "—")</td>
-                    <td>
-                        <form asp-action="SetActive" asp-route-id="@c.Uid" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="isActive" value="@(c.IsActive ? "true" : "false")" />
-                            <div class="form-check form-switch m-0">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       role="switch"
-                                       @(c.IsActive ? "checked" : "")
-                                       aria-label="Toggle active"
-                                       onchange="this.form.querySelector('input[name=isActive]').value = this.checked; this.form.submit();" />
-                            </div>
-                        </form>
-                    </td>
-                    <td><small>@c.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</small></td>
-                    <td class="text-end">
-                        <div class="d-inline-flex flex-wrap justify-content-end gap-1">
-                            <a class="btn btn-outline-success btn-sm" asp-action="Edit" asp-route-id="@c.Uid"><i class="bi bi-pencil"></i> Edit</a>
-                            <form asp-action="Delete" asp-route-id="@c.Uid" method="post" class="d-inline"
-                                  onsubmit="return confirm('Delete this configuration row?');">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        <div class="col-md-6 col-lg-4">
+            <a class="btn btn-outline-primary w-100" href="/adminportal/settings/timetables">
+                <i class="bi bi-calendar-week me-2"></i>Timetable
+            </a>
+        </div>
     </div>
 </section>
-
-@section Scripts {
-    <script>
-        (function () {
-            const input = document.getElementById('configSearch');
-            const clearBtn = document.getElementById('configSearchClear');
-            const countEl = document.getElementById('configSearchCount');
-            const tbody = document.querySelector('table.admin-table tbody');
-            if (!input || !clearBtn || !countEl || !tbody) return;
-
-            const rows = Array.from(tbody.querySelectorAll('tr'))
-                .filter(tr => tr.querySelector('td')); // ignore "no rows" row
-
-            function normalize(s) {
-                return (s || '').toString().trim().toLowerCase();
-            }
-
-            function update() {
-                const q = normalize(input.value);
-                let visible = 0;
-
-                for (const tr of rows) {
-                    const text = normalize(tr.innerText);
-                    const show = q.length === 0 || text.includes(q);
-                    tr.style.display = show ? '' : 'none';
-                    if (show) visible++;
-                }
-
-                if (q.length === 0) {
-                    countEl.textContent = '';
-                } else {
-                    countEl.textContent = `${visible} match(es)`;
-                }
-            }
-
-            input.addEventListener('input', update);
-            clearBtn.addEventListener('click', function () {
-                input.value = '';
-                input.focus();
-                update();
-            });
-
-            update();
-        })();
-    </script>
-}

@@ -1,0 +1,61 @@
+@model TimetableFormPageViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="Form.TimetableId" />
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <label asp-for="Form.DayName" class="form-label"></label>
+        <select asp-for="Form.DayName" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.DaysOfWeek))">
+            <option value="">— Select day —</option>
+        </select>
+        <span asp-validation-for="Form.DayName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.PeriodId" class="form-label"></label>
+        <select asp-for="Form.PeriodId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Periods, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select period —</option>
+        </select>
+        <span asp-validation-for="Form.PeriodId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.CourseId" class="form-label"></label>
+        <select asp-for="Form.CourseId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Courses, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select course —</option>
+        </select>
+        <span asp-validation-for="Form.CourseId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Form.TeacherId" class="form-label"></label>
+        <select asp-for="Form.TeacherId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.Teachers, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— Select teacher —</option>
+        </select>
+        <span asp-validation-for="Form.TeacherId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.ClassSectionId" class="form-label"></label>
+        <select asp-for="Form.ClassSectionId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.ClassSections, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— None —</option>
+        </select>
+        <span asp-validation-for="Form.ClassSectionId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Form.CourseSectionId" class="form-label"></label>
+        <select asp-for="Form.CourseSectionId" class="form-select"
+                asp-items="@(new SelectList(Model.Lookups.CourseSections, nameof(StudentLookupItem.Id), nameof(StudentLookupItem.Name)))">
+            <option value="">— None —</option>
+        </select>
+        <span asp-validation-for="Form.CourseSectionId" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Form.RoomNo" class="form-label"></label>
+        <input asp-for="Form.RoomNo" class="form-control" maxlength="50" />
+        <span asp-validation-for="Form.RoomNo" class="text-danger small"></span>
+    </div>
+</div>

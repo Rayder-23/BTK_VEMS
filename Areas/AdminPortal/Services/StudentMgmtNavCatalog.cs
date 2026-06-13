@@ -23,20 +23,6 @@ public static class StudentMgmtNavCatalog
     [
         new()
         {
-            Key = "settings",
-            Name = "Settings",
-            IconClass = "fa-gear",
-            DefaultUrl = "/adminportal/students/class-courses",
-            Links =
-            [
-                new() { Key = "class-courses", Name = "Link-Class-Courses", Url = "/adminportal/students/class-courses", IconClass = "fa-layer-group" },
-                new() { Key = "program-enrollments", Name = "Program Enrollment", Url = "/adminportal/students/program-enrollments", IconClass = "fa-id-card" },
-                new() { Key = "course-enrollments", Name = "Course Enrolment", Url = "/adminportal/students/course-enrollments", IconClass = "fa-user-check" },
-                new() { Key = "login", Name = "Create Login", Url = "/adminportal/students/login", IconClass = "fa-key" }
-            ]
-        },
-        new()
-        {
             Key = "fee",
             Name = "Fee",
             IconClass = "fa-coins",
@@ -57,16 +43,14 @@ public static class StudentMgmtNavCatalog
             [
                 new() { Key = "students", Name = "Students", Url = "/adminportal/students/students", IconClass = "fa-users" },
                 new() { Key = "student-enrollments", Name = "Link_StudentEnrollments", Url = "/adminportal/students/student-enrollments", IconClass = "fa-link" },
+                new() { Key = "login", Name = "Create Login", Url = "/adminportal/students/login", IconClass = "fa-key" },
                 new() { Key = "attendance", Name = "Attendance", Url = "/adminportal/students/attendance", IconClass = "fa-calendar-check" },
                 new() { Key = "results", Name = "Results", Url = "/adminportal/students/results", IconClass = "fa-clipboard-list" }
             ]
         }
     ];
 
-    public static IReadOnlyList<StudentMgmtNavItem> SidebarPlaceholderNav { get; } =
-    [
-        new() { Key = "placeholder-1", Name = "", Url = "#", IconClass = "" }
-    ];
+    public static IReadOnlyList<StudentMgmtNavItem> SidebarPlaceholderNav { get; } = [];
 
     public static IReadOnlyList<StudentMgmtNavItem> SidebarNav { get; } =
     [
@@ -133,11 +117,6 @@ public static class StudentMgmtNavCatalog
         if (path.Contains("/login", StringComparison.Ordinal))
         {
             return "login";
-        }
-
-        if (path.Contains("/class-courses", StringComparison.Ordinal))
-        {
-            return "class-courses";
         }
 
         if (path.Contains("/course-enrollments", StringComparison.Ordinal))

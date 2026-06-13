@@ -1,0 +1,27 @@
+@model PeriodFormModel
+@{
+    string FormatTime(TimeSpan? value) =>
+        value.HasValue ? value.Value.ToString(@"hh\:mm") : string.Empty;
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<input type="hidden" asp-for="PeriodId" />
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="PeriodName" class="form-label"></label>
+        <input asp-for="PeriodName" class="form-control" maxlength="50" />
+        <span asp-validation-for="PeriodName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="StartTime" class="form-label"></label>
+        <input name="StartTime" class="form-control" type="time" value="@FormatTime(Model.StartTime)" />
+        <span asp-validation-for="StartTime" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="EndTime" class="form-label"></label>
+        <input name="EndTime" class="form-control" type="time" value="@FormatTime(Model.EndTime)" />
+        <span asp-validation-for="EndTime" class="text-danger small"></span>
+    </div>
+</div>

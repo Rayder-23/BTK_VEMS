@@ -23,15 +23,6 @@
             </ul>
         }
 
-        <ul class="nav flex-column gap-1 fee-erp-nav-list student-mgmt-placeholder-nav @(activeModule is not null ? "mt-1" : "")">
-            @foreach (var item in StudentMgmtNavCatalog.SidebarPlaceholderNav)
-            {
-                <li class="nav-item">
-                    <a class="fee-erp-nav-link student-mgmt-nav-blank" href="@item.Url" aria-hidden="true" tabindex="-1">&nbsp;</a>
-                </li>
-            }
-        </ul>
-
         <ul class="nav flex-column gap-1 fee-erp-nav-list student-mgmt-main-nav mt-1">
             @foreach (var item in StudentMgmtNavCatalog.SidebarNav)
             {
