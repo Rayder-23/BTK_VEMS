@@ -4,27 +4,27 @@
 
 <input type="hidden" asp-for="Form.ClassId" />
 
-<div class="student-mgmt-admin-form-grid">
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassName"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+<div class="student-mgmt-admin-form-grid class-form-grid">
+    <div class="row class-form-row align-items-center">
+        <label class="col-12 col-sm-4 col-lg-2 class-form-label" asp-for="Form.ClassName"></label>
+        <div class="col-12 col-sm-8 col-lg-4 class-form-field">
             <input asp-for="Form.ClassName" class="form-control form-control-sm" maxlength="100" />
             <span asp-validation-for="Form.ClassName" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.ClassCode"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+        <label class="col-12 col-sm-4 col-lg-2 class-form-label class-form-label--pair-start" asp-for="Form.ClassCode"></label>
+        <div class="col-12 col-sm-8 col-lg-4 class-form-field">
             <input asp-for="Form.ClassCode" class="form-control form-control-sm" maxlength="20" />
             <span asp-validation-for="Form.ClassCode" class="text-danger small"></span>
         </div>
     </div>
-    <div class="row student-mgmt-admin-form-row g-1 align-items-center">
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.SortOrder"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+    <div class="row class-form-row align-items-center">
+        <label class="col-12 col-sm-4 col-lg-2 class-form-label" asp-for="Form.SortOrder"></label>
+        <div class="col-12 col-sm-8 col-lg-4 class-form-field">
             <input asp-for="Form.SortOrder" class="form-control form-control-sm" type="number" />
             <span asp-validation-for="Form.SortOrder" class="text-danger small"></span>
         </div>
-        <label class="col-6 col-lg-3 student-mgmt-admin-form-label" asp-for="Form.IsActive"></label>
-        <div class="col-6 col-lg-3 student-mgmt-admin-form-field">
+        <label class="col-12 col-sm-4 col-lg-2 class-form-label class-form-label--pair-start" asp-for="Form.IsActive"></label>
+        <div class="col-12 col-sm-8 col-lg-4 class-form-field">
             <div class="form-check mb-0">
                 <input asp-for="Form.IsActive" class="form-check-input" />
                 <label asp-for="Form.IsActive" class="form-check-label"></label>

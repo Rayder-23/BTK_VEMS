@@ -1,12 +1,45 @@
-<header class="fee-erp-module-topbar fee-mgmt-module-topbar" aria-label="Fee management module">
-    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center justify-content-between gap-3">
-        <a href="/adminportal/fee" class="fee-mgmt-module-topbar__brand text-decoration-none d-flex align-items-center gap-2">
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeKey = FeeMgmtNavCatalog.ResolveActiveKey(path, action);
+    var isDashboardActive = string.Equals(activeKey, "dashboard", StringComparison.OrdinalIgnoreCase);
+}
+<header class="fee-erp-module-topbar fee-mgmt-module-topbar portal-navbar-primary" aria-label="Fee management module">
+    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center gap-2 gap-lg-3">
+        <button class="btn btn-outline-light btn-sm d-lg-none flex-shrink-0 fee-mgmt-menu-btn portal-menu-btn" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
+                aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <a href="/adminportal/fee"
+           class="fee-mgmt-module-topbar__brand portal-module-link @(isDashboardActive ? "active" : "") text-decoration-none d-inline-flex align-items-center gap-2 flex-shrink-0"
+           aria-label="Fee Management home"
+           title="Dashboard">
             <span class="fee-mgmt-module-topbar__logo rounded-2 d-inline-flex align-items-center justify-content-center">
                 <i class="fa-solid fa-wallet" aria-hidden="true"></i>
             </span>
             <span class="fee-mgmt-module-topbar__title fw-semibold">Fee Management</span>
         </a>
-        <a class="fee-mgmt-module-topbar__link small text-decoration-none" href="/adminportal">
+
+        <nav class="fee-mgmt-module-nav portal-module-nav flex-grow-1" aria-label="Fee module navigation">
+            @foreach (var item in FeeMgmtNavCatalog.SidebarNav)
+            {
+                if (string.Equals(item.Key, "dashboard", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var isActive = string.Equals(item.Key, activeKey, StringComparison.OrdinalIgnoreCase);
+                <a class="portal-module-link @(isActive ? "active" : "")" href="@item.Url" title="@item.Name">
+                    <i class="fa-solid @item.IconClass" aria-hidden="true"></i>
+                    <span>@item.Name</span>
+                </a>
+            }
+        </nav>
+
+        <a class="fee-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal
         </a>
     </div>

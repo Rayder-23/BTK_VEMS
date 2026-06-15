@@ -1,0 +1,44 @@
+@model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureDetailEditPageModel
+@{
+    ViewData["Title"] = "Edit Fee Head";
+    var s = Model.Structure;
+    var structureMeta = s.ProgramName
+        + (string.IsNullOrWhiteSpace(s.ClassName) ? "" : $" · {s.ClassName}")
+        + $" · {s.Semester} · {s.AcademicYear}";
+}
+
+<section class="portal-card page-summary-compact mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/adminportal/fee/fee-structures">Structures</a></li>
+            <li class="breadcrumb-item"><a href="/adminportal/fee/fee-structures/details/@s.Uid">@s.StructureName</a></li>
+            <li class="breadcrumb-item active">Edit line</li>
+        </ol>
+    </nav>
+    <div class="page-summary-head">
+        <span class="page-summary-title">@s.StructureName — @structureMeta</span>
+    </div>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-3">
+    <h2 class="h6 fw-bold mb-3">Update fee head</h2>
+    <form method="post" asp-route-structureId="@s.Uid" asp-route-detailId="@Model.Line.Uid" id="feeStructureDetailEditForm">
+        @Html.AntiForgeryToken()
+        @{
+            ViewData["FeeHeads"] = Model.FeeHeads;
+            ViewData["DefaultApplicableYear"] = s.AcademicYear;
+        }
+        <partial name="_FeeStructureDetailLineForm" model="Model.Line" />
+    </form>
+    <div class="mt-3 d-flex flex-wrap gap-2">
+        <button type="submit" form="feeStructureDetailEditForm" class="btn btn-sm btn-primary">Update line</button>
+        <a class="btn btn-sm btn-outline-secondary" href="/adminportal/fee/fee-structures/details/@s.Uid">Cancel</a>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_FeeStructureDetailLineScripts" />
+}

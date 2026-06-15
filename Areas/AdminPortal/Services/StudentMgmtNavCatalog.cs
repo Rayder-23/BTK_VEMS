@@ -124,11 +124,6 @@ public static class StudentMgmtNavCatalog
             return "course-enrollments";
         }
 
-        if (path.Contains("/programs", StringComparison.Ordinal))
-        {
-            return "programs";
-        }
-
         if (path.Contains("/attendance", StringComparison.Ordinal))
         {
             return "attendance";

@@ -19,9 +19,10 @@
 }
 else
 {
-    <div class="portal-card challan-summary-compact mb-3">
-        <div class="challan-summary-head">
+    <div class="portal-card student-challan-record">
+        <div class="challan-summary-head mb-3">
             <div class="challan-summary-title">
+                <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Fee challan</span>
                 <span class="challan-summary-no">@challan.ChallanNo</span>
                 <span class="challan-summary-meta">
                     @challan.Semester · @challan.AcademicYear
@@ -29,9 +30,32 @@ else
                     · Due @challan.DueDate.ToString("dd MMM yyyy")
                 </span>
             </div>
-            <span class="badge rounded-pill text-bg-primary challan-summary-status">@challan.DisplayStatus</span>
+            <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
+                <span class="badge rounded-pill text-bg-primary challan-summary-status">@challan.DisplayStatus</span>
+                <a asp-action="PrintChallan" asp-route-id="@challan.Uid" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="bi bi-printer me-1"></i>Print challan
+                </a>
+            </div>
         </div>
-        <div class="challan-summary-metrics">
+
+        <dl class="row row-cols-1 row-cols-sm-2 g-2 mb-3 small">
+            @if (!string.IsNullOrWhiteSpace(Model.StudentName))
+            {
+                <div class="col">
+                    <dt class="text-muted mb-0">Student</dt>
+                    <dd class="portal-grid-data mb-0">@Model.StudentName</dd>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.RegistrationNo))
+            {
+                <div class="col">
+                    <dt class="text-muted mb-0">Registration</dt>
+                    <dd class="portal-grid-data mb-0">@Model.RegistrationNo</dd>
+                </div>
+            }
+        </dl>
+
+        <div class="challan-summary-metrics mb-3">
             <div class="challan-summary-metric">
                 <span class="challan-summary-label">Net payable</span>
                 <span class="challan-summary-value">@challan.NetPayable.ToString("N2")</span>
@@ -45,18 +69,15 @@ else
                 <span class="challan-summary-value">@challan.Balance.ToString("N2")</span>
             </div>
         </div>
-    </div>
 
-    <div class="portal-card">
-        <h2 class="h5 fw-bold mb-3">Fee breakdown</h2>
         @if (Model.Lines.Count == 0)
         {
-            <p class="text-muted mb-0">No line items found for this challan.</p>
+            <p class="text-muted mb-0 small">No line items found for this challan.</p>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0">
+            <div class="table-responsive border-top pt-3">
+                <table class="table table-sm portal-data-grid align-middle mb-0">
                     <thead>
                         <tr>
                             <th>Fee head</th>
@@ -70,11 +91,11 @@ else
                         @foreach (var line in Model.Lines)
                         {
                             <tr>
-                                <td>@line.FeeHeadName</td>
-                                <td class="text-end">@line.Amount.ToString("N2")</td>
-                                <td class="text-end">@line.DiscountAmount.ToString("N2")</td>
-                                <td class="text-end">@line.LateFine.ToString("N2")</td>
-                                <td class="text-end fw-semibold">@line.NetAmount.ToString("N2")</td>
+                                <td class="portal-grid-data">@line.FeeHeadName</td>
+                                <td class="portal-grid-data text-end">@line.Amount.ToString("N2")</td>
+                                <td class="portal-grid-data text-end">@line.DiscountAmount.ToString("N2")</td>
+                                <td class="portal-grid-data text-end">@line.LateFine.ToString("N2")</td>
+                                <td class="portal-grid-data text-end fw-semibold">@line.NetAmount.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>

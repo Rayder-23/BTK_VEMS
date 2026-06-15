@@ -19,7 +19,7 @@
     else
     {
         <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0">
+            <table class="table table-sm portal-data-grid align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Challan no.</th>
@@ -37,14 +37,14 @@
                     @foreach (var challan in Model.Challans)
                     {
                         <tr>
-                            <td class="fw-semibold">@challan.ChallanNo</td>
-                            <td>@challan.Semester</td>
-                            <td>@challan.AcademicYear</td>
-                            <td>@challan.IssueDate.ToString("dd MMM yyyy")</td>
-                            <td>@challan.DueDate.ToString("dd MMM yyyy")</td>
-                            <td class="text-end">@challan.NetPayable.ToString("N2")</td>
-                            <td class="text-end">@challan.AmountPaid.ToString("N2")</td>
-                            <td class="text-end">@challan.Balance.ToString("N2")</td>
+                            <td class="portal-grid-data fw-semibold">@challan.ChallanNo</td>
+                            <td class="portal-grid-data">@challan.Semester</td>
+                            <td class="portal-grid-data">@challan.AcademicYear</td>
+                            <td class="portal-grid-data">@challan.IssueDate.ToString("dd MMM yyyy")</td>
+                            <td class="portal-grid-data">@challan.DueDate.ToString("dd MMM yyyy")</td>
+                            <td class="portal-grid-data text-end">@challan.NetPayable.ToString("N2")</td>
+                            <td class="portal-grid-data text-end">@challan.AmountPaid.ToString("N2")</td>
+                            <td class="portal-grid-data text-end">@challan.Balance.ToString("N2")</td>
                             <td><span class="badge text-bg-light border">@challan.DisplayStatus</span></td>
                         </tr>
                     }

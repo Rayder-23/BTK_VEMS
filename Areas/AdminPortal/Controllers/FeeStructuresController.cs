@@ -19,12 +19,14 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
 
     [HttpGet("")]
     [HttpGet("Index")]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int? programId, CancellationToken cancellationToken)
     {
         ViewData["Title"] = "Fee Structures";
         ViewData["PageTitle"] = "Fee Structures";
         ViewData["FeeMgmtModuleKey"] = "FeeStructures";
-        return View(await _structures.ListAsync(cancellationToken));
+        ViewData["ProgramId"] = programId;
+        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        return View(await _structures.ListAsync(programId, cancellationToken));
     }
 
     [HttpGet("create")]
@@ -108,16 +110,16 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         }
 
         TempData["StatusMessage"] = "Fee structure updated.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { programId = model.ProgramId });
     }
 
     [HttpPost("deactivate/{id:int}")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Deactivate(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Deactivate(int id, int? programId, CancellationToken cancellationToken)
     {
         var ok = await _structures.DeactivateAsync(id, ResolveStaffLoginUid(), cancellationToken);
         TempData["StatusMessage"] = ok ? "Fee structure deactivated." : "Structure not found.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { programId });
     }
 
     [HttpGet("details/{id:int}")]
@@ -133,7 +135,98 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         ViewData["PageTitle"] = $"Structure · {page.Structure.StructureName}";
         ViewData["FeeMgmtModuleKey"] = "FeeStructures";
         ViewData["FeeHeads"] = await _lookups.GetActiveFeeHeadsAsync(cancellationToken);
+        page.NewLine.StructureId = id;
+        page.NewLine.ApplicableYear ??= page.Structure.AcademicYear;
         return View(page);
+    }
+
+    [HttpGet("details/{structureId:int}/edit-line/{detailId:int}")]
+    public async Task<IActionResult> EditDetail(int structureId, int detailId, CancellationToken cancellationToken)
+    {
+        var line = await _structures.GetDetailAsync(detailId, cancellationToken);
+        if (line is null || line.StructureId != structureId)
+        {
+            return NotFound();
+        }
+
+        var structures = await _structures.ListAsync(cancellationToken: cancellationToken);
+        var structure = structures.FirstOrDefault(s => s.Uid == structureId);
+        if (structure is null)
+        {
+            return NotFound();
+        }
+
+        ViewData["Title"] = "Edit Fee Head";
+        ViewData["PageTitle"] = $"Structure · {structure.StructureName} · Edit line";
+        ViewData["FeeMgmtModuleKey"] = "FeeStructures";
+
+        return View(new FeeStructureDetailEditPageModel
+        {
+            Structure = structure,
+            Line = line,
+            FeeHeads = await _lookups.GetActiveFeeHeadsAsync(cancellationToken)
+        });
+    }
+
+    [HttpPost("details/{structureId:int}/edit-line/{detailId:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditDetail(int structureId, int detailId, FeeStructureDetailFormModel model, CancellationToken cancellationToken)
+    {
+        model.Uid = detailId;
+        model.StructureId = structureId;
+
+        if (!ModelState.IsValid || !ValidateDetailLine(model))
+        {
+            var structures = await _structures.ListAsync(cancellationToken: cancellationToken);
+            var structure = structures.FirstOrDefault(s => s.Uid == structureId);
+            if (structure is null)
+            {
+                return NotFound();
+            }
+
+            ViewData["Title"] = "Edit Fee Head";
+            ViewData["PageTitle"] = $"Structure · {structure.StructureName} · Edit line";
+            ViewData["FeeMgmtModuleKey"] = "FeeStructures";
+
+            return View(new FeeStructureDetailEditPageModel
+            {
+                Structure = structure,
+                Line = model,
+                FeeHeads = await _lookups.GetActiveFeeHeadsAsync(cancellationToken)
+            });
+        }
+
+        if (await _structures.DetailExistsAsync(structureId, model.FeeHeadId, detailId, cancellationToken))
+        {
+            ModelState.AddModelError(nameof(model.FeeHeadId), "This fee head is already on the structure.");
+
+            var structures = await _structures.ListAsync(cancellationToken: cancellationToken);
+            var structure = structures.FirstOrDefault(s => s.Uid == structureId);
+            if (structure is null)
+            {
+                return NotFound();
+            }
+
+            ViewData["Title"] = "Edit Fee Head";
+            ViewData["PageTitle"] = $"Structure · {structure.StructureName} · Edit line";
+            ViewData["FeeMgmtModuleKey"] = "FeeStructures";
+
+            return View(new FeeStructureDetailEditPageModel
+            {
+                Structure = structure,
+                Line = model,
+                FeeHeads = await _lookups.GetActiveFeeHeadsAsync(cancellationToken)
+            });
+        }
+
+        var ok = await _structures.UpdateDetailAsync(model, ResolveStaffLoginUid(), cancellationToken);
+        if (!ok)
+        {
+            return NotFound();
+        }
+
+        TempData["StatusMessage"] = "Line item updated.";
+        return RedirectToAction(nameof(Details), new { id = structureId });
     }
 
     [HttpPost("details/{id:int}/add-line")]
@@ -144,6 +237,13 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         if (!ModelState.IsValid)
         {
             TempData["ErrorMessage"] = "Invalid line item. Check fee head and amount.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        if (!ValidateDetailLine(model))
+        {
+            TempData["ErrorMessage"] = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage
+                ?? "Invalid billing frequency settings.";
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -219,6 +319,40 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         }
 
         model.ClassId = normalizedClassId;
+        return true;
+    }
+
+    private bool ValidateDetailLine(FeeStructureDetailFormModel model)
+    {
+        var frequency = model.Frequency?.Trim() ?? string.Empty;
+        if (!string.Equals(frequency, "Monthly", StringComparison.Ordinal)
+            && !string.Equals(frequency, "OneTime", StringComparison.Ordinal))
+        {
+            ModelState.AddModelError(nameof(model.Frequency), "Frequency must be Monthly or OneTime.");
+            return false;
+        }
+
+        model.Frequency = frequency;
+
+        if (string.Equals(frequency, "Monthly", StringComparison.Ordinal))
+        {
+            model.ApplicableMonth = null;
+            model.ApplicableYear = null;
+            return true;
+        }
+
+        if (!model.ApplicableMonth.HasValue || model.ApplicableMonth is < 1 or > 12)
+        {
+            ModelState.AddModelError(nameof(model.ApplicableMonth), "Select a valid month (1–12) for one-time fees.");
+            return false;
+        }
+
+        if (!model.ApplicableYear.HasValue)
+        {
+            ModelState.AddModelError(nameof(model.ApplicableYear), "Applicable year is required for one-time fees.");
+            return false;
+        }
+
         return true;
     }
 }

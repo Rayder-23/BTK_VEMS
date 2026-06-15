@@ -109,6 +109,9 @@ public sealed class FeeStructureDetailLine
     public string FeeHeadCode { get; init; } = string.Empty;
     public string FeeHeadName { get; init; } = string.Empty;
     public decimal Amount { get; init; }
+    public string Frequency { get; init; } = "Monthly";
+    public byte? ApplicableMonth { get; init; }
+    public short? ApplicableYear { get; init; }
     public DateOnly? DueDate { get; init; }
     public decimal LateFinePerDay { get; init; }
     public decimal MaxLateFine { get; init; }
@@ -126,6 +129,16 @@ public sealed class FeeStructureDetailFormModel
     [Range(0, double.MaxValue)]
     public decimal Amount { get; set; }
 
+    [Display(Name = "Frequency")]
+    public string Frequency { get; set; } = "Monthly";
+
+    [Display(Name = "Applicable month")]
+    [Range(1, 12)]
+    public byte? ApplicableMonth { get; set; }
+
+    [Display(Name = "Applicable year")]
+    public short? ApplicableYear { get; set; }
+
     [DataType(DataType.Date)]
     public DateOnly? DueDate { get; set; }
 
@@ -141,6 +154,13 @@ public sealed class FeeStructureDetailsPageModel
     public FeeStructureListItem Structure { get; init; } = new();
     public IReadOnlyList<FeeStructureDetailLine> Lines { get; init; } = [];
     public FeeStructureDetailFormModel NewLine { get; set; } = new();
+    public IReadOnlyList<FeeLookupItem> FeeHeads { get; init; } = [];
+}
+
+public sealed class FeeStructureDetailEditPageModel
+{
+    public FeeStructureListItem Structure { get; init; } = new();
+    public FeeStructureDetailFormModel Line { get; set; } = new();
     public IReadOnlyList<FeeLookupItem> FeeHeads { get; init; } = [];
 }
 

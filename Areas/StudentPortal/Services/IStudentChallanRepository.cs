@@ -6,5 +6,7 @@ public interface IStudentChallanRepository
 {
     Task<StudentChallanPageModel> GetCurrentMonthChallanAsync(int studentUid, CancellationToken cancellationToken = default);
 
+    Task<StudentChallanPageModel?> GetChallanForStudentAsync(int studentUid, int challanUid, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<StudentChallanSummary>> ListChallanHistoryAsync(int studentUid, CancellationToken cancellationToken = default);
 }

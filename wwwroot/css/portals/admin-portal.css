@@ -860,3 +860,67 @@ body.fee-erp-sidebar-collapsed .portal-sidebar-toggle__chevron {
         border-radius: .5rem !important;
     }
 }
+
+/* Fee structure create/edit — label | field | label | field with gap before col 3 */
+.fee-structure-form-grid .fee-structure-form-row {
+    margin-bottom: 0.85rem;
+    --bs-gutter-x: 0;
+}
+
+.fee-structure-form-grid .fee-structure-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.fee-structure-form-grid .fee-structure-form-label {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #334155;
+    margin-bottom: 0;
+    padding-right: 0.15rem;
+    padding-left: 0;
+    line-height: 1.25;
+}
+
+.fee-structure-form-grid .fee-structure-form-field {
+    padding-left: 0.15rem;
+    padding-right: 0;
+}
+
+.fee-structure-form-grid .fee-structure-form-field .form-control-sm,
+.fee-structure-form-grid .fee-structure-form-field .form-select-sm,
+.fee-structure-form-grid .fee-structure-form-field .form-check-label {
+    font-size: 0.8125rem;
+}
+
+.fee-structure-form-grid .fee-structure-form-field .form-control-sm,
+.fee-structure-form-grid .fee-structure-form-field .form-select-sm {
+    min-height: calc(1.4em + 0.4rem + 2px);
+}
+
+.fee-structure-form-grid .fee-structure-form-field .form-text {
+    font-size: 0.72rem;
+    margin-top: 0.1rem;
+}
+
+.fee-structure-form-grid .fee-structure-form-field .text-danger.small {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    line-height: 1.15;
+}
+
+@media (min-width: 576px) {
+    .fee-structure-form-grid .fee-structure-form-label {
+        padding-right: 0.2rem;
+    }
+
+    .fee-structure-form-grid .fee-structure-form-field {
+        padding-left: 0.2rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .fee-structure-form-grid .fee-structure-form-label--pair-start {
+        padding-left: 1.25rem;
+    }
+}

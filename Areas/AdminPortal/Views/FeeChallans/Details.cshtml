@@ -2,100 +2,120 @@
 @{
     var h = Model.Header;
     ViewData["Title"] = $"Challan {h.ChallanNo}";
+    var summaryTitle = $"{h.ChallanNo} - {h.StudentName} ({h.RegistrationNo}) · {h.Semester} · {h.AcademicYear} · Due {h.DueDate:yyyy-MM-dd}";
+    var summaryMeta = $"Net {h.NetPayable:N2} · Paid {h.AmountPaid:N2} · Balance {(h.NetPayable - h.AmountPaid):N2} · {h.DisplayStatus}";
 }
 
-<partial name="_FeeAlerts" />
-
-<section class="portal-card challan-summary-compact challan-summary-compact--admin mb-3">
-    <div class="challan-summary-head">
-        <div class="challan-summary-title">
-            <span class="challan-summary-no">@h.ChallanNo</span>
-            <span class="challan-summary-meta">
-                @h.StudentName (@h.RegistrationNo) · Due @h.DueDate.ToString("yyyy-MM-dd")
-            </span>
+<section class="portal-card page-summary-compact mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/adminportal/fee/challans">Challans</a></li>
+            <li class="breadcrumb-item active">@h.ChallanNo</li>
+        </ol>
+    </nav>
+    <div class="page-summary-head">
+        <div class="page-summary-title-block">
+            <span class="page-summary-title">@summaryTitle</span>
+            <span class="page-summary-meta">@summaryMeta</span>
         </div>
         <a class="btn btn-sm btn-outline-primary rounded-pill no-print flex-shrink-0" href="/adminportal/fee/challans/print/@h.Uid" target="_blank" rel="noopener">Print voucher</a>
     </div>
-    <div class="challan-summary-metrics challan-summary-metrics--4">
-        <div class="challan-summary-metric">
-            <span class="challan-summary-label">Net payable</span>
-            <span class="challan-summary-value">@h.NetPayable.ToString("N2")</span>
-        </div>
-        <div class="challan-summary-metric">
-            <span class="challan-summary-label">Paid</span>
-            <span class="challan-summary-value">@h.AmountPaid.ToString("N2")</span>
-        </div>
-        <div class="challan-summary-metric">
-            <span class="challan-summary-label">Balance</span>
-            <span class="challan-summary-value">@((h.NetPayable - h.AmountPaid).ToString("N2"))</span>
-        </div>
-        <div class="challan-summary-metric">
-            <span class="challan-summary-label">Status</span>
-            <span class="challan-summary-value">@h.DisplayStatus</span>
-        </div>
-    </div>
 </section>
 
+<partial name="_FeeAlerts" />
+
 <section class="portal-card mt-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h5 fw-bold mb-0">Fee breakdown</h2>
-        <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <h2 class="h6 fw-bold mb-0">Fee breakdown</h2>
+        <div class="d-flex flex-wrap gap-2">
             @if (h.DisplayStatus is not ("Paid" or "Cancelled"))
             {
                 <a class="btn btn-sm btn-success" href="/adminportal/fee/payments/create?challanId=@h.Uid">Record payment</a>
-                <form method="post" action="/adminportal/fee/challans/cancel/@h.Uid" onsubmit="return confirm('Cancel this challan?');">
+                <form method="post" action="/adminportal/fee/challans/cancel/@h.Uid" class="d-inline" onsubmit="return confirm('Cancel this challan?');">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-sm btn-outline-danger">Cancel challan</button>
                 </form>
             }
             @if (h.DisplayStatus == "Cancelled" && h.AmountPaid == 0 && Model.Payments.Count == 0)
             {
-                <form method="post" action="/adminportal/fee/challans/delete/@h.Uid" onsubmit="return confirm('Permanently delete this cancelled challan and its fee lines? This cannot be undone.');">
+                <form method="post" action="/adminportal/fee/challans/delete/@h.Uid" class="d-inline" onsubmit="return confirm('Permanently delete this cancelled challan and its fee lines? This cannot be undone.');">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-sm btn-danger">Delete challan</button>
                 </form>
             }
         </div>
     </div>
-    <table class="table admin-table">
-        <thead><tr><th>Fee head</th><th>Amount</th><th>Discount</th><th>Late fine</th><th>Net</th></tr></thead>
-        <tbody>
-        @foreach (var line in Model.Lines)
-        {
-            <tr>
-                <td>@line.FeeHeadName</td>
-                <td>@line.Amount.ToString("N2")</td>
-                <td>@line.DiscountAmount.ToString("N2")</td>
-                <td>@line.LateFine.ToString("N2")</td>
-                <td>@line.NetAmount.ToString("N2")</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-sm portal-data-grid align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Fee head</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Discount</th>
+                    <th class="text-end">Late fine</th>
+                    <th class="text-end">Net</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Lines.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No fee line items.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var line in Model.Lines)
+                {
+                    <tr>
+                        <td class="portal-grid-data">@line.FeeHeadName</td>
+                        <td class="portal-grid-data text-end">@line.Amount.ToString("N2")</td>
+                        <td class="portal-grid-data text-end">@line.DiscountAmount.ToString("N2")</td>
+                        <td class="portal-grid-data text-end">@line.LateFine.ToString("N2")</td>
+                        <td class="portal-grid-data text-end fw-semibold">@line.NetAmount.ToString("N2")</td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
 </section>
 
 @if (Model.Payments.Count > 0)
 {
-    <section class="portal-card mt-4">
-        <h2 class="h5 fw-bold">Payments</h2>
-        <table class="table admin-table mt-3">
-            <thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Receipt</th></tr></thead>
-            <tbody>
-            @foreach (var p in Model.Payments)
-            {
-                <tr>
-                    <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
-                    <td>@p.AmountPaid.ToString("N2")</td>
-                    <td>@p.PaymentMode</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(p.ReceiptNo))
-                        {
-                            <a href="/adminportal/fee/payment-receipts/print/@p.Uid">@p.ReceiptNo</a>
-                        }
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+    <section class="portal-card mt-3">
+        <h2 class="h6 fw-bold mb-2">Payments</h2>
+        <div class="table-responsive">
+            <table class="table table-sm portal-data-grid align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th class="text-end">Amount</th>
+                        <th>Mode</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var p in Model.Payments)
+                {
+                    <tr>
+                        <td class="portal-grid-data">@p.PaymentDate.ToString("yyyy-MM-dd")</td>
+                        <td class="portal-grid-data text-end">@p.AmountPaid.ToString("N2")</td>
+                        <td class="portal-grid-data">@p.PaymentMode</td>
+                        <td class="portal-grid-data">
+                            @if (!string.IsNullOrEmpty(p.ReceiptNo))
+                            {
+                                <a href="/adminportal/fee/payment-receipts/print/@p.Uid">@p.ReceiptNo</a>
+                            }
+                            else
+                            {
+                                <text>—</text>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     </section>
 }

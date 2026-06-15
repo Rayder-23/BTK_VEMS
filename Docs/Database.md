@@ -1,7 +1,7 @@
 # Database Schema Documentation: Virtual Education Management System
 
-- *VERSION: 3.3*
-- *UPDATED AT: 2026-06-13*
+- *VERSION: 3.4*
+- *UPDATED AT: 2026-06-15*
 
 ### Project-Wide Rules:-
 1. **Uid Mandate:** The primary key of every table is `Uid` (except `StudentContacts`, which uses `ContactID` as PK and also carries a separate `Uid` column).
@@ -499,6 +499,9 @@ Line items within a fee structure — one row per fee head.
 | StructureID    | INT           | **FK** → FeeStructures.Uid, NOT NULL                        |
 | FeeHeadID      | SMALLINT      | **FK** → ref_FeeHeads.Uid, NOT NULL                         |
 | Amount         | DECIMAL(10,2) | NOT NULL — Base fee amount                                    |
+| Frequency      | VARCHAR(20)   | NOT NULL — `Monthly` or `OneTime`                             |
+| ApplicableMonth| TINYINT       | Nullable — Required for `OneTime` (1–12); NULL for `Monthly`  |
+| ApplicableYear | SMALLINT      | Nullable — Required for `OneTime`; NULL for `Monthly`       |
 | DueDate        | DATE          | Nullable — Default due date for this line item              |
 | LateFinePerDay | DECIMAL(8,2)  | DEFAULT 0.00 — Daily late fine rate                         |
 | MaxLateFine    | DECIMAL(10,2) | DEFAULT 0.00 — Cap on total late fine                         |
@@ -506,6 +509,10 @@ Line items within a fee structure — one row per fee head.
 | CreatedAt      | DATETIME2(7)  | DEFAULT sysutcdatetime()                                    |
 | UpdatedBy      | INT           | Nullable                                                    |
 | UpdatedAt      | DATETIME2(7)  | Nullable                                                    |
+
+Check constraints:
+- `CK_Frequency` — `Frequency` must be `Monthly` or `OneTime`
+- `CK_OneTimeMonthYear` — `Monthly` rows must have NULL month/year; `OneTime` rows require month (1–12) and year
 
 Unique constraint on `(StructureID, FeeHeadID)`.
 

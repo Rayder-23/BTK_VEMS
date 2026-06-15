@@ -2,11 +2,9 @@
     var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Settings";
     ViewData["FeeErpShowSidebarChrome"] = true;
     ViewData["FeeErpHideGlobalSearch"] = true;
-    ViewData["FeeErpHideNavbarBrandIcon"] = true;
+    ViewData["FeeErpHideNavbarBrand"] = true;
+    ViewData["FeeErpHideNavbarLeftControls"] = true;
     ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/settings";
-    ViewData["FeeErpNavbarBrandText"] = "Settings";
-    ViewData["FeeErpNavbarBrandIcon"] = "fa-gear";
     ViewData["FeeErpHideRoleLabel"] = true;
     ViewData["FeeErpMobileNavClass"] = "d-sm-none";
     ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
@@ -40,9 +38,7 @@
         <div class="offcanvas offcanvas-start fee-erp-offcanvas text-bg-dark" tabindex="-1" id="feeErpSidebarOffcanvas"
              aria-labelledby="feeErpSidebarOffcanvasLabel">
             <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
-                <h5 class="offcanvas-title" id="feeErpSidebarOffcanvasLabel">
-                    <i class="fa-solid fa-gear me-2 text-info"></i>Settings
-                </h5>
+                <h5 class="offcanvas-title" id="feeErpSidebarOffcanvasLabel">Admin Portal</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body p-0 overflow-auto">

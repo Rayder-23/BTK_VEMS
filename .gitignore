@@ -76,6 +76,10 @@ pubtest/
 
 # Local dotnet build output (dotnet build -o .build-check)
 .build-check/
+.tmp_build_check/
+.tmp_build_out/
+.tmp_db_generated.txt
+.tmp_live_schema.tsv
 
 # Local deploy overrides (SSH host, key path)
 Scripts/deploy/deploy.local.ps1

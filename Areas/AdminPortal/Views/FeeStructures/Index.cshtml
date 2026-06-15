@@ -1,6 +1,9 @@
+@using VEMS.Areas.AdminPortal.Models.Fee
 @model IReadOnlyList<VEMS.Areas.AdminPortal.Models.Fee.FeeStructureListItem>
 @{
     ViewData["Title"] = "Fee Structures";
+    var selectedProgramId = ViewData["ProgramId"] as int?;
+    var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <section class="portal-card page-summary-compact mb-3">
@@ -19,8 +22,28 @@
 <partial name="_FeeAlerts" />
 
 <section class="portal-card mt-3">
+    <form method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label" for="feeStructureProgramFilter">Program</label>
+            <select id="feeStructureProgramFilter" name="programId" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All programs</option>
+                @foreach (var program in programs)
+                {
+                    if (selectedProgramId.HasValue && selectedProgramId.Value == program.Id)
+                    {
+                        <option value="@program.Id" selected="selected">@program.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@program.Id">@program.Name</option>
+                    }
+                }
+            </select>
+        </div>
+    </form>
+
     <div class="table-responsive">
-        <table class="table admin-table align-middle">
+        <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -35,30 +58,35 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var row in Model)
+            @if (Model.Count == 0)
             {
                 <tr>
-                    <td>@row.StructureName</td>
-                    <td>@row.ProgramName</td>
-                    <td>@(string.IsNullOrWhiteSpace(row.ClassName) ? "—" : row.ClassName)</td>
-                    <td>@row.Semester</td>
-                    <td>@row.AcademicYear</td>
-                    <td>@row.DetailCount</td>
-                    <td>@row.TotalAmount.ToString("N2")</td>
-                    <td>@(row.IsActive ? "Yes" : "No")</td>
-                    <td class="text-end">
-                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/fee-structures/details/@row.Uid">Details</a>
-                        <a class="btn btn-sm btn-outline-success" href="/adminportal/fee/fee-structures/edit/@row.Uid">Edit</a>
-                        @if (row.IsActive)
-                        {
-                            <form method="post" action="/adminportal/fee/fee-structures/deactivate/@row.Uid" class="d-inline"
-                                  onsubmit="return confirm('Deactivate this structure?');">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
-                            </form>
-                        }
+                    <td colspan="9" class="text-center text-muted py-4">
+                        @(selectedProgramId.HasValue
+                            ? "No fee structures found for the selected program."
+                            : "No fee structures found.")
                     </td>
                 </tr>
+            }
+            else
+            {
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@row.StructureName</td>
+                        <td>@row.ProgramName</td>
+                        <td>@(string.IsNullOrWhiteSpace(row.ClassName) ? "—" : row.ClassName)</td>
+                        <td>@row.Semester</td>
+                        <td>@row.AcademicYear</td>
+                        <td>@row.DetailCount</td>
+                        <td>@row.TotalAmount.ToString("N2")</td>
+                        <td>@(row.IsActive ? "Yes" : "No")</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/fee-structures/details/@row.Uid">Add Fee Heads</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="/adminportal/fee/fee-structures/edit/@row.Uid">Edit</a>
+                        </td>
+                    </tr>
+                }
             }
             </tbody>
         </table>

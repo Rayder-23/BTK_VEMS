@@ -3,8 +3,16 @@
     var path = Context.Request.Path.Value ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     var activeKey = SettingsNavCatalog.ResolveActiveKey(path, action);
+    var activeModule = SettingsNavCatalog.GetModuleForRoute(path, action);
 }
 <div class="fee-erp-sidebar-inner d-flex flex-column h-100 settings-mgmt-sidebar-inner">
+    <div class="fee-erp-sidebar-brand settings-mgmt-sidebar-brand-wrap border-bottom border-light border-opacity-10">
+        <a href="/adminportal/settings"
+           class="settings-mgmt-sidebar-brand text-decoration-none d-block">
+            <span class="settings-mgmt-sidebar-brand-title">Admin Portal</span>
+        </a>
+    </div>
+
     <nav class="fee-erp-nav flex-grow-1 overflow-auto py-3 px-2" aria-label="Settings navigation">
         <ul class="nav flex-column gap-1 fee-erp-nav-list settings-mgmt-placeholder-nav mb-1">
             @foreach (var item in SettingsNavCatalog.SidebarPlaceholderNav)
@@ -14,17 +22,24 @@
                 </li>
             }
         </ul>
-        <ul class="nav flex-column gap-1 fee-erp-nav-list">
-            @foreach (var item in SettingsNavCatalog.SidebarNav)
-            {
-                <li class="nav-item">
-                    <a class="fee-erp-nav-link @(activeKey == item.Key ? "active" : "")" href="@item.Url">
-                        <i class="fa-fw fa-solid @item.IconClass"></i>
-                        <span class="fee-erp-nav-label">@item.Name</span>
-                    </a>
-                </li>
-            }
-        </ul>
+
+        @if (activeModule is not null
+            && activeModule.Links.Count > 0
+            && !string.Equals(activeModule.Key, SettingsNavCatalog.HomeModule.Key, StringComparison.OrdinalIgnoreCase))
+        {
+            <p class="student-mgmt-nav-heading px-2 mb-2 text-uppercase">@activeModule.Name</p>
+            <ul class="nav flex-column gap-1 fee-erp-nav-list settings-mgmt-module-nav mb-2">
+                @foreach (var link in activeModule.Links)
+                {
+                    <li class="nav-item">
+                        <a class="fee-erp-nav-link @(activeKey == link.Key ? "active" : "")" href="@link.Url">
+                            <i class="fa-fw fa-solid @link.IconClass"></i>
+                            <span class="fee-erp-nav-label">@link.Name</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
     </nav>
     <div class="fee-erp-sidebar-foot p-3 mt-auto border-top border-light border-opacity-10">
         <a class="fee-erp-nav-link border border-light border-opacity-25 bg-transparent" href="/adminportal">

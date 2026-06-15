@@ -1,39 +1,36 @@
 @model StudentAllCoursesPageModel
 @{
-    ViewData["Title"] = "All Courses";
+    ViewData["Title"] = "Enrolled Courses";
     var primaryEnrollment = Model.Enrollments.FirstOrDefault();
 }
 
 <div class="portal-card challan-summary-compact mb-3">
     <div class="challan-summary-head">
         <div class="challan-summary-title">
-            <span class="challan-summary-no">All Courses</span>
-            @if (!string.IsNullOrWhiteSpace(Model.ProgramName))
+            <span class="challan-summary-no">Enrolled Courses</span>
+            @if (primaryEnrollment is not null)
             {
-                <span class="student-program-title d-block mt-1">@Model.ProgramName</span>
+                <span class="student-program-title d-block mt-1">@primaryEnrollment.ProgramName</span>
                 <span class="challan-summary-meta">
-                    @if (!string.IsNullOrWhiteSpace(Model.ProgramCode))
+                    @if (!string.IsNullOrWhiteSpace(primaryEnrollment.ProgramCode))
                     {
-                        <span>@Model.ProgramCode</span>
+                        <span>@primaryEnrollment.ProgramCode</span>
                         <span> · </span>
                     }
-                    @if (primaryEnrollment is not null)
+                    <span>@primaryEnrollment.AcademicYearName</span>
+                    @if (!string.IsNullOrWhiteSpace(primaryEnrollment.ClassSectionDisplay))
                     {
-                        <span>Year @primaryEnrollment.AcademicYear · Semester @primaryEnrollment.GradeOrSemester</span>
+                        <span> · @primaryEnrollment.ClassSectionDisplay</span>
                     }
-                    else if (Model.AdmissionYear.HasValue)
+                    @if (primaryEnrollment.RollNo.HasValue)
                     {
-                        <span>Admission @Model.AdmissionYear</span>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Model.RollNo))
-                    {
-                        <span> · Roll @Model.RollNo</span>
+                        <span> · Roll @primaryEnrollment.RollNo</span>
                     }
                 </span>
             }
             else
             {
-                <span class="challan-summary-meta d-block mt-1">No program assigned to your student record.</span>
+                <span class="challan-summary-meta d-block mt-1">No enrollment found in your student record.</span>
             }
         </div>
         <span class="badge rounded-pill text-bg-light border challan-summary-status">
@@ -42,41 +39,88 @@
     </div>
 </div>
 
+@if (Model.Enrollments.Count > 0)
+{
+    <div class="portal-card mb-3">
+        <h2 class="h6 fw-bold mb-3">My program enrollment</h2>
+        <div class="table-responsive">
+            <table class="table table-sm portal-data-grid align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Academic year</th>
+                        <th>Program</th>
+                        <th>Class section</th>
+                        <th>Roll</th>
+                        <th>Enrolled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var enrollment in Model.Enrollments)
+                {
+                    <tr>
+                        <td class="portal-grid-data">@enrollment.AcademicYearName</td>
+                        <td class="portal-grid-data">@enrollment.ProgramName</td>
+                        <td class="portal-grid-data">@(enrollment.ClassSectionDisplay ?? "—")</td>
+                        <td class="portal-grid-data">@(enrollment.RollNo?.ToString() ?? "—")</td>
+                        <td class="portal-grid-data">@enrollment.EnrollmentDate.ToString("dd MMM yyyy")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
 <div class="portal-card">
-    @if (string.IsNullOrWhiteSpace(Model.ProgramName) && Model.Enrollments.Count == 0)
+    @if (Model.Enrollments.Count == 0)
     {
-        <p class="text-muted mb-0">You do not have an active enrollment. Assigned courses will appear here once enrolled.</p>
+        <p class="text-muted mb-0">You do not have an enrollment yet. Program courses will appear here once enrolled.</p>
     }
     else if (Model.Courses.Count == 0)
     {
-        <p class="text-muted mb-0">No courses are assigned for your current enrollment yet.</p>
+        <p class="text-muted mb-0">No courses are linked to your enrolled program in ProgramCourses yet.</p>
     }
     else
     {
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h6 fw-bold mb-0">Assigned courses</h2>
+            <h2 class="h6 fw-bold mb-0">Program courses</h2>
+            <span class="small text-muted">From your enrollment program via ProgramCourses</span>
         </div>
         <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0 student-courses-table">
+            <table class="table table-sm portal-data-grid align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Code</th>
                         <th>Course</th>
-                        <th>Semester</th>
+                        <th>Program</th>
+                        <th>Academic year</th>
                         <th>Credits</th>
+                        <th>Status</th>
                         <th class="text-end">Details</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach (var course in Model.Courses)
                 {
-                    var collapseId = $"course-detail-{course.CourseId}";
+                    var collapseId = $"course-detail-{course.EnrollmentId}-{course.CourseId}";
                     <tr>
-                        <td class="fw-semibold">@(string.IsNullOrEmpty(course.CourseCode) ? "—" : course.CourseCode)</td>
-                        <td>@course.CourseName</td>
-                        <td>@course.GradeOrSemester</td>
-                        <td>@(course.CreditHours?.ToString() ?? "—")</td>
-                        <td class="text-end">
+                        <td class="portal-grid-data fw-semibold">@(string.IsNullOrEmpty(course.CourseCode) ? "—" : course.CourseCode)</td>
+                        <td class="portal-grid-data">@course.CourseName</td>
+                        <td class="portal-grid-data">
+                            <span class="d-block">@course.ProgramName</span>
+                            @if (!string.IsNullOrWhiteSpace(course.ProgramCode))
+                            {
+                                <span class="small opacity-75">@course.ProgramCode</span>
+                            }
+                        </td>
+                        <td class="portal-grid-data">@course.AcademicYearName</td>
+                        <td class="portal-grid-data">@(course.CreditHours?.ToString() ?? "—")</td>
+                        <td>
+                            <span class="badge rounded-pill @(course.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                                @(course.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td class="text-end text-nowrap">
                             <button class="btn btn-sm btn-outline-primary"
                                     type="button"
                                     data-bs-toggle="collapse"
@@ -88,21 +132,45 @@
                         </td>
                     </tr>
                     <tr class="collapse-row">
-                        <td colspan="5" class="p-0 border-0">
+                        <td colspan="7" class="p-0 border-0">
                             <div class="collapse" id="@collapseId">
                                 <div class="border-top bg-light bg-opacity-50 p-3 mx-0 mb-2 rounded-bottom">
                                     <div class="row g-3 small">
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Course ID</span>
+                                            <span>@course.CourseId</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <span class="text-muted d-block">Course code</span>
+                                            <span>@(string.IsNullOrEmpty(course.CourseCode) ? "—" : course.CourseCode)</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <span class="text-muted d-block">Course name</span>
+                                            <span>@course.CourseName</span>
+                                        </div>
                                         <div class="col-md-4">
                                             <span class="text-muted d-block">Program</span>
-                                            <span>@course.ProgramName</span>
+                                            <span>@course.ProgramName (@course.ProgramCode)</span>
                                         </div>
                                         <div class="col-md-4">
                                             <span class="text-muted d-block">Academic year</span>
-                                            <span>@course.AcademicYear</span>
+                                            <span>@course.AcademicYearName</span>
                                         </div>
                                         <div class="col-md-4">
-                                            <span class="text-muted d-block">Enrollment semester</span>
-                                            <span>@course.GradeOrSemester</span>
+                                            <span class="text-muted d-block">Class section</span>
+                                            <span>@(course.ClassSectionDisplay ?? "—")</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block">Credit hours</span>
+                                            <span>@(course.CreditHours?.ToString() ?? "—")</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block">Enrollment</span>
+                                            <span>#@course.EnrollmentId</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="text-muted d-block">Course status</span>
+                                            <span>@(course.IsActive ? "Active" : "Inactive")</span>
                                         </div>
                                     </div>
                                 </div>

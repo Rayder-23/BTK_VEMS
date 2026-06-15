@@ -58,6 +58,53 @@ public sealed class StudentChallanRepository : IStudentChallanRepository
         };
     }
 
+    public async Task<StudentChallanPageModel?> GetChallanForStudentAsync(
+        int studentUid,
+        int challanUid,
+        CancellationToken cancellationToken = default)
+    {
+        const string headerSql = """
+            SELECT
+                c.Uid,
+                c.ChallanNo,
+                c.Semester,
+                c.AcademicYear,
+                c.IssueDate,
+                c.DueDate,
+                c.NetPayable,
+                c.AmountPaid,
+                c.Status
+            FROM dbo.Challans c
+            WHERE c.Uid = @ChallanUid
+              AND c.StudentID = @StudentUid
+              AND c.IsActive = 1;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        StudentChallanSummary? header;
+        await using (var command = new SqlCommand(headerSql, connection))
+        {
+            command.Parameters.AddWithValue("@ChallanUid", challanUid);
+            command.Parameters.AddWithValue("@StudentUid", studentUid);
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            header = MapSummary(reader);
+        }
+
+        var lines = await LoadLinesAsync(connection, header.Uid, cancellationToken);
+        return new StudentChallanPageModel
+        {
+            Challan = header,
+            Lines = lines
+        };
+    }
+
     public async Task<IReadOnlyList<StudentChallanSummary>> ListChallanHistoryAsync(int studentUid, CancellationToken cancellationToken = default)
     {
         const string sql = """

@@ -11,6 +11,98 @@ body.admin-home-shell {
     --fee-erp-topnav-h: 46px;
 }
 
+body.settings-mgmt-shell {
+    --fee-erp-module-bar-h: 50px;
+    --fee-erp-topnav-h: 26px;
+}
+
+/* Fee management — match student portal topbars (45px module + 26px subheader) */
+body.fee-mgmt-shell {
+    --fee-erp-module-bar-h: 45px;
+    --fee-erp-topnav-h: 26px;
+}
+
+body.fee-mgmt-shell .fee-mgmt-module-topbar.portal-navbar-primary {
+    padding: 0.2rem 0;
+}
+
+body.fee-mgmt-shell .fee-mgmt-module-nav.portal-module-nav {
+    gap: 0.35rem;
+}
+
+body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link,
+body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link {
+    border-bottom: 0;
+    border-radius: 0.65rem;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    gap: 0.4rem;
+    padding: 0.38rem 0.85rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link:hover,
+body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link.active,
+body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link:hover,
+body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link.active {
+    background: rgba(37, 99, 235, 0.18);
+    color: #fff;
+}
+
+body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link i {
+    font-size: 0.85rem;
+}
+
+body.fee-mgmt-shell .fee-mgmt-menu-btn.portal-menu-btn {
+    line-height: 1;
+    padding: 0.2rem 0.45rem;
+}
+
+body.fee-mgmt-shell .fee-mgmt-subnavbar.portal-subheader {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid #e2e8f0;
+    min-height: var(--fee-erp-topnav-h);
+    padding: 0.25rem 0;
+}
+
+body.fee-mgmt-shell .portal-login-inline {
+    color: #64748b;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+body.fee-mgmt-shell .portal-login-inline .fw-semibold {
+    color: #1e293b;
+}
+
+body.fee-mgmt-shell .portal-login-sep {
+    margin: 0 0.35rem;
+}
+
+body.fee-mgmt-shell .portal-logout-btn {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: 0.15rem 0.5rem;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-topbar__logo {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-nav .portal-module-link,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link {
+    padding: 0.35rem 0.55rem;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link .settings-mgmt-module-topbar__title {
+    font-size: 0.82rem;
+}
+
 body.teachers-mgmt-shell .teachers-mgmt-module-topbar__logo,
 body.student-mgmt-shell .student-mgmt-module-topbar__logo,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__logo,
@@ -50,6 +142,91 @@ body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link {
 
 body.student-mgmt-shell .student-mgmt-module-nav .portal-module-link i {
     font-size: 0.78rem;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-nav {
+    min-width: 0;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-nav .portal-module-link {
+    font-size: 0.75rem;
+    gap: 0.3rem;
+    padding: 0.2rem 0.45rem;
+    color: rgba(226, 232, 240, 0.9);
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-nav .portal-module-link:hover {
+    border-bottom-color: rgba(147, 197, 253, 0.45);
+    color: #fff;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-nav .portal-module-link.active {
+    border-bottom-color: #60a5fa;
+    color: #fff;
+    font-weight: 600;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-nav .portal-module-link i {
+    font-size: 0.78rem;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link {
+    flex-shrink: 0;
+    padding: 0.2rem 0.45rem;
+    color: rgba(226, 232, 240, 0.9);
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link .settings-mgmt-module-topbar__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link:hover {
+    border-bottom-color: rgba(147, 197, 253, 0.45);
+    color: #fff;
+    opacity: 1;
+}
+
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link.active {
+    border-bottom-color: #60a5fa;
+    color: #fff;
+}
+
+.portal-module-nav {
+    display: flex;
+    flex: 1;
+    gap: 0.25rem;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 0;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.portal-module-link {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: inherit;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    gap: 0.35rem;
+    padding: 0.45rem 0.55rem;
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+
+body.settings-mgmt-shell .student-mgmt-nav-heading {
+    color: #93c5fd;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
 }
 
 body.teachers-mgmt-shell .portal-sidebar-toggle,
@@ -111,6 +288,52 @@ body.admissions-mgmt-shell.fee-erp-sidebar-collapsed .portal-sidebar-toggle__pan
     flex-basis: 3px;
 }
 
+body.settings-mgmt-shell .fee-erp-navbar .container-fluid {
+    min-height: var(--fee-erp-topnav-h);
+    padding-top: 0.05rem;
+    padding-bottom: 0.05rem;
+}
+
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn {
+    font-size: 0.65rem;
+    height: 22px;
+    width: 22px;
+}
+
+body.settings-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm {
+    font-size: 0.68rem;
+    line-height: 1.1;
+    min-height: 22px;
+    padding: 0.05rem 0.3rem;
+}
+
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-user-btn {
+    min-height: 22px;
+    padding: 0.05rem 0.3rem !important;
+}
+
+body.settings-mgmt-shell .fee-erp-navbar .fee-erp-avatar {
+    font-size: 0.58rem;
+    height: 20px;
+    line-height: 20px;
+    width: 20px;
+}
+
+body.settings-mgmt-shell .settings-mgmt-sidebar-brand-wrap {
+    padding: 1.75rem 0.5rem 0.85rem 0.65rem;
+    text-align: left;
+}
+
+body.settings-mgmt-shell .settings-mgmt-sidebar-brand-title {
+    color: #2563eb;
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: left;
+}
+
 body.teachers-mgmt-shell .fee-erp-navbar,
 body.student-mgmt-shell .fee-erp-navbar,
 body.settings-mgmt-shell .fee-erp-navbar,
@@ -123,7 +346,6 @@ body.admin-home-shell .fee-erp-navbar {
 
 body.teachers-mgmt-shell .fee-erp-navbar .container-fluid,
 body.student-mgmt-shell .fee-erp-navbar .container-fluid,
-body.settings-mgmt-shell .fee-erp-navbar .container-fluid,
 body.fee-mgmt-shell .fee-erp-navbar .container-fluid,
 body.examination-mgmt-shell .fee-erp-navbar .container-fluid,
 body.admissions-mgmt-shell .fee-erp-navbar .container-fluid,
@@ -146,7 +368,6 @@ body.admin-home-shell .fee-erp-navbar .fee-erp-brand-text {
 
 body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
 body.student-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
-body.settings-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
 body.fee-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
 body.examination-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn,
 body.admissions-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn {
@@ -158,7 +379,6 @@ body.admissions-mgmt-shell .fee-erp-navbar .fee-erp-icon-btn {
 
 body.teachers-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
 body.student-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
-body.settings-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
 body.fee-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
 body.examination-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
 body.admissions-mgmt-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm,
@@ -171,7 +391,6 @@ body.admin-home-shell .fee-erp-navbar .navbar-nav .btn-light.btn-sm {
 
 body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
 body.student-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
-body.settings-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
 body.fee-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
 body.examination-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
 body.admissions-mgmt-shell .fee-erp-navbar .fee-erp-user-btn,
@@ -182,7 +401,6 @@ body.admin-home-shell .fee-erp-navbar .fee-erp-user-btn {
 
 body.teachers-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
 body.student-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
-body.settings-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
 body.fee-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
 body.examination-mgmt-shell .fee-erp-navbar .fee-erp-avatar,
 body.admissions-mgmt-shell .fee-erp-navbar .fee-erp-avatar,

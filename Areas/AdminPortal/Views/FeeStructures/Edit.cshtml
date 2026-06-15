@@ -6,15 +6,24 @@
 </section>
 <partial name="_FeeAlerts" />
 <section class="portal-card mt-4">
-    <form method="post" asp-route-id="@Model.Uid">
+    <form method="post" asp-route-id="@Model.Uid" id="feeStructureEditForm">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Uid" />
         <partial name="_StructureForm" />
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a class="btn btn-outline-secondary" href="/adminportal/fee/fee-structures">Cancel</a>
-        </div>
     </form>
+    <div class="mt-4 d-flex flex-wrap align-items-center gap-2">
+        <button type="submit" form="feeStructureEditForm" class="btn btn-primary btn-sm">Update</button>
+        <a class="btn btn-outline-secondary btn-sm" href="/adminportal/fee/fee-structures?programId=@Model.ProgramId">Cancel</a>
+        @if (Model.IsActive)
+        {
+            <form method="post" action="/adminportal/fee/fee-structures/deactivate/@Model.Uid" class="ms-auto"
+                  onsubmit="return confirm('Deactivate this fee structure?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="programId" value="@Model.ProgramId" />
+                <button type="submit" class="btn btn-outline-danger btn-sm">Deactivate</button>
+            </form>
+        }
+    </div>
 </section>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

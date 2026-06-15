@@ -8,6 +8,8 @@
     var showSidebarChrome = ViewData["FeeErpShowSidebarChrome"] as bool? != false;
     var hideGlobalSearch = ViewData["FeeErpHideGlobalSearch"] as bool? == true;
     var hideNavbarBrandIcon = ViewData["FeeErpHideNavbarBrandIcon"] as bool? == true;
+    var hideNavbarBrand = ViewData["FeeErpHideNavbarBrand"] as bool? == true;
+    var hideNavbarLeftControls = ViewData["FeeErpHideNavbarLeftControls"] as bool? == true;
     var hideNavAlerts = ViewData["FeeErpHideNavAlerts"] as bool? == true;
     var hideRoleLabel = ViewData["FeeErpHideRoleLabel"] as bool? == true;
     var mobileNavClass = ViewData["FeeErpMobileNavClass"] as string ?? "d-lg-none";
@@ -22,7 +24,7 @@
     <div class="container-fluid gap-2 align-items-center px-3 px-lg-4">
         <span class="visually-hidden">Current page: @Model</span>
 
-        @if (showSidebarChrome)
+        @if (showSidebarChrome && !hideNavbarLeftControls)
         {
             <button class="btn btn-outline-secondary @mobileNavClass fee-erp-icon-btn" type="button"
                     data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
@@ -33,6 +35,8 @@
             <partial name="_PortalSidebarToggle" />
         }
 
+        @if (!hideNavbarBrand)
+        {
         <a class="navbar-brand d-flex align-items-center @(hideNavbarBrandIcon ? "" : "gap-2") me-auto me-lg-3 text-decoration-none" href="@brandHref">
             @if (!hideNavbarBrandIcon)
             {
@@ -42,6 +46,7 @@
             }
             <span class="fee-erp-brand-text fw-semibold text-dark">@brandText</span>
         </a>
+        }
 
         @if (!hideGlobalSearch)
         {

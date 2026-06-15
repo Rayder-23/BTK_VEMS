@@ -19,6 +19,18 @@ internal static class FeeSql
     public static short ToInt16(SqlDataReader reader, string column) =>
         Convert.ToInt16(reader.GetValue(reader.GetOrdinal(column)));
 
+    public static short? ToNullableInt16(SqlDataReader reader, string column)
+    {
+        var ordinal = reader.GetOrdinal(column);
+        return reader.IsDBNull(ordinal) ? null : Convert.ToInt16(reader.GetValue(ordinal));
+    }
+
+    public static byte? ToNullableByte(SqlDataReader reader, string column)
+    {
+        var ordinal = reader.GetOrdinal(column);
+        return reader.IsDBNull(ordinal) ? null : Convert.ToByte(reader.GetValue(ordinal));
+    }
+
     public static decimal ToDecimal(SqlDataReader reader, string column) =>
         Convert.ToDecimal(reader.GetValue(reader.GetOrdinal(column)));
 

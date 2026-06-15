@@ -13,7 +13,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
             ?? throw new InvalidOperationException("DefaultConnection is missing from configuration.");
     }
 
-    public async Task<IReadOnlyList<FeeStructureListItem>> ListAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<FeeStructureListItem>> ListAsync(int? programId = null, CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT fs.Uid, fs.StructureName, p.ProgramName,
@@ -25,6 +25,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
             INNER JOIN dbo.Programs p ON fs.ProgramID = p.ProgramID
             LEFT JOIN dbo.Classes c ON fs.ClassID = c.ClassID
             LEFT JOIN dbo.FeeStructureDetails fsd ON fsd.StructureID = fs.Uid
+            WHERE (@ProgramId IS NULL OR fs.ProgramID = @ProgramId)
             GROUP BY fs.Uid, fs.StructureName, p.ProgramName, c.ClassCode, fs.Semester, fs.AcademicYear, fs.IsActive
             ORDER BY fs.AcademicYear DESC, fs.StructureName;
             """;
@@ -32,6 +33,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
         var list = new List<FeeStructureListItem>();
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ProgramId", programId is > 0 ? programId.Value : DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
@@ -160,7 +162,7 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
 
     public async Task<FeeStructureDetailsPageModel?> GetDetailsPageAsync(int structureId, CancellationToken cancellationToken = default)
     {
-        var structures = await ListAsync(cancellationToken);
+        var structures = await ListAsync(cancellationToken: cancellationToken);
         var structure = structures.FirstOrDefault(s => s.Uid == structureId);
         if (structure is null)
         {
@@ -192,26 +194,81 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
         return (int)(await command.ExecuteScalarAsync(cancellationToken) ?? 0) > 0;
     }
 
+    public async Task<FeeStructureDetailFormModel?> GetDetailAsync(int detailUid, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT Uid, StructureID, FeeHeadID, Amount, Frequency, ApplicableMonth, ApplicableYear,
+                   DueDate, LateFinePerDay, MaxLateFine
+            FROM dbo.FeeStructureDetails
+            WHERE Uid = @Uid;
+            """;
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@Uid", detailUid);
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        if (!await reader.ReadAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        return new FeeStructureDetailFormModel
+        {
+            Uid = FeeSql.ToInt32(reader, "Uid"),
+            StructureId = FeeSql.ToInt32(reader, "StructureID"),
+            FeeHeadId = FeeSql.ToInt16(reader, "FeeHeadID"),
+            Amount = FeeSql.ToDecimal(reader, "Amount"),
+            Frequency = reader["Frequency"] as string ?? "Monthly",
+            ApplicableMonth = FeeSql.ToNullableByte(reader, "ApplicableMonth"),
+            ApplicableYear = FeeSql.ToNullableInt16(reader, "ApplicableYear"),
+            DueDate = FeeSql.ToNullableDateOnly(reader, "DueDate"),
+            LateFinePerDay = FeeSql.ToDecimal(reader, "LateFinePerDay"),
+            MaxLateFine = FeeSql.ToDecimal(reader, "MaxLateFine")
+        };
+    }
+
     public async Task<int> AddDetailAsync(FeeStructureDetailFormModel model, int createdBy, CancellationToken cancellationToken = default)
     {
         const string sql = """
             INSERT INTO dbo.FeeStructureDetails
-                (StructureID, FeeHeadID, Amount, DueDate, LateFinePerDay, MaxLateFine, CreatedBy, CreatedAt)
+                (StructureID, FeeHeadID, Amount, Frequency, ApplicableMonth, ApplicableYear,
+                 DueDate, LateFinePerDay, MaxLateFine, CreatedBy, CreatedAt)
             VALUES
-                (@StructureId, @FeeHeadId, @Amount, @DueDate, @LateFinePerDay, @MaxLateFine, @CreatedBy, SYSUTCDATETIME());
+                (@StructureId, @FeeHeadId, @Amount, @Frequency, @ApplicableMonth, @ApplicableYear,
+                 @DueDate, @LateFinePerDay, @MaxLateFine, @CreatedBy, SYSUTCDATETIME());
             SELECT CAST(SCOPE_IDENTITY() AS int);
             """;
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@StructureId", model.StructureId);
-        command.Parameters.AddWithValue("@FeeHeadId", model.FeeHeadId);
-        command.Parameters.AddWithValue("@Amount", model.Amount);
-        command.Parameters.AddWithValue("@DueDate", model.DueDate.HasValue ? model.DueDate.Value.ToDateTime(TimeOnly.MinValue) : DBNull.Value);
-        command.Parameters.AddWithValue("@LateFinePerDay", model.LateFinePerDay);
-        command.Parameters.AddWithValue("@MaxLateFine", model.MaxLateFine);
+        BindDetail(command, model);
         command.Parameters.AddWithValue("@CreatedBy", createdBy);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
+    }
+
+    public async Task<bool> UpdateDetailAsync(FeeStructureDetailFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            UPDATE dbo.FeeStructureDetails SET
+                FeeHeadID = @FeeHeadId,
+                Amount = @Amount,
+                Frequency = @Frequency,
+                ApplicableMonth = @ApplicableMonth,
+                ApplicableYear = @ApplicableYear,
+                DueDate = @DueDate,
+                LateFinePerDay = @LateFinePerDay,
+                MaxLateFine = @MaxLateFine,
+                UpdatedBy = @UpdatedBy,
+                UpdatedAt = SYSUTCDATETIME()
+            WHERE Uid = @Uid AND StructureID = @StructureId;
+            """;
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        BindDetail(command, model);
+        command.Parameters.AddWithValue("@Uid", model.Uid);
+        command.Parameters.AddWithValue("@UpdatedBy", (object?)updatedBy ?? DBNull.Value);
+        await connection.OpenAsync(cancellationToken);
+        return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
     public async Task<bool> DeleteDetailAsync(int detailUid, CancellationToken cancellationToken = default)
@@ -227,8 +284,9 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
     public async Task<IReadOnlyList<FeeStructureDetailLine>> GetDetailsForStructureAsync(int structureId, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT fsd.Uid, fsd.StructureID, fsd.FeeHeadID, fh.HeadCode, fh.HeadName, fsd.Amount, fsd.DueDate,
-                   fsd.LateFinePerDay, fsd.MaxLateFine
+            SELECT fsd.Uid, fsd.StructureID, fsd.FeeHeadID, fh.HeadCode, fh.HeadName, fsd.Amount,
+                   fsd.Frequency, fsd.ApplicableMonth, fsd.ApplicableYear,
+                   fsd.DueDate, fsd.LateFinePerDay, fsd.MaxLateFine
             FROM dbo.FeeStructureDetails fsd
             INNER JOIN dbo.ref_FeeHeads fh ON fsd.FeeHeadID = fh.Uid
             WHERE fsd.StructureID = @StructureId
@@ -251,6 +309,9 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
                 FeeHeadCode = reader["HeadCode"] as string ?? "",
                 FeeHeadName = reader["HeadName"] as string ?? "",
                 Amount = FeeSql.ToDecimal(reader, "Amount"),
+                Frequency = reader["Frequency"] as string ?? "Monthly",
+                ApplicableMonth = FeeSql.ToNullableByte(reader, "ApplicableMonth"),
+                ApplicableYear = FeeSql.ToNullableInt16(reader, "ApplicableYear"),
                 DueDate = FeeSql.ToNullableDateOnly(reader, "DueDate"),
                 LateFinePerDay = FeeSql.ToDecimal(reader, "LateFinePerDay"),
                 MaxLateFine = FeeSql.ToDecimal(reader, "MaxLateFine")
@@ -258,6 +319,19 @@ public sealed class FeeStructureRepository : IFeeStructureRepository
         }
 
         return list;
+    }
+
+    private static void BindDetail(SqlCommand command, FeeStructureDetailFormModel model)
+    {
+        command.Parameters.AddWithValue("@StructureId", model.StructureId);
+        command.Parameters.AddWithValue("@FeeHeadId", model.FeeHeadId);
+        command.Parameters.AddWithValue("@Amount", model.Amount);
+        command.Parameters.AddWithValue("@Frequency", model.Frequency.Trim());
+        command.Parameters.AddWithValue("@ApplicableMonth", model.ApplicableMonth.HasValue ? model.ApplicableMonth.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@ApplicableYear", model.ApplicableYear.HasValue ? model.ApplicableYear.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@DueDate", model.DueDate.HasValue ? model.DueDate.Value.ToDateTime(TimeOnly.MinValue) : DBNull.Value);
+        command.Parameters.AddWithValue("@LateFinePerDay", model.LateFinePerDay);
+        command.Parameters.AddWithValue("@MaxLateFine", model.MaxLateFine);
     }
 
     private static void BindStructure(SqlCommand command, FeeStructureFormModel model)

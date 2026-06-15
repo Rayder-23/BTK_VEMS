@@ -70,6 +70,22 @@ body.student-portal .fee-erp-sidebar-logo {
     width: 42px;
 }
 
+body.student-portal .fee-erp-sidebar-brand {
+    padding-left: 1.25rem !important;
+    padding-right: 1rem !important;
+    text-align: left;
+}
+
+body.student-portal .student-portal-sidebar-brand-title {
+    color: #2563eb;
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: left;
+}
+
 body.student-portal .student-portal-nav-heading {
     color: #94a3b8;
     font-size: 0.7rem;
@@ -430,7 +446,8 @@ body.student-portal[data-student-theme="dark"] .student-theme-option-body {
     }
 }
 
-.challan-summary-compact {
+.challan-summary-compact,
+.student-challan-record {
     padding: 0.85rem 1rem;
 }
 

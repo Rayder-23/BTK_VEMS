@@ -232,3 +232,61 @@ body.student-mgmt-home .home-brand-icon {
     margin-top: 0.1rem;
     text-align: start;
 }
+
+/* Classes create/edit — row spacing, tight label–field pairs, gap between col 2 & 3 */
+.class-form-grid .class-form-row {
+    margin-bottom: 0.85rem;
+    --bs-gutter-x: 0;
+}
+
+.class-form-grid .class-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.class-form-grid .class-form-label {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #334155;
+    margin-bottom: 0;
+    padding-right: 0.15rem;
+    padding-left: 0;
+    line-height: 1.25;
+}
+
+.class-form-grid .class-form-field {
+    padding-left: 0.15rem;
+    padding-right: 0;
+}
+
+.class-form-grid .class-form-field .form-control-sm,
+.class-form-grid .class-form-field .form-check-label {
+    font-size: 0.8125rem;
+    color: #2563eb;
+}
+
+.class-form-grid .class-form-field .form-control-sm {
+    min-height: calc(1.4em + 0.4rem + 2px);
+}
+
+.class-form-grid .class-form-field .text-danger.small {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    line-height: 1.15;
+}
+
+@media (min-width: 576px) {
+    .class-form-grid .class-form-label {
+        padding-right: 0.2rem;
+    }
+
+    .class-form-grid .class-form-field {
+        padding-left: 0.2rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .class-form-grid .class-form-label--pair-start {
+        padding-left: 1.25rem;
+    }
+}

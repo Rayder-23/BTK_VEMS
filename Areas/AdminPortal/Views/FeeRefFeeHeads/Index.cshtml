@@ -31,7 +31,7 @@
     <form method="get" class="row g-2 align-items-end mb-3">
         <div class="col-md-6">
             <label class="form-label" for="search">Search</label>
-            <input type="search" class="form-control" id="search" name="search" value="@search" placeholder="Name, code, category" />
+            <input type="search" class="form-control form-control-sm" id="search" name="search" value="@search" placeholder="Name, code, category" />
         </div>
         <div class="col-md-3">
             <div class="form-check mt-4">
@@ -45,7 +45,7 @@
     </form>
 
     <div class="table-responsive">
-        <table class="table admin-table align-middle">
+        <table class="table table-sm portal-data-grid align-middle mb-0">
             <thead>
                 <tr>
                     <th>Code</th>
@@ -59,17 +59,17 @@
             <tbody>
             @if (Model.Count == 0)
             {
-                <tr><td colspan="6" class="text-center text-muted py-4">No fee heads found.</td></tr>
+                <tr><td colspan="6" class="text-center text-muted py-3">No fee heads found.</td></tr>
             }
             @foreach (var row in Model)
             {
                 <tr>
-                    <td>@row.HeadCode</td>
-                    <td>@row.HeadName</td>
-                    <td>@row.Category</td>
-                    <td>@(row.IsMandatory ? "Yes" : "No")</td>
-                    <td>@(row.IsActive ? "Yes" : "No")</td>
-                    <td class="text-end">
+                    <td class="portal-grid-data fw-semibold">@row.HeadCode</td>
+                    <td class="portal-grid-data">@row.HeadName</td>
+                    <td class="portal-grid-data">@row.Category</td>
+                    <td class="portal-grid-data">@(row.IsMandatory ? "Yes" : "No")</td>
+                    <td class="portal-grid-data">@(row.IsActive ? "Yes" : "No")</td>
+                    <td class="text-end text-nowrap">
                         <a class="btn btn-sm btn-outline-success" href="/adminportal/fee/fee-heads/edit/@row.Uid">Edit</a>
                         @if (row.IsActive)
                         {

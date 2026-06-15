@@ -1,0 +1,42 @@
+<script>
+    (function () {
+        function syncFrequencyForm(root) {
+            const frequency = root.querySelector('.fee-detail-frequency');
+            const oneTimeBlock = root.querySelector('.fee-detail-one-time-fields');
+            const month = root.querySelector('.fee-detail-applicable-month');
+            const year = root.querySelector('.fee-detail-applicable-year');
+            if (!frequency || !oneTimeBlock) {
+                return;
+            }
+
+            const isOneTime = frequency.value === 'OneTime';
+            oneTimeBlock.classList.toggle('d-none', !isOneTime);
+            if (month) {
+                month.required = isOneTime;
+            }
+            if (year) {
+                year.required = isOneTime;
+            }
+            if (!isOneTime) {
+                if (month) {
+                    month.value = '';
+                }
+                if (year) {
+                    year.value = '';
+                }
+            }
+        }
+
+        document.querySelectorAll('[data-frequency-form]').forEach(function (root) {
+            const frequency = root.querySelector('.fee-detail-frequency');
+            if (!frequency) {
+                return;
+            }
+
+            frequency.addEventListener('change', function () {
+                syncFrequencyForm(root);
+            });
+            syncFrequencyForm(root);
+        });
+    })();
+</script>

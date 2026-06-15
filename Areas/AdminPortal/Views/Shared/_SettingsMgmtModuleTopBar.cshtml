@@ -1,12 +1,34 @@
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeModuleKey = SettingsNavCatalog.ResolveModuleKey(path, action);
+    var isHomeActive = string.Equals(activeModuleKey, SettingsNavCatalog.HomeModule.Key, StringComparison.OrdinalIgnoreCase);
+}
 <header class="fee-erp-module-topbar settings-mgmt-module-topbar" aria-label="Settings module">
-    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center justify-content-between gap-3">
-        <a href="/adminportal/settings" class="settings-mgmt-module-topbar__brand text-decoration-none d-flex align-items-center gap-2">
+    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center gap-2 gap-lg-3">
+        <a href="@SettingsNavCatalog.HomeModule.DefaultUrl"
+           class="settings-mgmt-module-topbar__brand portal-module-link @(isHomeActive ? "active" : "") text-decoration-none d-inline-flex align-items-center gap-2"
+           aria-label="Home"
+           title="@SettingsNavCatalog.HomeModule.Name">
             <span class="settings-mgmt-module-topbar__logo rounded-2 d-inline-flex align-items-center justify-content-center">
-                <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                <i class="fa-solid @SettingsNavCatalog.HomeModule.IconClass" aria-hidden="true"></i>
             </span>
-            <span class="settings-mgmt-module-topbar__title fw-semibold">Settings</span>
+            <span class="settings-mgmt-module-topbar__title fw-semibold">@SettingsNavCatalog.HomeModule.Name</span>
         </a>
-        <a class="settings-mgmt-module-topbar__link small text-decoration-none" href="/adminportal">
+
+        <nav class="settings-mgmt-module-nav portal-module-nav flex-grow-1" aria-label="Module navigation">
+            @foreach (var module in SettingsNavCatalog.TopBarModules)
+            {
+                var isActive = string.Equals(module.Key, activeModuleKey, StringComparison.OrdinalIgnoreCase);
+                <a class="portal-module-link @(isActive ? "active" : "")" href="@module.DefaultUrl" title="@module.Name">
+                    <i class="fa-solid @module.IconClass" aria-hidden="true"></i>
+                    <span>@module.Name</span>
+                </a>
+            }
+        </nav>
+
+        <a class="settings-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal
         </a>
     </div>

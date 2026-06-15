@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using VEMS.Areas.StudentPortal.Models;
 using VEMS.Areas.StudentPortal.Services;
 
 namespace VEMS.Areas.StudentPortal.Controllers;
@@ -29,8 +30,27 @@ public class FeesController : StudentPortalBaseController
             return NotFound();
         }
 
-        var model = await _challans.GetCurrentMonthChallanAsync(studentUid.Value, cancellationToken);
-        return View(model);
+        var profile = await _profiles.GetByStudentUidAsync(studentUid.Value, cancellationToken);
+        var page = await _challans.GetCurrentMonthChallanAsync(studentUid.Value, cancellationToken);
+        return View(WithStudentIdentity(page, profile));
+    }
+
+    public async Task<IActionResult> PrintChallan(int id, CancellationToken cancellationToken)
+    {
+        var studentUid = await ResolveStudentUidAsync(_profiles, cancellationToken);
+        if (studentUid is null)
+        {
+            return NotFound();
+        }
+
+        var profile = await _profiles.GetByStudentUidAsync(studentUid.Value, cancellationToken);
+        var page = await _challans.GetChallanForStudentAsync(studentUid.Value, id, cancellationToken);
+        if (page?.Challan is null)
+        {
+            return NotFound();
+        }
+
+        return View(WithStudentIdentity(page, profile));
     }
 
     public async Task<IActionResult> FeeHistory(CancellationToken cancellationToken)
@@ -51,4 +71,15 @@ public class FeesController : StudentPortalBaseController
     {
         return RedirectToAction(nameof(FeeHistory));
     }
+
+    private static StudentChallanPageModel WithStudentIdentity(
+        StudentChallanPageModel page,
+        StudentProfileViewModel? profile) =>
+        new()
+        {
+            Challan = page.Challan,
+            Lines = page.Lines,
+            StudentName = profile?.FullName ?? string.Empty,
+            RegistrationNo = profile?.RegistrationNo ?? string.Empty
+        };
 }

@@ -1,15 +1,5 @@
 @{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Fee Management";
     ViewData["FeeErpShowSidebarChrome"] = true;
-    ViewData["FeeErpHideGlobalSearch"] = true;
-    ViewData["FeeErpHideNavbarBrandIcon"] = true;
-    ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/fee";
-    ViewData["FeeErpNavbarBrandText"] = "Fee Management";
-    ViewData["FeeErpNavbarBrandIcon"] = "fa-wallet";
-    ViewData["FeeErpHideRoleLabel"] = true;
-    ViewData["FeeErpMobileNavClass"] = "d-sm-none";
-    ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -29,11 +19,12 @@
     <link rel="stylesheet" href="~/css/portals/fee-mgmt-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/module-compact-topbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portals/portal-data-grid.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="fee-erp-shell fee-mgmt-shell">
     <partial name="_FeeMgmtModuleTopBar" />
-    <partial name="_FeeErpNavbar" model="pageTitle" />
+    <partial name="_FeeMgmtSubNavbar" />
     <div class="fee-erp-canvas">
         <aside class="fee-erp-sidebar fee-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Fee management navigation">
             <partial name="_FeeMgmtMgmtSidebar" />

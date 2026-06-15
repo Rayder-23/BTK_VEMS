@@ -16,7 +16,7 @@ public class CoursesController : StudentPortalBaseController
 
     public async Task<IActionResult> AllCourses(CancellationToken cancellationToken)
     {
-        ViewData["Title"] = "All Courses";
+        ViewData["Title"] = "Enrolled Courses";
 
         var studentUid = await ResolveStudentUidAsync(_profiles, cancellationToken);
         if (studentUid is null)
@@ -26,6 +26,20 @@ public class CoursesController : StudentPortalBaseController
 
         var model = await _courses.GetAssignedCoursesAsync(studentUid.Value, cancellationToken);
         return View(model);
+    }
+
+    public IActionResult CourseMaterials()
+    {
+        ViewData["Title"] = "Course Materials";
+        ViewData["Description"] = "Download lecture notes, slides, and other course resources.";
+        return View();
+    }
+
+    public IActionResult LessonPlans()
+    {
+        ViewData["Title"] = "Lesson Plans";
+        ViewData["Description"] = "View weekly lesson plans and topics for your enrolled courses.";
+        return View();
     }
 
     public IActionResult Classes()

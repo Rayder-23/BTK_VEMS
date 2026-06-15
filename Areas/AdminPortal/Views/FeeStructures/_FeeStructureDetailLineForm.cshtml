@@ -1,0 +1,83 @@
+@model VEMS.Areas.AdminPortal.Models.Fee.FeeStructureDetailFormModel
+@using VEMS.Areas.AdminPortal.Models.Fee
+@{
+    var feeHeads = ViewData["FeeHeads"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+    var defaultYear = ViewData["DefaultApplicableYear"] as short?;
+    var monthNames = new[]
+    {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+<input type="hidden" asp-for="Uid" />
+<input type="hidden" asp-for="StructureId" />
+
+<div class="fee-structure-form-grid fee-structure-detail-line-form" data-frequency-form>
+    <div class="row fee-structure-form-row align-items-center">
+        <label asp-for="FeeHeadId" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <select asp-for="FeeHeadId" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(feeHeads, "Id", "Name"))">
+                <option value="">— Select fee head —</option>
+            </select>
+            <span asp-validation-for="FeeHeadId" class="text-danger small"></span>
+        </div>
+        <label asp-for="Amount" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label fee-structure-form-label--pair-start"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <input asp-for="Amount" class="form-control form-control-sm" type="number" step="0.01" min="0" />
+            <span asp-validation-for="Amount" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row fee-structure-form-row align-items-center">
+        <label asp-for="Frequency" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <select asp-for="Frequency" class="form-select form-select-sm fee-detail-frequency">
+                <option value="Monthly">Monthly</option>
+                <option value="OneTime">OneTime</option>
+            </select>
+            <span asp-validation-for="Frequency" class="text-danger small"></span>
+            <div class="form-text">Monthly repeats each billing cycle; OneTime applies to a single month/year.</div>
+        </div>
+        <label asp-for="DueDate" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label fee-structure-form-label--pair-start"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <input asp-for="DueDate" class="form-control form-control-sm" type="date" />
+            <span asp-validation-for="DueDate" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row fee-structure-form-row align-items-center fee-detail-one-time-fields d-none">
+        <label asp-for="ApplicableMonth" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <select asp-for="ApplicableMonth" class="form-select form-select-sm fee-detail-applicable-month">
+                <option value="">— Select month —</option>
+                @for (var m = 1; m <= 12; m++)
+                {
+                    <option value="@m">@m.ToString("00") — @monthNames[m - 1]</option>
+                }
+            </select>
+            <span asp-validation-for="ApplicableMonth" class="text-danger small"></span>
+        </div>
+        <label asp-for="ApplicableYear" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label fee-structure-form-label--pair-start"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <input asp-for="ApplicableYear" class="form-control form-control-sm fee-detail-applicable-year"
+                   type="number" min="2000" max="2100" />
+            <span asp-validation-for="ApplicableYear" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row fee-structure-form-row align-items-center">
+        <label asp-for="LateFinePerDay" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <input asp-for="LateFinePerDay" class="form-control form-control-sm" type="number" step="0.01" min="0" />
+            <span asp-validation-for="LateFinePerDay" class="text-danger small"></span>
+        </div>
+        <label asp-for="MaxLateFine" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label fee-structure-form-label--pair-start"></label>
+        <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
+            <input asp-for="MaxLateFine" class="form-control form-control-sm" type="number" step="0.01" min="0" />
+            <span asp-validation-for="MaxLateFine" class="text-danger small"></span>
+        </div>
+    </div>
+</div>

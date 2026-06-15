@@ -21,4 +21,11 @@ public class ResultsController : StudentPortalBaseController
         ViewData["Title"] = "Exams";
         return View();
     }
+
+    public IActionResult Grades()
+    {
+        ViewData["Title"] = "Grades";
+        ViewData["Description"] = "View your course grades and academic performance.";
+        return View();
+    }
 }

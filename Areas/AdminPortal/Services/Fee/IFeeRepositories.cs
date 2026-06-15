@@ -32,7 +32,7 @@ public interface IFeeHeadRepository
 
 public interface IFeeStructureRepository
 {
-    Task<IReadOnlyList<FeeStructureListItem>> ListAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeeStructureListItem>> ListAsync(int? programId = null, CancellationToken cancellationToken = default);
     Task<FeeStructureFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(
         int programId,
@@ -46,7 +46,9 @@ public interface IFeeStructureRepository
     Task<bool> DeactivateAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default);
     Task<FeeStructureDetailsPageModel?> GetDetailsPageAsync(int structureId, CancellationToken cancellationToken = default);
     Task<bool> DetailExistsAsync(int structureId, short feeHeadId, int? excludeUid, CancellationToken cancellationToken = default);
+    Task<FeeStructureDetailFormModel?> GetDetailAsync(int detailUid, CancellationToken cancellationToken = default);
     Task<int> AddDetailAsync(FeeStructureDetailFormModel model, int createdBy, CancellationToken cancellationToken = default);
+    Task<bool> UpdateDetailAsync(FeeStructureDetailFormModel model, int? updatedBy, CancellationToken cancellationToken = default);
     Task<bool> DeleteDetailAsync(int detailUid, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeStructureDetailLine>> GetDetailsForStructureAsync(int structureId, CancellationToken cancellationToken = default);
 }

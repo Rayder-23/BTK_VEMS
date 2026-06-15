@@ -835,9 +835,21 @@ body.hr-mgmt-shell,
 body.examination-mgmt-shell,
 body.teachers-mgmt-shell {
     --module-mgmt-sidebar-w: 220px;
-    --fee-erp-module-bar-h: 44px;
     --fee-erp-topnav-stack-h: calc(var(--fee-erp-module-bar-h) + var(--fee-erp-topnav-h));
     padding-top: var(--fee-erp-topnav-stack-h);
+}
+
+body.fee-mgmt-shell {
+    --fee-erp-module-bar-h: 45px;
+    --fee-erp-topnav-h: 26px;
+}
+
+body.settings-mgmt-shell,
+body.accounts-mgmt-shell,
+body.hr-mgmt-shell,
+body.examination-mgmt-shell,
+body.teachers-mgmt-shell {
+    --fee-erp-module-bar-h: 44px;
 }
 
 body.fee-mgmt-shell .fee-erp-module-topbar,
@@ -924,6 +936,14 @@ body.hr-mgmt-shell .fee-erp-navbar,
 body.examination-mgmt-shell .fee-erp-navbar,
 body.teachers-mgmt-shell .fee-erp-navbar {
     top: var(--fee-erp-module-bar-h);
+}
+
+body.fee-mgmt-shell .fee-mgmt-subnavbar {
+    position: fixed;
+    top: var(--fee-erp-module-bar-h);
+    left: 0;
+    right: 0;
+    z-index: 1035;
 }
 
 body.fee-mgmt-shell .fee-erp-sidebar,

@@ -28,6 +28,8 @@ public sealed class StudentChallanPageModel
 {
     public StudentChallanSummary? Challan { get; init; }
     public IReadOnlyList<StudentChallanLine> Lines { get; init; } = [];
+    public string StudentName { get; init; } = string.Empty;
+    public string RegistrationNo { get; init; } = string.Empty;
 }
 
 public sealed class StudentFeeHistoryPageModel

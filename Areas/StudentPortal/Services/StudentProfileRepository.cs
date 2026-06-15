@@ -23,9 +23,12 @@ public sealed class StudentProfileRepository : IStudentProfileRepository
                 s.MobileNo,
                 s.Email,
                 s.IsActive,
+                s.CreatedOn,
                 se.ProgramName,
+                se.ProgramCode,
+                se.YearName,
+                se.ClassSectionDisplay,
                 se.RollNo,
-                se.AcademicYear,
                 se.EnrollmentDate,
                 sl.Username,
                 sl.Email AS LoginEmail,
@@ -36,13 +39,22 @@ public sealed class StudentProfileRepository : IStudentProfileRepository
             OUTER APPLY (
                 SELECT TOP 1
                     p.ProgramName,
+                    p.ProgramCode,
+                    ay.YearName,
+                    CASE
+                        WHEN cs.ClassSectionID IS NULL THEN NULL
+                        ELSE c.ClassName + N' · ' + sec.SectionName
+                    END AS ClassSectionDisplay,
                     e.RollNo,
-                    e.AcademicYear,
                     e.EnrollmentDate
                 FROM dbo.StudentEnrollments e
                 INNER JOIN dbo.Programs p ON e.ProgramID = p.ProgramID
-                WHERE e.StudentID = s.StudentID AND e.IsActive = 1
-                ORDER BY e.AcademicYear DESC, e.GradeOrSemester DESC
+                INNER JOIN dbo.AcademicYears ay ON e.AcademicYearID = ay.AcademicYearID
+                LEFT JOIN dbo.ClassSections cs ON e.ClassSectionID = cs.ClassSectionID
+                LEFT JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+                LEFT JOIN dbo.Sections sec ON cs.SectionID = sec.SectionID
+                WHERE e.StudentID = s.StudentID
+                ORDER BY e.EnrollmentDate DESC, ay.YearName DESC
             ) se
             WHERE s.StudentID = @StudentUid;
             """;
@@ -57,23 +69,21 @@ public sealed class StudentProfileRepository : IStudentProfileRepository
             return null;
         }
 
-        var enrollmentDate = reader["EnrollmentDate"] is DBNull
-            ? DateTime.UtcNow.Date
-            : reader.GetDateTime(reader.GetOrdinal("EnrollmentDate"));
-
         return new StudentProfileViewModel
         {
-            Uid = ToInt32(reader, "StudentID"),
+            StudentId = ToInt32(reader, "StudentID"),
             RegistrationNo = reader["RegistrationNo"] as string ?? string.Empty,
-            RollNo = reader["RollNo"] as string,
             FullName = reader["StudentName"] as string ?? string.Empty,
-            FatherName = string.Empty,
-            DateOfBirth = DateTime.MinValue,
-            Gender = string.Empty,
-            AdmissionYear = reader["AcademicYear"] is DBNull ? (short)0 : reader.GetInt16(reader.GetOrdinal("AcademicYear")),
-            AdmissionDate = enrollmentDate,
+            MobileNo = reader["MobileNo"] as string,
+            Email = reader["Email"] as string,
             IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
+            CreatedOn = reader.GetDateTime(reader.GetOrdinal("CreatedOn")),
             ProgramName = reader["ProgramName"] as string,
+            ProgramCode = reader["ProgramCode"] as string,
+            AcademicYearName = reader["YearName"] as string,
+            ClassSectionDisplay = reader["ClassSectionDisplay"] as string,
+            RollNo = reader["RollNo"] is DBNull ? null : ToInt32(reader, "RollNo"),
+            EnrollmentDate = reader["EnrollmentDate"] is DBNull ? null : reader.GetDateTime(reader.GetOrdinal("EnrollmentDate")),
             PortalUsername = reader["Username"] as string,
             PortalEmail = reader["LoginEmail"] as string ?? reader["Email"] as string,
             PortalStatus = reader["LoginStatus"] as string,

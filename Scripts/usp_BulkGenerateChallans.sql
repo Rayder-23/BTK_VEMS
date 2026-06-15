@@ -103,30 +103,32 @@ BEGIN
     BEGIN
         INSERT INTO @Students (StudentID, RegistrationNo, StudentName, IsActive)
         SELECT
-            s.Uid,
+            s.StudentID,
             s.RegistrationNo,
-            LTRIM(RTRIM(s.FirstName + ISNULL(N' ' + s.MiddleName, N'') + N' ' + s.LastName)),
+            s.StudentName,
             s.IsActive
         FROM dbo.Students s
-        WHERE s.ProgramID = @ProgramID
+        INNER JOIN dbo.StudentEnrollments se ON se.StudentID = s.StudentID
+        WHERE se.ProgramID = @ProgramID
           AND s.IsActive = 1;
     END
     ELSE
     BEGIN
         INSERT INTO @Students (StudentID, RegistrationNo, StudentName, IsActive)
         SELECT
-            s.Uid,
+            s.StudentID,
             s.RegistrationNo,
-            LTRIM(RTRIM(s.FirstName + ISNULL(N' ' + s.MiddleName, N'') + N' ' + s.LastName)),
+            s.StudentName,
             s.IsActive
         FROM dbo.Students s
+        INNER JOIN dbo.StudentEnrollments se ON se.StudentID = s.StudentID
         INNER JOIN
         (
             SELECT TRY_CAST(LTRIM(RTRIM(value)) AS INT) AS StudentID
             FROM STRING_SPLIT(@StudentIDs, N',')
             WHERE LTRIM(RTRIM(value)) <> N''
-        ) ids ON ids.StudentID = s.Uid
-        WHERE s.ProgramID = @ProgramID;
+        ) ids ON ids.StudentID = s.StudentID
+        WHERE se.ProgramID = @ProgramID;
     END;
 
     DECLARE
@@ -198,6 +200,14 @@ BEGIN
                     SELECT fsd.FeeHeadID, fsd.Amount
                     FROM dbo.FeeStructureDetails fsd
                     WHERE fsd.StructureID = @StructureID
+                      AND (
+                            fsd.Frequency = N'Monthly'
+                            OR (
+                                fsd.Frequency = N'OneTime'
+                                AND fsd.ApplicableMonth = MONTH(@IssueDate)
+                                AND fsd.ApplicableYear = YEAR(@IssueDate)
+                            )
+                          )
                 ),
                 LineDiscounts AS
                 (
@@ -227,6 +237,11 @@ BEGIN
                     CASE WHEN ld.RawDiscount > ld.Amount THEN ld.Amount ELSE ld.RawDiscount END,
                     ld.Amount - CASE WHEN ld.RawDiscount > ld.Amount THEN ld.Amount ELSE ld.RawDiscount END
                 FROM LineDiscounts ld;
+
+                IF NOT EXISTS (SELECT 1 FROM @LineItems)
+                BEGIN
+                    THROW 50002, N'No fee line items apply for the issue date month/year. Monthly heads are always included; one-time heads must match their configured month and year.', 1;
+                END;
 
                 SELECT
                     @TotalAmount = ISNULL(SUM(Amount), 0),

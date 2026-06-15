@@ -1,0 +1,76 @@
+/* Shared compact data grid (fee structure details baseline) */
+
+.portal-data-grid {
+    margin-bottom: 0;
+}
+
+.portal-data-grid thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    padding: 0.45rem 0.65rem;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.portal-data-grid tbody td {
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.65rem;
+    vertical-align: middle;
+}
+
+.portal-data-grid tbody tr {
+    transition: background-color 0.18s ease;
+}
+
+.portal-data-grid tbody tr:hover {
+    background: #fff7f7;
+}
+
+.portal-data-grid .portal-grid-data {
+    color: #2563eb;
+    font-size: 0.8125rem;
+}
+
+.portal-data-grid .portal-grid-data a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.portal-data-grid .portal-grid-data a:hover {
+    text-decoration: underline;
+}
+
+/* Legacy aliases */
+.fee-structure-details-table {
+    margin-bottom: 0;
+}
+
+.fee-structure-details-table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    padding: 0.45rem 0.65rem;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.fee-structure-details-table tbody td {
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.65rem;
+    vertical-align: middle;
+}
+
+.fee-structure-details-table tbody tr:hover {
+    background: #fff7f7;
+}
+
+.fee-structure-grid-data,
+.fee-structure-details-table .portal-grid-data {
+    color: #2563eb;
+    font-size: 0.8125rem;
+}
