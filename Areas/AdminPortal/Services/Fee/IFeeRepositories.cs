@@ -57,7 +57,14 @@ public interface IFeeStructureRepository
 
 public interface IFeeChallanRepository
 {
-    Task<IReadOnlyList<ChallanListItem>> ListAsync(string? search, int? programId = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ChallanListItem>> ListAsync(
+        string? search,
+        int? programId = null,
+        string? challanMonth = null,
+        string? challanYear = null,
+        string? paymentStatus = null,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ChallanBillingPeriodLookup>> GetDistinctBillingPeriodsAsync(CancellationToken cancellationToken = default);
     Task<ChallanDetailsPageModel?> GetDetailsAsync(int challanId, CancellationToken cancellationToken = default);
     Task<int> GenerateChallanAsync(ChallanGenerateFormModel model, int createdBy, CancellationToken cancellationToken = default);
     Task<bool> CancelAsync(int challanId, int? updatedBy, CancellationToken cancellationToken = default);

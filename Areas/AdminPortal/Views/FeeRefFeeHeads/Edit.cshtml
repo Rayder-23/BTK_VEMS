@@ -3,27 +3,23 @@
     ViewData["Title"] = "Edit Fee Head";
 }
 
-<section class="module-page-header accent-red">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-3">
-            <li class="breadcrumb-item"><a href="/adminportal/fee">Fee</a></li>
-            <li class="breadcrumb-item"><a href="/adminportal/fee/fee-heads">Fee Heads</a></li>
-            <li class="breadcrumb-item active">Edit</li>
-        </ol>
-    </nav>
-    <h1 class="h3 fw-bold">Edit fee head</h1>
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Edit fee head</span>
+        <a class="btn btn-sm btn-outline-secondary rounded-pill flex-shrink-0" href="/adminportal/fee/fee-heads">Back</a>
+    </div>
 </section>
 
 <partial name="_FeeAlerts" />
 
-<section class="portal-card mt-4">
+<section class="portal-card">
     <form method="post" asp-action="Edit" asp-route-id="@Model.Uid">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Uid" />
         <partial name="_FeeHeadForm" />
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a class="btn btn-outline-secondary" href="/adminportal/fee/fee-heads">Cancel</a>
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+            <a class="btn btn-sm btn-outline-secondary" href="/adminportal/fee/fee-heads">Cancel</a>
         </div>
     </form>
 </section>

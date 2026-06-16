@@ -8,6 +8,7 @@ public static class ExaminationDashboardCatalog
     [
         new()
         {
+            Sequence = 1,
             Title = "Exam Setup",
             Description = "Exam types, grading scales, and grade remark rules.",
             Url = "/adminportal/examination/exam-types",
@@ -16,6 +17,7 @@ public static class ExaminationDashboardCatalog
         },
         new()
         {
+            Sequence = 2,
             Title = "Marking & Scheduling",
             Description = "Course marking schemes, exam papers, and exam schedule.",
             Url = "/adminportal/examination/marking-schemes",
@@ -24,6 +26,7 @@ public static class ExaminationDashboardCatalog
         },
         new()
         {
+            Sequence = 3,
             Title = "Marks & Submissions",
             Description = "Enter student marks and track assignment submissions.",
             Url = "/adminportal/examination/student-marks",
@@ -32,6 +35,7 @@ public static class ExaminationDashboardCatalog
         },
         new()
         {
+            Sequence = 4,
             Title = "Results & Grades",
             Description = "Course grades, semester results, and official result lines.",
             Url = "/adminportal/examination/student-grades",

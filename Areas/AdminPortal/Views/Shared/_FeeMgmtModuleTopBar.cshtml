@@ -23,21 +23,7 @@
             <span class="fee-mgmt-module-topbar__title fw-semibold">Fee Management</span>
         </a>
 
-        <nav class="fee-mgmt-module-nav portal-module-nav flex-grow-1" aria-label="Fee module navigation">
-            @foreach (var item in FeeMgmtNavCatalog.SidebarNav)
-            {
-                if (string.Equals(item.Key, "dashboard", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var isActive = string.Equals(item.Key, activeKey, StringComparison.OrdinalIgnoreCase);
-                <a class="portal-module-link @(isActive ? "active" : "")" href="@item.Url" title="@item.Name">
-                    <i class="fa-solid @item.IconClass" aria-hidden="true"></i>
-                    <span>@item.Name</span>
-                </a>
-            }
-        </nav>
+        <div class="flex-grow-1"></div>
 
         <a class="fee-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal

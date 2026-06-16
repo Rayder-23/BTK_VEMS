@@ -165,6 +165,19 @@ public sealed class FeeStructureDetailEditPageModel
     public IReadOnlyList<FeeLookupItem> FeeHeads { get; init; } = [];
 }
 
+public sealed class ChallanBillingPeriodLookup
+{
+    public string Month { get; init; } = string.Empty;
+    public string Year { get; init; } = string.Empty;
+    public string Display =>
+        string.IsNullOrWhiteSpace(Month)
+            ? string.Empty
+            : string.IsNullOrWhiteSpace(Year)
+                ? Month.Trim()
+                : $"{Month.Trim()} {Year.Trim()}";
+    public string Key => $"{Month.Trim()}|{Year.Trim()}";
+}
+
 public sealed class ChallanListItem
 {
     public int Uid { get; init; }
@@ -365,6 +378,7 @@ public sealed class ConcessionFormModel
 
 public sealed class FeeDashboardTile
 {
+    public int Sequence { get; init; }
     public required string Title { get; init; }
     public required string Description { get; init; }
     public required string Url { get; init; }

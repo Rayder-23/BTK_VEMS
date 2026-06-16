@@ -1,12 +1,31 @@
-<header class="fee-erp-module-topbar hr-mgmt-module-topbar" aria-label="HR management module">
-    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center justify-content-between gap-3">
-        <a href="/adminportal/hr" class="hr-mgmt-module-topbar__brand text-decoration-none d-flex align-items-center gap-2">
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeKey = HrNavCatalog.ResolveActiveKey(path, action);
+    var isDashboardActive = string.Equals(activeKey, "dashboard", StringComparison.OrdinalIgnoreCase);
+}
+<header class="fee-erp-module-topbar hr-mgmt-module-topbar portal-navbar-primary" aria-label="HR management module">
+    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center gap-2 gap-lg-3">
+        <button class="btn btn-outline-light btn-sm d-lg-none flex-shrink-0 hr-mgmt-menu-btn portal-menu-btn" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
+                aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <a href="/adminportal/hr"
+           class="hr-mgmt-module-topbar__brand portal-module-link @(isDashboardActive ? "active" : "") text-decoration-none d-inline-flex align-items-center gap-2 flex-shrink-0"
+           aria-label="HR Management home"
+           title="Dashboard">
             <span class="hr-mgmt-module-topbar__logo rounded-2 d-inline-flex align-items-center justify-content-center">
                 <i class="fa-solid fa-people-group" aria-hidden="true"></i>
             </span>
             <span class="hr-mgmt-module-topbar__title fw-semibold">HR Management</span>
         </a>
-        <a class="hr-mgmt-module-topbar__link small text-decoration-none" href="/adminportal">
+
+        <div class="flex-grow-1"></div>
+
+        <a class="hr-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal
         </a>
     </div>

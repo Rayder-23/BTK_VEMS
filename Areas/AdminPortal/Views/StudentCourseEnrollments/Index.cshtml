@@ -82,7 +82,13 @@
                         <div class="fw-semibold">@row.CourseCode</div>
                         <div class="small text-muted">@row.CourseName</div>
                     </td>
-                    <td>@row.AcademicYear · Sem @row.GradeOrSemester</td>
+                    <td>
+                        @row.YearName
+                        @if (row.RollNo is not null)
+                        {
+                            <span> · Roll @row.RollNo</span>
+                        }
+                    </td>
                     <td>@row.Status</td>
                     <td>@(row.IsActive ? "Yes" : "No")</td>
                     <td class="text-end text-nowrap">

@@ -6,20 +6,22 @@ public sealed class FeeMgmtNavItem
     public required string Name { get; init; }
     public required string Url { get; init; }
     public required string IconClass { get; init; }
+    public required string IconColorClass { get; init; }
 }
 
 public static class FeeMgmtNavCatalog
 {
     public static IReadOnlyList<FeeMgmtNavItem> SidebarNav { get; } =
     [
-        new() { Key = "dashboard", Name = "Dashboard", Url = "/adminportal/fee", IconClass = "fa-gauge-high" },
-        new() { Key = "fee-heads", Name = "Fee Heads", Url = "/adminportal/fee/fee-heads", IconClass = "fa-tags" },
-        new() { Key = "fee-structures", Name = "Fee Structures", Url = "/adminportal/fee/fee-structures", IconClass = "fa-layer-group" },
-        new() { Key = "challans", Name = "Challans", Url = "/adminportal/fee/challans", IconClass = "fa-file-invoice-dollar" },
-        new() { Key = "challans-multimonth", Name = "Challan MultiMonth", Url = "/adminportal/fee/challans-multimonth", IconClass = "fa-calendar-days" },
-        new() { Key = "payments", Name = "Payments", Url = "/adminportal/fee/payments", IconClass = "fa-wallet" },
-        new() { Key = "receipts", Name = "Receipts", Url = "/adminportal/fee/payment-receipts", IconClass = "fa-receipt" },
-        new() { Key = "concessions", Name = "Concessions", Url = "/adminportal/fee/concessions", IconClass = "fa-percent" }
+        new() { Key = "dashboard", Name = "Dashboard", Url = "/adminportal/fee", IconClass = "fa-gauge-high", IconColorClass = "fee-nav-icon-blue" },
+        new() { Key = "fee-heads", Name = "Fee Heads", Url = "/adminportal/fee/fee-heads", IconClass = "fa-tags", IconColorClass = "fee-nav-icon-red" },
+        new() { Key = "fee-structures", Name = "Fee Structures", Url = "/adminportal/fee/fee-structures", IconClass = "fa-layer-group", IconColorClass = "fee-nav-icon-orange" },
+        new() { Key = "challans", Name = "Challans", Url = "/adminportal/fee/challans", IconClass = "fa-file-invoice-dollar", IconColorClass = "fee-nav-icon-cyan" },
+        new() { Key = "challans-multimonth", Name = "Challan MultiMonth", Url = "/adminportal/fee/challans-multimonth", IconClass = "fa-calendar-days", IconColorClass = "fee-nav-icon-indigo" },
+        new() { Key = "pay-challans", Name = "Pay Challans", Url = "/adminportal/fee/pay-challans", IconClass = "fa-money-check-dollar", IconColorClass = "fee-nav-icon-teal" },
+        new() { Key = "payments", Name = "Payments", Url = "/adminportal/fee/payments", IconClass = "fa-wallet", IconColorClass = "fee-nav-icon-green" },
+        new() { Key = "receipts", Name = "Receipts", Url = "/adminportal/fee/payment-receipts", IconClass = "fa-receipt", IconColorClass = "fee-nav-icon-purple" },
+        new() { Key = "concessions", Name = "Concessions", Url = "/adminportal/fee/concessions", IconClass = "fa-percent", IconColorClass = "fee-nav-icon-pink" }
     ];
 
     private static readonly HashSet<string> FeeMgmtControllers = new(StringComparer.OrdinalIgnoreCase)
@@ -29,6 +31,7 @@ public static class FeeMgmtNavCatalog
         "FeeStructures",
         "FeeStructureDetails",
         "FeeChallans",
+        "FeePayChallans",
         "FeeChallanMultiMonth",
         "FeeChallanDetails",
         "FeePayments",
@@ -58,6 +61,11 @@ public static class FeeMgmtNavCatalog
         if (path.Contains("/challans-multimonth", StringComparison.Ordinal))
         {
             return "challans-multimonth";
+        }
+
+        if (path.Contains("/pay-challans", StringComparison.Ordinal))
+        {
+            return "pay-challans";
         }
 
         if (path.Contains("/challans", StringComparison.Ordinal) || path.Contains("/challan-details", StringComparison.Ordinal))

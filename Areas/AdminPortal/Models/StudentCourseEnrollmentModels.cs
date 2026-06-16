@@ -10,8 +10,8 @@ public sealed class StudentCourseEnrollmentListItem
     public string ClassCode { get; init; } = string.Empty;
     public string CourseCode { get; init; } = string.Empty;
     public string CourseName { get; init; } = string.Empty;
-    public short AcademicYear { get; init; }
-    public byte GradeOrSemester { get; init; }
+    public string YearName { get; init; } = string.Empty;
+    public int? RollNo { get; init; }
     public string Status { get; init; } = string.Empty;
     public bool IsActive { get; init; }
 }

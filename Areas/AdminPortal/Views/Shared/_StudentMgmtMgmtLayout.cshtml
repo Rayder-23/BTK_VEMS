@@ -1,16 +1,3 @@
-@{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Student Management";
-    ViewData["FeeErpShowSidebarChrome"] = true;
-    ViewData["FeeErpHideGlobalSearch"] = true;
-    ViewData["FeeErpHideNavbarBrandIcon"] = true;
-    ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/students";
-    ViewData["FeeErpNavbarBrandText"] = "Student Management";
-    ViewData["FeeErpNavbarBrandIcon"] = "fa-user-graduate";
-    ViewData["FeeErpHideRoleLabel"] = true;
-    ViewData["FeeErpMobileNavClass"] = "d-sm-none";
-    ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +13,6 @@
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/portals/admin-portal.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/portals/fee-mgmt-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/module-compact-topbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/student-mgmt-portal.css" asp-append-version="true" />
@@ -34,7 +20,7 @@
 </head>
 <body class="fee-erp-shell student-mgmt-shell">
     <partial name="_StudentMgmtModuleTopBar" />
-    <partial name="_FeeErpNavbar" model="pageTitle" />
+    <partial name="_PortalSessionSubNavbar" />
     <div class="fee-erp-canvas">
         <aside class="fee-erp-sidebar student-mgmt-sidebar flex-column" id="feeErpSidebar" aria-label="Student management navigation">
             <partial name="_StudentMgmtMgmtSidebar" />

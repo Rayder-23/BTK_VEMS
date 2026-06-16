@@ -30,39 +30,4 @@
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function () {
-            const programSelect = document.getElementById('programSelect');
-            const classSelect = document.getElementById('classSelect');
-            if (!programSelect || !classSelect) return;
-
-            async function loadClasses(programId, selectedId) {
-                const current = selectedId || classSelect.value;
-                classSelect.innerHTML = '<option value="">— Select class —</option>';
-                if (!programId) return;
-
-                const response = await fetch(`/adminportal/students/program-enrollments/lookups?programId=${programId}`);
-                if (!response.ok) return;
-
-                const items = await response.json();
-                items.forEach((item) => {
-                    const option = document.createElement('option');
-                    option.value = item.id;
-                    option.textContent = item.name;
-                    if (current && Number(current) === Number(item.id)) {
-                        option.selected = true;
-                    }
-                    classSelect.appendChild(option);
-                });
-            }
-
-            programSelect.addEventListener('change', () => {
-                loadClasses(programSelect.value, null);
-            });
-
-            if (programSelect.value) {
-                loadClasses(programSelect.value, classSelect.value);
-            }
-        })();
-    </script>
 }

@@ -33,13 +33,14 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 c.ClassCode,
                 co.CourseCode,
                 co.CourseName,
-                se.AcademicYear,
-                se.GradeOrSemester,
+                ay.YearName,
+                se.RollNo,
                 sce.Status,
                 sce.IsActive
             FROM dbo.StudentCourseEnrollments sce
             INNER JOIN dbo.Students s ON sce.StudentID = s.StudentID
-            INNER JOIN dbo.StudentEnrollments se ON sce.EnrollmentID = se.Uid
+            INNER JOIN dbo.StudentEnrollments se ON sce.EnrollmentID = se.UID
+            INNER JOIN dbo.AcademicYears ay ON se.AcademicYearID = ay.AcademicYearID
             INNER JOIN dbo.ClassSectionCourses csc ON sce.ClassSectionCourseID = csc.UID
             INNER JOIN dbo.ClassSections cs ON csc.ClassSectionID = cs.ClassSectionID
             INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
@@ -70,8 +71,8 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
                 ClassCode = reader["ClassCode"] as string ?? string.Empty,
                 CourseCode = reader["CourseCode"] as string ?? string.Empty,
                 CourseName = reader["CourseName"] as string ?? string.Empty,
-                AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-                GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"]),
+                YearName = reader["YearName"] as string ?? string.Empty,
+                RollNo = reader["RollNo"] is DBNull ? null : Convert.ToInt32(reader["RollNo"]),
                 Status = reader["Status"] as string ?? string.Empty,
                 IsActive = Convert.ToBoolean(reader["IsActive"])
             });
@@ -201,7 +202,7 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
         const string sql = """
             SELECT COUNT(1)
             FROM dbo.StudentEnrollments
-            WHERE Uid = @EnrollmentID
+            WHERE UID = @EnrollmentID
               AND StudentID = @StudentID;
             """;
 
@@ -292,15 +293,17 @@ public sealed class StudentCourseEnrollmentRepository : IStudentCourseEnrollment
     {
         const string sql = """
             SELECT
-                se.Uid,
-                p.ProgramCode + ' · ' + CAST(se.AcademicYear AS nvarchar(4))
-                    + ' · Sem ' + CAST(se.GradeOrSemester AS nvarchar(3))
-                    + ' (' + se.RollNo + ')'
+                se.UID,
+                p.ProgramCode + N' · ' + ay.YearName
+                    + CASE
+                        WHEN se.RollNo IS NULL THEN N''
+                        ELSE N' · Roll ' + CAST(se.RollNo AS nvarchar(20))
+                      END
             FROM dbo.StudentEnrollments se
             INNER JOIN dbo.Programs p ON se.ProgramID = p.ProgramID
+            INNER JOIN dbo.AcademicYears ay ON se.AcademicYearID = ay.AcademicYearID
             WHERE se.StudentID = @StudentID
-              AND se.EnrollmentStatus = 'Active'
-            ORDER BY se.AcademicYear DESC, se.GradeOrSemester;
+            ORDER BY ay.YearName DESC, se.EnrollmentDate DESC;
             """;
 
         await using var command = new SqlCommand(sql, connection);

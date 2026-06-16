@@ -1,0 +1,134 @@
+/* Examination module — compact dashboard and module tiles */
+
+body.examination-mgmt-shell .fee-erp-main-inner {
+    padding-bottom: 1.25rem;
+    padding-top: 1rem;
+}
+
+body.examination-mgmt-shell .em-dashboard-summary {
+    border-radius: 0.75rem;
+    padding: 0.7rem 0.9rem;
+}
+
+body.examination-mgmt-shell .em-dashboard-summary .page-summary-title {
+    font-size: 0.95rem;
+}
+
+body.examination-mgmt-shell .em-dashboard-summary .page-summary-meta {
+    font-size: 0.74rem;
+}
+
+body.examination-mgmt-shell .em-dashboard-modules {
+    border-radius: 0.75rem;
+    padding: 0.75rem 0.9rem;
+}
+
+body.examination-mgmt-shell .em-dashboard-modules__heading {
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.55rem;
+    text-transform: uppercase;
+}
+
+body.examination-mgmt-shell .em-module-grid {
+    --bs-gutter-x: 0.55rem;
+    --bs-gutter-y: 0.55rem;
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card {
+    align-items: flex-start;
+    border-radius: 0.7rem;
+    color: inherit;
+    display: flex;
+    gap: 0.55rem;
+    height: 100%;
+    padding: 0.65rem 0.7rem;
+    text-decoration: none;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-teal {
+    background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+    border: 1px solid rgba(13, 148, 136, 0.18);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-orange {
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    border: 1px solid rgba(249, 115, 22, 0.18);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-cyan {
+    background: linear-gradient(135deg, #ecfeff, #cffafe);
+    border: 1px solid rgba(8, 145, 178, 0.18);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-indigo {
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border: 1px solid rgba(79, 70, 229, 0.18);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card:hover {
+    color: inherit;
+    transform: translateY(-1px);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-teal:hover {
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.14);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-orange:hover {
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.14);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-cyan:hover {
+    box-shadow: 0 6px 16px rgba(8, 145, 178, 0.14);
+}
+
+body.examination-mgmt-shell .em-module-grid .em-module-card.accent-indigo:hover {
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.14);
+}
+
+body.examination-mgmt-shell .em-module-card__icon {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 0.55rem;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+    height: 32px;
+    justify-content: center;
+    width: 32px;
+}
+
+body.examination-mgmt-shell .em-module-card__icon.accent-teal { color: #0d9488; }
+body.examination-mgmt-shell .em-module-card__icon.accent-orange { color: #f97316; }
+body.examination-mgmt-shell .em-module-card__icon.accent-cyan { color: #0891b2; }
+body.examination-mgmt-shell .em-module-card__icon.accent-indigo { color: #4f46e5; }
+
+body.examination-mgmt-shell .em-module-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+body.examination-mgmt-shell .em-module-card__title {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+body.examination-mgmt-shell .em-module-card__seq {
+    color: #94a3b8;
+    font-weight: 800;
+}
+
+body.examination-mgmt-shell .em-module-card__desc {
+    color: #64748b;
+    display: block;
+    font-size: 0.7rem;
+    line-height: 1.3;
+}

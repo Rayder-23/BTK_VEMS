@@ -20,7 +20,13 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         _concessions = concessions;
     }
 
-    public async Task<IReadOnlyList<ChallanListItem>> ListAsync(string? search, int? programId = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ChallanListItem>> ListAsync(
+        string? search,
+        int? programId = null,
+        string? challanMonth = null,
+        string? challanYear = null,
+        string? paymentStatus = null,
+        CancellationToken cancellationToken = default)
     {
         const string sql = """
             SELECT c.Uid, c.ChallanNo,
@@ -38,7 +44,9 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
               AND (@Search IS NULL OR c.ChallanNo LIKE @Search
                    OR s.RegistrationNo LIKE @Search OR a.ApplicationNo LIKE @Search
                    OR s.StudentName LIKE @Search
-                   OR a.FirstName LIKE @Search OR a.LastName LIKE @Search)
+                   OR a.FirstName LIKE @Search OR a.LastName LIKE @Search
+                   OR CAST(c.Uid AS nvarchar(20)) LIKE @Search
+                   OR CAST(s.StudentID AS nvarchar(20)) LIKE @Search)
               AND (@ProgramId IS NULL
                    OR EXISTS (
                        SELECT 1
@@ -47,6 +55,20 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                          AND se.ProgramID = @ProgramId)
                    OR fs.ProgramID = @ProgramId
                    OR ap.ProgramID = @ProgramId)
+              AND (@ChallanMonth IS NULL OR LTRIM(RTRIM(c.ChallanMonth)) = @ChallanMonth)
+              AND (@ChallanYear IS NULL OR LTRIM(RTRIM(c.ChallanYear)) = @ChallanYear)
+              AND (@PaymentStatus IS NULL
+                   OR (@PaymentStatus = N'Paid'
+                       AND c.Status <> N'Cancelled'
+                       AND c.AmountPaid >= c.NetPayable
+                       AND c.NetPayable > 0)
+                   OR (@PaymentStatus = N'Unpaid'
+                       AND c.Status <> N'Cancelled'
+                       AND c.AmountPaid <= 0)
+                   OR (@PaymentStatus = N'PartiallyPaid'
+                       AND c.Status <> N'Cancelled'
+                       AND c.AmountPaid > 0
+                       AND c.AmountPaid < c.NetPayable))
             ORDER BY c.Uid DESC;
             """;
 
@@ -55,6 +77,9 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Search", string.IsNullOrWhiteSpace(search) ? DBNull.Value : $"%{search.Trim()}%");
         command.Parameters.AddWithValue("@ProgramId", programId is > 0 ? programId.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@ChallanMonth", string.IsNullOrWhiteSpace(challanMonth) ? DBNull.Value : challanMonth.Trim());
+        command.Parameters.AddWithValue("@ChallanYear", string.IsNullOrWhiteSpace(challanYear) ? DBNull.Value : challanYear.Trim());
+        command.Parameters.AddWithValue("@PaymentStatus", string.IsNullOrWhiteSpace(paymentStatus) ? DBNull.Value : paymentStatus.Trim());
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
@@ -78,6 +103,36 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                 AmountPaid = paid,
                 Status = stored,
                 DisplayStatus = FeeStatusHelper.ComputeChallanStatus(net, paid, dueDate, stored)
+            });
+        }
+
+        return list;
+    }
+
+    public async Task<IReadOnlyList<ChallanBillingPeriodLookup>> GetDistinctBillingPeriodsAsync(CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT DISTINCT
+                LTRIM(RTRIM(c.ChallanMonth)) AS ChallanMonth,
+                LTRIM(RTRIM(c.ChallanYear)) AS ChallanYear
+            FROM dbo.Challans c
+            WHERE c.IsActive = 1
+              AND c.ChallanMonth IS NOT NULL
+              AND LTRIM(RTRIM(c.ChallanMonth)) <> N''
+            ORDER BY ChallanYear DESC, ChallanMonth;
+            """;
+
+        var list = new List<ChallanBillingPeriodLookup>();
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new ChallanBillingPeriodLookup
+            {
+                Month = reader["ChallanMonth"] as string ?? "",
+                Year = reader["ChallanYear"] as string ?? ""
             });
         }
 

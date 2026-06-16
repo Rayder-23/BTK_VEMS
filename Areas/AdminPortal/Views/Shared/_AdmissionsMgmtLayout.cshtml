@@ -1,16 +1,3 @@
-@{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Admissions";
-    ViewData["FeeErpShowSidebarChrome"] = true;
-    ViewData["FeeErpHideGlobalSearch"] = true;
-    ViewData["FeeErpHideNavbarBrandIcon"] = true;
-    ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpNavbarBrandHref"] = "/adminportal/admissions";
-    ViewData["FeeErpNavbarBrandText"] = "Admissions Module";
-    ViewData["FeeErpNavbarBrandIcon"] = "fa-door-open";
-    ViewData["FeeErpMobileNavClass"] = "d-sm-none";
-    ViewData["FeeErpHideRoleLabel"] = true;
-    ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,13 +15,12 @@
     <link rel="stylesheet" href="~/css/portals/admin-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/module-compact-topbar.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/portals/student-mgmt-portal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portals/admissions-mgmt-portal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="fee-erp-shell admissions-mgmt-shell">
     <partial name="_AdmissionsModuleTopBar" />
-    <partial name="_FeeErpNavbar" model="pageTitle" />
+    <partial name="_PortalSessionSubNavbar" />
     <div class="fee-erp-canvas">
         <aside class="fee-erp-sidebar admissions-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Admissions navigation">
             <partial name="_AdmissionsMgmtSidebar" />

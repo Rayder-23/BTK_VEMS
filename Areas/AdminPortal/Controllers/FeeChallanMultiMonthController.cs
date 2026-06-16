@@ -26,6 +26,15 @@ public sealed class FeeChallanMultiMonthController : FeeMgmtControllerBase
         ViewData["Search"] = search;
         ViewData["ProgramId"] = programId;
         ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
-        return View(await _challans.ListAsync(search, programId, cancellationToken));
+
+        var hasSearched = !string.IsNullOrWhiteSpace(search) || programId is > 0;
+        ViewData["HasSearched"] = hasSearched;
+
+        if (!hasSearched)
+        {
+            return View(Array.Empty<ChallanListItem>());
+        }
+
+        return View(await _challans.ListAsync(search, programId, cancellationToken: cancellationToken));
     }
 }

@@ -66,6 +66,43 @@
     background: #f8fafc;
 }
 
-.module-page-header.accent-pink .module-page-icon {
+.timetable-page-banner {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.85rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    padding: 0.75rem 1rem;
+    position: relative;
+}
+
+.timetable-page-banner::before {
+    background: linear-gradient(90deg, #ec4899, #db2777);
+    content: "";
+    height: 3px;
+    inset: 0 0 auto;
+    position: absolute;
+}
+
+.timetable-page-banner__icon {
+    align-items: center;
     background: linear-gradient(135deg, #ec4899, #db2777);
+    border-radius: 0.65rem;
+    color: #fff;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 1rem;
+    height: 36px;
+    justify-content: center;
+    width: 36px;
+}
+
+body.timetable-mgmt-shell .portal-card {
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+}
+
+body.timetable-mgmt-shell .fee-erp-main-inner {
+    padding-top: 0.85rem !important;
+    padding-bottom: 1rem !important;
 }

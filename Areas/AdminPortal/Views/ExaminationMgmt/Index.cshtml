@@ -4,22 +4,31 @@
     ViewData["PageTitle"] = "Examination · Dashboard";
 }
 
-<h1 class="h4 fw-bold mb-3">Dashboard</h1>
+<section class="portal-card page-summary-compact em-dashboard-summary mb-2" aria-label="Dashboard overview">
+    <div class="page-summary-head">
+        <div class="page-summary-title-block">
+            <div class="page-summary-title">Dashboard</div>
+            <div class="page-summary-meta">Exam setup, marking, schedules, student marks, submissions, grades, and semester results.</div>
+        </div>
+    </div>
+</section>
 
-<p class="text-muted mb-4">Exam setup, marking, schedules, student marks, submissions, grades, and semester results.</p>
-
-<section class="portal-card" aria-label="Examination modules">
-    <h2 class="h6 fw-bold mb-3">Modules</h2>
-    <div class="row g-3 fm-module-grid">
+<section class="portal-card em-dashboard-modules" aria-label="Examination modules">
+    <h2 class="em-dashboard-modules__heading">Modules</h2>
+    <div class="row g-2 em-module-grid">
         @foreach (var tile in Model)
         {
-            <div class="col-12 col-md-6 col-xl-4">
-                <a class="fm-module-card @tile.AccentClass" href="@tile.Url">
-                    <span class="fm-module-card__icon @tile.AccentClass">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <a class="em-module-card @tile.AccentClass" href="@tile.Url">
+                    <span class="em-module-card__icon @tile.AccentClass" aria-hidden="true">
                         <i class="bi @tile.IconClass"></i>
                     </span>
-                    <h3 class="fm-module-card__title">@tile.Title</h3>
-                    <p class="fm-module-card__desc">@tile.Description</p>
+                    <span class="em-module-card__body">
+                        <span class="em-module-card__title">
+                            <span class="em-module-card__seq">@tile.Sequence.</span> @tile.Title
+                        </span>
+                        <span class="em-module-card__desc">@tile.Description</span>
+                    </span>
                 </a>
             </div>
         }

@@ -66,6 +66,33 @@ body.fee-mgmt-portal .breadcrumb-item a {
     transition: box-shadow .2s ease, transform .2s ease;
 }
 
+body.fee-mgmt-shell .fm-module-grid .fm-module-card.accent-orange {
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    border-color: rgba(249, 115, 22, 0.2);
+}
+
+body.fee-mgmt-shell .fm-module-grid .fm-module-card.accent-cyan {
+    background: linear-gradient(135deg, #ecfeff, #cffafe);
+    border-color: rgba(8, 145, 178, 0.2);
+}
+
+body.fee-mgmt-shell .fm-module-grid .fm-module-card.accent-green {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: rgba(22, 163, 74, 0.2);
+}
+
+body.fee-mgmt-shell .fm-module-grid .fm-module-card.accent-orange:hover {
+    box-shadow: 0 12px 28px rgba(249, 115, 22, 0.16);
+}
+
+body.fee-mgmt-shell .fm-module-grid .fm-module-card.accent-cyan:hover {
+    box-shadow: 0 12px 28px rgba(8, 145, 178, 0.16);
+}
+
+body.fee-mgmt-shell .fm-module-grid .fm-module-card.accent-green:hover {
+    box-shadow: 0 12px 28px rgba(22, 163, 74, 0.16);
+}
+
 .fm-module-grid .fm-module-card:hover {
     box-shadow: 0 12px 28px rgba(180, 83, 9, 0.15);
     transform: translateY(-2px);
@@ -82,16 +109,53 @@ body.fee-mgmt-portal .breadcrumb-item a {
     width: 48px;
 }
 
+body.fee-mgmt-shell .fm-module-card__icon.accent-orange {
+    background: rgba(255, 255, 255, 0.72);
+    color: #f97316;
+}
+
+body.fee-mgmt-shell .fm-module-card__icon.accent-cyan {
+    background: rgba(255, 255, 255, 0.72);
+    color: #0891b2;
+}
+
+body.fee-mgmt-shell .fm-module-card__icon.accent-green {
+    background: rgba(255, 255, 255, 0.72);
+    color: #16a34a;
+}
+
 .fm-module-card__title {
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: .35rem;
 }
 
+.fm-module-card__seq {
+    color: #94a3b8;
+    font-weight: 800;
+    margin-right: 0.15rem;
+}
+
 .fm-module-card__desc {
     color: #64748b;
     font-size: .85rem;
     margin: 0;
+}
+
+/* Fee sidebar link icon colors */
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-blue { color: #60a5fa; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-red { color: #f87171; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-orange { color: #fb923c; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-cyan { color: #22d3ee; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-indigo { color: #818cf8; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-teal { color: #2dd4bf; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-green { color: #4ade80; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-purple { color: #c084fc; }
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link i.fee-nav-icon-pink { color: #f472b6; }
+
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link.active i[class*="fee-nav-icon-"],
+body.fee-mgmt-shell .fee-mgmt-sidebar-inner .fee-erp-nav-link:hover i[class*="fee-nav-icon-"] {
+    color: #fff;
 }
 
 .fm-notice {
@@ -169,5 +233,117 @@ body.fee-mgmt-home .home-brand-icon {
 @media (min-width: 992px) {
     .payments-receipts-mgmt-shell .fee-payment-form-row > :nth-child(3) {
         padding-left: 0.75rem;
+    }
+}
+
+/* Challan MultiMonth — Title | Field | Title | Field grid (full width) */
+.challan-multimonth-form-grid {
+    --mm-form-title-col: minmax(5.5rem, 1fr);
+    --mm-form-field-col: minmax(8rem, 2.125fr);
+    --mm-form-pair-gap: 0.35rem;
+    --mm-form-group-gap: 1.25rem;
+    width: 100%;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-row {
+    display: grid;
+    grid-template-columns:
+        var(--mm-form-title-col)
+        var(--mm-form-field-col)
+        var(--mm-form-group-gap)
+        var(--mm-form-title-col)
+        var(--mm-form-field-col);
+    column-gap: var(--mm-form-pair-gap);
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-row--half {
+    grid-template-columns: var(--mm-form-title-col) var(--mm-form-field-col);
+    max-width: calc((100% - var(--mm-form-group-gap) - var(--mm-form-pair-gap)) / 2);
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-gap {
+    min-height: 0;
+    padding: 0;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-label,
+.challan-multimonth-form-grid .challan-multimonth-form-field {
+    border: 1px solid #dbe3ef;
+    min-height: 2.35rem;
+    min-width: 0;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-label {
+    align-items: center;
+    background: #f8fafc;
+    color: #334155;
+    display: flex;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 0;
+    padding: 0.45rem 0.55rem;
+    width: 100%;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field {
+    align-items: center;
+    background: #fff;
+    display: flex;
+    padding: 0.35rem 0.45rem;
+    width: 100%;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field .form-control-sm,
+.challan-multimonth-form-grid .challan-multimonth-form-field .form-select-sm,
+.challan-multimonth-form-grid .challan-multimonth-form-field .btn {
+    font-size: 0.8125rem;
+    max-width: 100%;
+    min-height: calc(1.4em + 0.4rem + 2px);
+    width: 100%;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field .form-control-sm,
+.challan-multimonth-form-grid .challan-multimonth-form-field .form-select-sm {
+    color: #2563eb;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field .form-select-sm option {
+    color: #1e293b;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field .text-danger.small {
+    display: block;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    margin-top: 0.1rem;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field .form-check-label {
+    color: #2563eb;
+    font-size: 0.8125rem;
+}
+
+.challan-multimonth-form-grid .challan-multimonth-form-field textarea.form-control-sm {
+    min-height: 3.25rem;
+    resize: vertical;
+}
+
+@media (max-width: 767.98px) {
+    .challan-multimonth-form-grid .challan-multimonth-form-row,
+    .challan-multimonth-form-grid .challan-multimonth-form-row--half {
+        grid-template-columns: minmax(5rem, 34%) minmax(0, 1fr);
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .challan-multimonth-form-grid .challan-multimonth-form-gap {
+        display: none;
     }
 }

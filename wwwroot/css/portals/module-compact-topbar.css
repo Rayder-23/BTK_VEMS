@@ -1,37 +1,59 @@
-/* Shared compact first + second topbar (Teachers module baseline) */
+/* Shared compact first + second topbar (fee module baseline) */
 
-body.teachers-mgmt-shell,
+/* Compact module bar + session subheader */
+body.fee-mgmt-shell,
+body.admin-home-shell,
+body.admissions-mgmt-shell,
 body.student-mgmt-shell,
 body.settings-mgmt-shell,
-body.fee-mgmt-shell,
+body.hr-mgmt-shell,
+body.accounts-mgmt-shell,
+body.teachers-mgmt-shell,
 body.examination-mgmt-shell,
-body.admissions-mgmt-shell,
-body.admin-home-shell {
-    --fee-erp-module-bar-h: 34px;
-    --fee-erp-topnav-h: 46px;
-}
-
-body.settings-mgmt-shell {
-    --fee-erp-module-bar-h: 50px;
-    --fee-erp-topnav-h: 26px;
-}
-
-/* Fee management — match student portal topbars (45px module + 26px subheader) */
-body.fee-mgmt-shell {
+body.timetable-mgmt-shell {
     --fee-erp-module-bar-h: 45px;
     --fee-erp-topnav-h: 26px;
 }
 
-body.fee-mgmt-shell .fee-mgmt-module-topbar.portal-navbar-primary {
+body.fee-mgmt-shell .fee-mgmt-module-topbar.portal-navbar-primary,
+body.admin-home-shell .admin-home-module-topbar.portal-navbar-primary,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar.portal-navbar-primary,
+body.student-mgmt-shell .student-mgmt-module-topbar.portal-navbar-primary,
+body.settings-mgmt-shell .settings-mgmt-module-topbar.portal-navbar-primary,
+body.hr-mgmt-shell .hr-mgmt-module-topbar.portal-navbar-primary,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar.portal-navbar-primary,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar.portal-navbar-primary,
+body.examination-mgmt-shell .examination-mgmt-module-topbar.portal-navbar-primary,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar.portal-navbar-primary {
     padding: 0.2rem 0;
 }
 
-body.fee-mgmt-shell .fee-mgmt-module-nav.portal-module-nav {
+body.fee-mgmt-shell .fee-mgmt-module-nav.portal-module-nav,
+body.admissions-mgmt-shell .admissions-mgmt-module-nav.portal-module-nav,
+body.student-mgmt-shell .student-mgmt-module-nav.portal-module-nav,
+body.settings-mgmt-shell .settings-mgmt-module-nav.portal-module-nav,
+body.hr-mgmt-shell .hr-mgmt-module-nav.portal-module-nav,
+body.teachers-mgmt-shell .teachers-mgmt-module-nav.portal-module-nav,
+body.examination-mgmt-shell .examination-mgmt-module-nav.portal-module-nav,
+body.timetable-mgmt-shell .timetable-mgmt-module-nav.portal-module-nav {
     gap: 0.35rem;
 }
 
 body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link,
-body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link {
+body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link,
+body.admin-home-shell .admin-home-module-topbar__brand.portal-module-link,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar__brand.portal-module-link,
+body.student-mgmt-shell .student-mgmt-module-topbar__brand.portal-module-link,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link,
+body.hr-mgmt-shell .hr-mgmt-module-nav .portal-module-link,
+body.hr-mgmt-shell .hr-mgmt-module-topbar__brand.portal-module-link,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar__brand.portal-module-link,
+body.teachers-mgmt-shell .teachers-mgmt-module-nav .portal-module-link,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__brand.portal-module-link,
+body.examination-mgmt-shell .examination-mgmt-module-nav .portal-module-link,
+body.examination-mgmt-shell .examination-mgmt-module-topbar__brand.portal-module-link,
+body.timetable-mgmt-shell .timetable-mgmt-module-nav .portal-module-link,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar__brand.portal-module-link {
     border-bottom: 0;
     border-radius: 0.65rem;
     color: #e2e8f0;
@@ -45,21 +67,69 @@ body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link {
 body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link:hover,
 body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link.active,
 body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link:hover,
-body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link.active {
+body.fee-mgmt-shell .fee-mgmt-module-topbar__brand.portal-module-link.active,
+body.admin-home-shell .admin-home-module-topbar__brand.portal-module-link:hover,
+body.admin-home-shell .admin-home-module-topbar__brand.portal-module-link.active,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar__brand.portal-module-link:hover,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar__brand.portal-module-link.active,
+body.student-mgmt-shell .student-mgmt-module-topbar__brand.portal-module-link:hover,
+body.student-mgmt-shell .student-mgmt-module-topbar__brand.portal-module-link.active,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link:hover,
+body.settings-mgmt-shell .settings-mgmt-module-topbar__brand.portal-module-link.active,
+body.hr-mgmt-shell .hr-mgmt-module-nav .portal-module-link:hover,
+body.hr-mgmt-shell .hr-mgmt-module-nav .portal-module-link.active,
+body.hr-mgmt-shell .hr-mgmt-module-topbar__brand.portal-module-link:hover,
+body.hr-mgmt-shell .hr-mgmt-module-topbar__brand.portal-module-link.active,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar__brand.portal-module-link:hover,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar__brand.portal-module-link.active,
+body.teachers-mgmt-shell .teachers-mgmt-module-nav .portal-module-link:hover,
+body.teachers-mgmt-shell .teachers-mgmt-module-nav .portal-module-link.active,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__brand.portal-module-link:hover,
+body.teachers-mgmt-shell .teachers-mgmt-module-topbar__brand.portal-module-link.active,
+body.examination-mgmt-shell .examination-mgmt-module-nav .portal-module-link:hover,
+body.examination-mgmt-shell .examination-mgmt-module-nav .portal-module-link.active,
+body.examination-mgmt-shell .examination-mgmt-module-topbar__brand.portal-module-link:hover,
+body.examination-mgmt-shell .examination-mgmt-module-topbar__brand.portal-module-link.active,
+body.timetable-mgmt-shell .timetable-mgmt-module-nav .portal-module-link:hover,
+body.timetable-mgmt-shell .timetable-mgmt-module-nav .portal-module-link.active,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar__brand.portal-module-link:hover,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar__brand.portal-module-link.active {
     background: rgba(37, 99, 235, 0.18);
     color: #fff;
 }
 
-body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link i {
+body.fee-mgmt-shell .fee-mgmt-module-nav .portal-module-link i,
+body.hr-mgmt-shell .hr-mgmt-module-nav .portal-module-link i,
+body.teachers-mgmt-shell .teachers-mgmt-module-nav .portal-module-link i,
+body.examination-mgmt-shell .examination-mgmt-module-nav .portal-module-link i,
+body.timetable-mgmt-shell .timetable-mgmt-module-nav .portal-module-link i {
     font-size: 0.85rem;
 }
 
-body.fee-mgmt-shell .fee-mgmt-menu-btn.portal-menu-btn {
+body.fee-mgmt-shell .fee-mgmt-menu-btn.portal-menu-btn,
+body.admissions-mgmt-shell .admissions-mgmt-menu-btn.portal-menu-btn,
+body.student-mgmt-shell .student-mgmt-menu-btn.portal-menu-btn,
+body.settings-mgmt-shell .settings-mgmt-menu-btn.portal-menu-btn,
+body.hr-mgmt-shell .hr-mgmt-menu-btn.portal-menu-btn,
+body.accounts-mgmt-shell .accounts-mgmt-menu-btn.portal-menu-btn,
+body.teachers-mgmt-shell .teachers-mgmt-menu-btn.portal-menu-btn,
+body.examination-mgmt-shell .examination-mgmt-menu-btn.portal-menu-btn,
+body.timetable-mgmt-shell .timetable-mgmt-menu-btn.portal-menu-btn {
     line-height: 1;
     padding: 0.2rem 0.45rem;
 }
 
-body.fee-mgmt-shell .fee-mgmt-subnavbar.portal-subheader {
+body.fee-mgmt-shell .fee-mgmt-subnavbar.portal-subheader,
+body.fee-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.admin-home-shell .admin-home-subnavbar.portal-subheader,
+body.admissions-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.student-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.settings-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.hr-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.accounts-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.teachers-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.examination-mgmt-shell .portal-session-subnavbar.portal-subheader,
+body.timetable-mgmt-shell .portal-session-subnavbar.portal-subheader {
     backdrop-filter: blur(12px);
     background: rgba(255, 255, 255, 0.92);
     border-bottom: 1px solid #e2e8f0;
@@ -67,22 +137,58 @@ body.fee-mgmt-shell .fee-mgmt-subnavbar.portal-subheader {
     padding: 0.25rem 0;
 }
 
-body.fee-mgmt-shell .portal-login-inline {
+body.fee-mgmt-shell .portal-login-inline,
+body.admin-home-shell .portal-login-inline,
+body.admissions-mgmt-shell .portal-login-inline,
+body.student-mgmt-shell .portal-login-inline,
+body.settings-mgmt-shell .portal-login-inline,
+body.hr-mgmt-shell .portal-login-inline,
+body.accounts-mgmt-shell .portal-login-inline,
+body.teachers-mgmt-shell .portal-login-inline,
+body.examination-mgmt-shell .portal-login-inline,
+body.timetable-mgmt-shell .portal-login-inline {
     color: #64748b;
     font-size: 0.8rem;
     line-height: 1.2;
     white-space: nowrap;
 }
 
-body.fee-mgmt-shell .portal-login-inline .fw-semibold {
+body.fee-mgmt-shell .portal-login-inline .fw-semibold,
+body.admin-home-shell .portal-login-inline .fw-semibold,
+body.admissions-mgmt-shell .portal-login-inline .fw-semibold,
+body.student-mgmt-shell .portal-login-inline .fw-semibold,
+body.settings-mgmt-shell .portal-login-inline .fw-semibold,
+body.hr-mgmt-shell .portal-login-inline .fw-semibold,
+body.accounts-mgmt-shell .portal-login-inline .fw-semibold,
+body.teachers-mgmt-shell .portal-login-inline .fw-semibold,
+body.examination-mgmt-shell .portal-login-inline .fw-semibold,
+body.timetable-mgmt-shell .portal-login-inline .fw-semibold {
     color: #1e293b;
 }
 
-body.fee-mgmt-shell .portal-login-sep {
+body.fee-mgmt-shell .portal-login-sep,
+body.admin-home-shell .portal-login-sep,
+body.admissions-mgmt-shell .portal-login-sep,
+body.student-mgmt-shell .portal-login-sep,
+body.settings-mgmt-shell .portal-login-sep,
+body.hr-mgmt-shell .portal-login-sep,
+body.accounts-mgmt-shell .portal-login-sep,
+body.teachers-mgmt-shell .portal-login-sep,
+body.examination-mgmt-shell .portal-login-sep,
+body.timetable-mgmt-shell .portal-login-sep {
     margin: 0 0.35rem;
 }
 
-body.fee-mgmt-shell .portal-logout-btn {
+body.fee-mgmt-shell .portal-logout-btn,
+body.admin-home-shell .portal-logout-btn,
+body.admissions-mgmt-shell .portal-logout-btn,
+body.student-mgmt-shell .portal-logout-btn,
+body.settings-mgmt-shell .portal-logout-btn,
+body.hr-mgmt-shell .portal-logout-btn,
+body.accounts-mgmt-shell .portal-logout-btn,
+body.teachers-mgmt-shell .portal-logout-btn,
+body.examination-mgmt-shell .portal-logout-btn,
+body.timetable-mgmt-shell .portal-logout-btn {
     font-size: 0.75rem;
     line-height: 1.2;
     padding: 0.15rem 0.5rem;
@@ -107,8 +213,11 @@ body.teachers-mgmt-shell .teachers-mgmt-module-topbar__logo,
 body.student-mgmt-shell .student-mgmt-module-topbar__logo,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__logo,
 body.fee-mgmt-shell .fee-mgmt-module-topbar__logo,
+body.hr-mgmt-shell .hr-mgmt-module-topbar__logo,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar__logo,
 body.examination-mgmt-shell .examination-mgmt-module-topbar__logo,
-body.admissions-mgmt-shell .admissions-module-topbar__logo,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar__logo,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar__logo,
 body.admin-home-shell .admin-home-module-topbar__logo {
     width: 26px;
     height: 26px;
@@ -118,8 +227,12 @@ body.admin-home-shell .admin-home-module-topbar__logo {
 body.teachers-mgmt-shell .teachers-mgmt-module-topbar__title,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__title,
 body.fee-mgmt-shell .fee-mgmt-module-topbar__title,
+body.hr-mgmt-shell .hr-mgmt-module-topbar__title,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar__title,
 body.examination-mgmt-shell .examination-mgmt-module-topbar__title,
-body.admissions-mgmt-shell .admissions-module-topbar__title,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar__title,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar__title,
+body.student-mgmt-shell .student-mgmt-module-topbar__title,
 body.admin-home-shell .admin-home-module-topbar__title {
     font-size: 0.85rem;
 }
@@ -128,8 +241,11 @@ body.teachers-mgmt-shell .teachers-mgmt-module-topbar__link,
 body.student-mgmt-shell .student-mgmt-module-topbar__link,
 body.settings-mgmt-shell .settings-mgmt-module-topbar__link,
 body.fee-mgmt-shell .fee-mgmt-module-topbar__link,
+body.hr-mgmt-shell .hr-mgmt-module-topbar__link,
+body.accounts-mgmt-shell .accounts-mgmt-module-topbar__link,
 body.examination-mgmt-shell .examination-mgmt-module-topbar__link,
-body.admissions-mgmt-shell .admissions-module-topbar__link,
+body.timetable-mgmt-shell .timetable-mgmt-module-topbar__link,
+body.admissions-mgmt-shell .admissions-mgmt-module-topbar__link,
 body.admin-home-shell .admin-home-module-topbar__link {
     font-size: 0.75rem;
 }

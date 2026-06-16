@@ -1,37 +1,52 @@
 @model VEMS.Areas.AdminPortal.Models.Fee.FeeHeadFormModel
 @using VEMS.Areas.AdminPortal.Models.Fee
 
-<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-<div class="row g-3">
-    <div class="col-md-4">
-        <label asp-for="HeadCode" class="form-label"></label>
-        <input asp-for="HeadCode" class="form-control" />
-        <span asp-validation-for="HeadCode" class="text-danger"></span>
-    </div>
-    <div class="col-md-8">
-        <label asp-for="HeadName" class="form-label"></label>
-        <input asp-for="HeadName" class="form-control" />
-        <span asp-validation-for="HeadName" class="text-danger"></span>
-    </div>
-    <div class="col-md-6">
-        <label asp-for="Category" class="form-label"></label>
-        <select asp-for="Category" class="form-select" asp-items="@(new SelectList(FeeConstants.FeeHeadCategories))"></select>
-    </div>
-    <div class="col-md-3">
-        <div class="form-check mt-4">
-            <input asp-for="IsMandatory" class="form-check-input" />
-            <label asp-for="IsMandatory" class="form-check-label"></label>
+<div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+<div class="challan-multimonth-form-grid">
+    <div class="challan-multimonth-form-row">
+        <label asp-for="HeadCode" class="challan-multimonth-form-label"></label>
+        <div class="challan-multimonth-form-field">
+            <input asp-for="HeadCode" class="form-control form-control-sm" />
+            <span asp-validation-for="HeadCode" class="text-danger small"></span>
+        </div>
+        <div class="challan-multimonth-form-gap" aria-hidden="true"></div>
+        <label asp-for="HeadName" class="challan-multimonth-form-label"></label>
+        <div class="challan-multimonth-form-field">
+            <input asp-for="HeadName" class="form-control form-control-sm" />
+            <span asp-validation-for="HeadName" class="text-danger small"></span>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="form-check mt-4">
-            <input asp-for="IsActive" class="form-check-input" />
-            <label asp-for="IsActive" class="form-check-label">Active</label>
+
+    <div class="challan-multimonth-form-row">
+        <label asp-for="Category" class="challan-multimonth-form-label"></label>
+        <div class="challan-multimonth-form-field">
+            <select asp-for="Category" class="form-select form-select-sm" asp-items="@(new SelectList(FeeConstants.FeeHeadCategories))"></select>
+            <span asp-validation-for="Category" class="text-danger small"></span>
+        </div>
+        <div class="challan-multimonth-form-gap" aria-hidden="true"></div>
+        <label asp-for="IsMandatory" class="challan-multimonth-form-label"></label>
+        <div class="challan-multimonth-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="IsMandatory" class="form-check-input" />
+                <label asp-for="IsMandatory" class="form-check-label small"></label>
+            </div>
         </div>
     </div>
-    <div class="col-12">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+
+    <div class="challan-multimonth-form-row">
+        <label asp-for="IsActive" class="challan-multimonth-form-label">Active</label>
+        <div class="challan-multimonth-form-field">
+            <div class="form-check mb-0">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label small">Yes</label>
+            </div>
+        </div>
+        <div class="challan-multimonth-form-gap" aria-hidden="true"></div>
+        <label asp-for="Description" class="challan-multimonth-form-label"></label>
+        <div class="challan-multimonth-form-field">
+            <textarea asp-for="Description" class="form-control form-control-sm" rows="2"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
     </div>
 </div>
-

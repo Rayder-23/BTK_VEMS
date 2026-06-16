@@ -27,7 +27,7 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
         ViewData["Search"] = search;
         ViewData["ProgramId"] = programId;
         ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
-        return View(await _challans.ListAsync(search, programId, cancellationToken));
+        return View(await _challans.ListAsync(search, programId, cancellationToken: cancellationToken));
     }
 
     [HttpGet("bulk")]
@@ -120,7 +120,7 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
         ViewData["Title"] = "Print voucher";
         ViewData["PageTitle"] = "Challans · Print voucher";
         ViewData["FeeMgmtModuleKey"] = "Challans";
-        var list = await _challans.ListAsync(null, null, cancellationToken);
+        var list = await _challans.ListAsync(null, null, cancellationToken: cancellationToken);
         return View(list);
     }
 

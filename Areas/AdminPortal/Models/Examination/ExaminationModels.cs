@@ -2,6 +2,7 @@ namespace VEMS.Areas.AdminPortal.Models.Examination;
 
 public sealed class ExaminationDashboardTile
 {
+    public int Sequence { get; init; }
     public required string Title { get; init; }
     public required string Description { get; init; }
     public required string Url { get; init; }

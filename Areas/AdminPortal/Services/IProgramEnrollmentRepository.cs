@@ -10,21 +10,18 @@ public interface IProgramEnrollmentRepository
 
     Task<ProgramEnrollmentFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default);
 
-    Task<ProgramEnrollmentLookups> GetLookupsAsync(
-        int? programId,
-        CancellationToken cancellationToken = default);
+    Task<ProgramEnrollmentLookups> GetLookupsAsync(CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsForPeriodAsync(
+    Task<bool> ExistsAsync(
         int studentId,
         int programId,
-        short academicYear,
-        byte gradeOrSemester,
+        int academicYearId,
         int? excludeUid,
         CancellationToken cancellationToken = default);
 
-    Task<int> InsertAsync(ProgramEnrollmentFormModel model, int createdBy, CancellationToken cancellationToken = default);
+    Task<int> InsertAsync(ProgramEnrollmentFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> UpdateAsync(ProgramEnrollmentFormModel model, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> UpdateAsync(ProgramEnrollmentFormModel model, CancellationToken cancellationToken = default);
 
-    Task<bool> WithdrawAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(int uid, CancellationToken cancellationToken = default);
 }

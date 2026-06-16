@@ -1,6 +1,8 @@
-/* Admin portal home — dual topbar shell (matches Teachers module) */
+/* Admin portal home — dual topbar shell (matches Fee Management) */
 
 body.fee-erp-shell.admin-home-shell {
+    --fee-erp-module-bar-h: 45px;
+    --fee-erp-topnav-h: 26px;
     --fee-erp-topnav-stack-h: calc(var(--fee-erp-module-bar-h) + var(--fee-erp-topnav-h));
     padding-top: var(--fee-erp-topnav-stack-h);
 }
@@ -17,26 +19,68 @@ body.admin-home-shell .admin-home-module-topbar {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+body.admin-home-shell .admin-home-module-topbar.portal-navbar-primary {
+    padding: 0.2rem 0;
+}
+
 body.admin-home-shell .admin-home-module-topbar__logo {
     background: rgba(13, 110, 253, 0.25);
     color: #fff;
 }
 
-body.admin-home-shell .admin-home-module-topbar__brand {
-    color: #fff;
+body.admin-home-shell .admin-home-module-topbar__brand.portal-module-link {
+    border-bottom: 0;
+    border-radius: 0.65rem;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    gap: 0.4rem;
+    padding: 0.38rem 0.85rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-body.admin-home-shell .admin-home-module-topbar__brand:hover {
+body.admin-home-shell .admin-home-module-topbar__brand.portal-module-link:hover,
+body.admin-home-shell .admin-home-module-topbar__brand.portal-module-link.active {
+    background: rgba(37, 99, 235, 0.18);
     color: #fff;
-    opacity: 0.9;
 }
 
 body.admin-home-shell .admin-home-module-topbar__link {
     color: rgba(226, 232, 240, 0.85);
 }
 
-body.admin-home-shell .fee-erp-navbar {
+body.admin-home-shell .admin-home-subnavbar.portal-subheader {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid #e2e8f0;
+    left: 0;
+    min-height: var(--fee-erp-topnav-h);
+    padding: 0.25rem 0;
+    position: fixed;
+    right: 0;
     top: var(--fee-erp-module-bar-h);
+    z-index: 1035;
+}
+
+body.admin-home-shell .portal-login-inline {
+    color: #64748b;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+body.admin-home-shell .portal-login-inline .fw-semibold {
+    color: #1e293b;
+}
+
+body.admin-home-shell .portal-login-sep {
+    margin: 0 0.35rem;
+}
+
+body.admin-home-shell .portal-logout-btn {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: 0.15rem 0.5rem;
 }
 
 body.admin-home-shell .fee-erp-canvas {
@@ -190,7 +234,7 @@ body.admin-home-shell .admin-home-main {
 .admin-home-shell .tm-module-card__icon.accent-pink { background: rgba(255, 255, 255, 0.7); color: #db2777; }
 
 .admin-home-shell .tm-module-card__title {
-    font-size: 0.875rem;
+    font-size: 1.1rem;
     font-weight: 700;
     line-height: 1.25;
     margin-bottom: 0.2rem;

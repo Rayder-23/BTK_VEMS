@@ -3,48 +3,46 @@
 @{
     var search = ViewData["Search"] as string;
     var selectedProgramId = ViewData["ProgramId"] as int?;
+    var hasSearched = ViewData["HasSearched"] as bool? == true;
     var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
-
-<section class="portal-card page-summary-compact mb-3">
-    <div class="page-summary-head">
-        <span class="page-summary-title">Challan MultiMonth</span>
-    </div>
-    <p class="text-muted small mb-0 mt-2">
-        Generate one challan per student for a month range (e.g. June 2026 to August 2026). Monthly fee heads are summed for each month; one-time heads apply only in their configured month.
-    </p>
-</section>
 
 <partial name="_FeeAlerts" />
 
 <partial name="_ChallanMultiMonthBulkGenerate" />
 
 <section class="portal-card mt-3">
-    <h2 class="h6 fw-bold mb-3">Recent challans</h2>
-    <form method="get" class="row g-2 mb-3 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label" for="challanProgramFilter">Program</label>
-            <select id="challanProgramFilter" name="programId" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="">All programs</option>
-                @foreach (var program in programs)
-                {
-                    if (selectedProgramId.HasValue && selectedProgramId.Value == program.Id)
+    <h2 class="h6 fw-bold mb-3">Search Challans</h2>
+    <form method="get" class="challan-multimonth-form-grid mb-3">
+        <div class="challan-multimonth-form-row">
+            <label class="challan-multimonth-form-label" for="challanProgramFilter">Program</label>
+            <div class="challan-multimonth-form-field">
+                <select id="challanProgramFilter" name="programId" class="form-select form-select-sm">
+                    <option value="">All programs</option>
+                    @foreach (var program in programs)
                     {
-                        <option value="@program.Id" selected="selected">@program.Name</option>
+                        if (selectedProgramId.HasValue && selectedProgramId.Value == program.Id)
+                        {
+                            <option value="@program.Id" selected="selected">@program.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@program.Id">@program.Name</option>
+                        }
                     }
-                    else
-                    {
-                        <option value="@program.Id">@program.Name</option>
-                    }
-                }
-            </select>
+                </select>
+            </div>
+            <div class="challan-multimonth-form-gap" aria-hidden="true"></div>
+            <label class="challan-multimonth-form-label" for="challanSearch">Search</label>
+            <div class="challan-multimonth-form-field">
+                <input type="search" id="challanSearch" name="search" value="@search" class="form-control form-control-sm" placeholder="Challan no, registration, student name" />
+            </div>
         </div>
-        <div class="col-md-5">
-            <label class="form-label" for="challanSearch">Search</label>
-            <input type="search" id="challanSearch" name="search" value="@search" class="form-control form-control-sm" placeholder="Challan no, registration, student name" />
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-sm btn-outline-primary w-100">Filter</button>
+        <div class="challan-multimonth-form-row challan-multimonth-form-row--half">
+            <label class="challan-multimonth-form-label" for="challanFilterSubmit">Find</label>
+            <div class="challan-multimonth-form-field">
+                <button type="submit" id="challanFilterSubmit" class="btn btn-sm btn-outline-primary w-100">Search</button>
+            </div>
         </div>
     </form>
     <div class="table-responsive">
@@ -63,25 +61,32 @@
                 </tr>
             </thead>
             <tbody>
-            @if (Model.Count == 0)
+            @if (!hasSearched)
+            {
+                <tr><td colspan="9" class="text-center text-muted py-4">Enter a program or search term, then click Search.</td></tr>
+            }
+            else if (Model.Count == 0)
             {
                 <tr><td colspan="9" class="text-center text-muted py-4">No challans found.</td></tr>
             }
-            @foreach (var row in Model)
+            else
             {
-                <tr>
-                    <td>@row.ChallanNo</td>
-                    <td>@row.StudentName<br /><small class="text-muted">@row.RegistrationNo</small></td>
-                    <td>@(string.IsNullOrWhiteSpace(row.BillingPeriodDisplay) ? "—" : row.BillingPeriodDisplay)</td>
-                    <td>@row.Semester @row.AcademicYear</td>
-                    <td>@row.DueDate.ToString("yyyy-MM-dd")</td>
-                    <td>@row.NetPayable.ToString("N2")</td>
-                    <td>@row.AmountPaid.ToString("N2")</td>
-                    <td><span class="badge text-bg-secondary">@row.DisplayStatus</span></td>
-                    <td class="text-end text-nowrap">
-                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/challans/details/@row.Uid">View</a>
-                    </td>
-                </tr>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@row.ChallanNo</td>
+                        <td>@row.StudentName<br /><small class="text-muted">@row.RegistrationNo</small></td>
+                        <td>@(string.IsNullOrWhiteSpace(row.BillingPeriodDisplay) ? "—" : row.BillingPeriodDisplay)</td>
+                        <td>@row.Semester @row.AcademicYear</td>
+                        <td>@row.DueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@row.NetPayable.ToString("N2")</td>
+                        <td>@row.AmountPaid.ToString("N2")</td>
+                        <td><span class="badge text-bg-secondary">@row.DisplayStatus</span></td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/challans/details/@row.Uid">View</a>
+                        </td>
+                    </tr>
+                }
             }
             </tbody>
         </table>

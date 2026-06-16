@@ -37,12 +37,7 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
 
         var form = new ProgramEnrollmentFormModel
         {
-            AcademicYear = (short)DateTime.Today.Year,
-            EnrollmentDate = DateTime.Today,
-            EnrollmentStatus = "Active",
-            GradeOrSemester = 1,
-            ClassId = 1,
-            IsActive = true
+            EnrollmentDate = DateTime.Today
         };
 
         if (studentId is > 0)
@@ -53,7 +48,7 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
         return View(new ProgramEnrollmentFormPageViewModel
         {
             Form = form,
-            Lookups = await _enrollments.GetLookupsAsync(form.ProgramId > 0 ? form.ProgramId : null, cancellationToken)
+            Lookups = await _enrollments.GetLookupsAsync(cancellationToken)
         });
     }
 
@@ -67,26 +62,22 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
         await ValidateFormAsync(model.Form, null, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _enrollments.GetLookupsAsync(model.Form.ProgramId, cancellationToken);
+            model.Lookups = await _enrollments.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
         try
         {
-            var newId = await _enrollments.InsertAsync(model.Form, ResolveActorId(), cancellationToken);
+            var newId = await _enrollments.InsertAsync(model.Form, cancellationToken);
             TempData["StatusMessage"] = $"Program enrollment created (id {newId}).";
             return RedirectToAction(nameof(Index));
         }
-        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        catch (SqlException ex) when (ex.Number is 2627 or 2601 or 547)
         {
-            ApplyUniqueConstraintError(ex, model);
-            model.Lookups = await _enrollments.GetLookupsAsync(model.Form.ProgramId, cancellationToken);
-            return View(model);
-        }
-        catch (SqlException ex) when (ex.Number == 547)
-        {
-            ApplyForeignKeyError(ex, model);
-            model.Lookups = await _enrollments.GetLookupsAsync(model.Form.ProgramId, cancellationToken);
+            ModelState.AddModelError(string.Empty, ex.Number == 547
+                ? "One or more selected values are invalid."
+                : "This student already has an enrollment for the same program and academic year.");
+            model.Lookups = await _enrollments.GetLookupsAsync(cancellationToken);
             return View(model);
         }
     }
@@ -106,7 +97,7 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
         return View(new ProgramEnrollmentFormPageViewModel
         {
             Form = row,
-            Lookups = await _enrollments.GetLookupsAsync(row.ProgramId, cancellationToken)
+            Lookups = await _enrollments.GetLookupsAsync(cancellationToken)
         });
     }
 
@@ -125,13 +116,13 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
         await ValidateFormAsync(model.Form, id, cancellationToken);
         if (!ModelState.IsValid)
         {
-            model.Lookups = await _enrollments.GetLookupsAsync(model.Form.ProgramId, cancellationToken);
+            model.Lookups = await _enrollments.GetLookupsAsync(cancellationToken);
             return View(model);
         }
 
         try
         {
-            var ok = await _enrollments.UpdateAsync(model.Form, ResolveStaffLoginUid(), cancellationToken);
+            var ok = await _enrollments.UpdateAsync(model.Form, cancellationToken);
             if (!ok)
             {
                 return NotFound();
@@ -140,39 +131,31 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
             TempData["StatusMessage"] = "Program enrollment updated.";
             return RedirectToAction(nameof(Index));
         }
-        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        catch (SqlException ex) when (ex.Number is 2627 or 2601 or 547)
         {
-            ApplyUniqueConstraintError(ex, model);
-            model.Lookups = await _enrollments.GetLookupsAsync(model.Form.ProgramId, cancellationToken);
+            ModelState.AddModelError(string.Empty, ex.Number == 547
+                ? "One or more selected values are invalid."
+                : "This student already has an enrollment for the same program and academic year.");
+            model.Lookups = await _enrollments.GetLookupsAsync(cancellationToken);
             return View(model);
+        }
+    }
+
+    [HttpPost("delete/{id:int}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var ok = await _enrollments.DeleteAsync(id, cancellationToken);
+            TempData["StatusMessage"] = ok ? "Program enrollment deleted." : "Record not found.";
         }
         catch (SqlException ex) when (ex.Number == 547)
         {
-            ApplyForeignKeyError(ex, model);
-            model.Lookups = await _enrollments.GetLookupsAsync(model.Form.ProgramId, cancellationToken);
-            return View(model);
+            TempData["ErrorMessage"] = "This enrollment cannot be deleted because other records still reference it.";
         }
-    }
 
-    [HttpPost("withdraw/{id:int}")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Withdraw(int id, CancellationToken cancellationToken)
-    {
-        var ok = await _enrollments.WithdrawAsync(id, ResolveStaffLoginUid(), cancellationToken);
-        TempData["StatusMessage"] = ok ? "Program enrollment withdrawn." : "Record not found or already withdrawn.";
         return RedirectToAction(nameof(Index));
-    }
-
-    [HttpGet("lookups")]
-    public async Task<IActionResult> Lookups(int programId, CancellationToken cancellationToken)
-    {
-        if (programId <= 0)
-        {
-            return BadRequest();
-        }
-
-        var lookups = await _enrollments.GetLookupsAsync(programId, cancellationToken);
-        return Json(lookups.Classes.Select(c => new { id = c.Id, name = c.Name }));
     }
 
     private async Task ValidateFormAsync(ProgramEnrollmentFormModel form, int? uid, CancellationToken cancellationToken)
@@ -182,7 +165,12 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
             return;
         }
 
-        var lookups = await _enrollments.GetLookupsAsync(form.ProgramId, cancellationToken);
+        var lookups = await _enrollments.GetLookupsAsync(cancellationToken);
+
+        if (lookups.AcademicYears.All(y => y.Id != form.AcademicYearId))
+        {
+            ModelState.AddModelError(nameof(form.AcademicYearId), "Select a valid academic year.");
+        }
 
         if (lookups.Students.All(s => s.Id != form.StudentId))
         {
@@ -194,67 +182,16 @@ public sealed class ProgramEnrollmentsController : StudentMgmtBaseController
             ModelState.AddModelError(nameof(form.ProgramId), "Select a valid program.");
         }
 
-        if (lookups.Classes.All(c => c.Id != form.ClassId))
+        if (form.ClassSectionId is > 0 && lookups.ClassSections.All(c => c.Id != form.ClassSectionId))
         {
-            ModelState.AddModelError(nameof(form.ClassId), "Select a valid class.");
+            ModelState.AddModelError(nameof(form.ClassSectionId), "Select a valid class section.");
         }
 
-        var enrollmentStatus = lookups.EnrollmentStatuses.FirstOrDefault(s =>
-            string.Equals(s, form.EnrollmentStatus, StringComparison.OrdinalIgnoreCase));
-        if (enrollmentStatus is null)
-        {
-            ModelState.AddModelError(nameof(form.EnrollmentStatus), "Select a valid enrollment status.");
-        }
-        else
-        {
-            form.EnrollmentStatus = ProgramEnrollmentRepository.AllowedEnrollmentStatuses.First(a =>
-                string.Equals(a, enrollmentStatus, StringComparison.OrdinalIgnoreCase));
-        }
-
-        if (await _enrollments.ExistsForPeriodAsync(
-                form.StudentId, form.ProgramId, form.AcademicYear, form.GradeOrSemester, uid, cancellationToken))
+        if (await _enrollments.ExistsAsync(form.StudentId, form.ProgramId, form.AcademicYearId, uid, cancellationToken))
         {
             ModelState.AddModelError(
-                nameof(form.GradeOrSemester),
-                "This student already has an enrollment for the same program, year, and semester.");
+                nameof(form.AcademicYearId),
+                "This student already has an enrollment for the same program and academic year.");
         }
     }
-
-    private void ApplyUniqueConstraintError(SqlException ex, ProgramEnrollmentFormPageViewModel model)
-    {
-        if (ex.Message.Contains("UQ_Enrollments_Period", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(
-                nameof(model.Form.GradeOrSemester),
-                "This student already has an enrollment for the same program, year, and semester.");
-            return;
-        }
-
-        ModelState.AddModelError(string.Empty, "A record with the same unique value already exists.");
-    }
-
-    private void ApplyForeignKeyError(SqlException ex, ProgramEnrollmentFormPageViewModel model)
-    {
-        if (ex.Message.Contains("FK_Enrollments_Class", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.ClassId), "Select a valid class.");
-            return;
-        }
-
-        if (ex.Message.Contains("FK_Enrollments_Student", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.StudentId), "Select a valid student.");
-            return;
-        }
-
-        if (ex.Message.Contains("FK_Enrollments_Program", StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(nameof(model.Form.ProgramId), "Select a valid program.");
-            return;
-        }
-
-        ModelState.AddModelError(string.Empty, "Student, program, or class reference is invalid.");
-    }
-
-    private int ResolveActorId() => ResolveStaffLoginUid() ?? 1;
 }

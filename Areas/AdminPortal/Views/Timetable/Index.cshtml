@@ -12,34 +12,30 @@
     <link rel="stylesheet" href="~/css/portals/timetable-portal.css" asp-append-version="true" />
 }
 
-<section class="module-page-header accent-pink">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-3">
-            <li class="breadcrumb-item"><a href="/adminportal">Admin</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Timetable</li>
-        </ol>
-    </nav>
-    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-        <div class="d-flex align-items-center gap-3">
-            <span class="module-page-icon"><i class="bi bi-calendar-week"></i></span>
-            <div>
-                <h1 class="h3 fw-bold mb-1">Class timetable</h1>
-                <p class="text-muted mb-0">Weekly schedules from <code>dbo.TeacherCourseAssignments</code></p>
+<section class="timetable-page-banner accent-pink mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-2 min-w-0">
+            <span class="timetable-page-banner__icon" aria-hidden="true">
+                <i class="bi bi-calendar-week"></i>
+            </span>
+            <div class="min-w-0">
+                <h1 class="h6 fw-bold mb-0">Class timetable</h1>
+                <p class="text-muted small mb-0 text-truncate">Weekly schedules from <code>dbo.TeacherCourseAssignments</code></p>
             </div>
         </div>
-        <a class="btn btn-outline-primary rounded-pill px-4" href="/adminportal/teachers/all">
-            <i class="bi bi-person-badge me-2"></i>Manage teacher assignments
+        <a class="btn btn-sm btn-outline-primary rounded-pill flex-shrink-0" href="/adminportal/teachers/link-teacher-assignment">
+            <i class="bi bi-link-45deg me-1"></i>Manage assignments
         </a>
     </div>
 </section>
 
 @if (!string.IsNullOrEmpty(message))
 {
-    <div class="alert alert-success mt-4 mb-0" role="alert">@message</div>
+    <div class="alert alert-success mb-3 py-2" role="alert">@message</div>
 }
 
-<section class="portal-card mt-4">
-    <form method="get" class="row g-3 align-items-end mb-4">
+<section class="portal-card">
+    <form method="get" class="row g-2 align-items-end mb-3">
         <div class="col-md-2">
             <label class="form-label" for="viewMode">View</label>
             <select class="form-select" id="viewMode" name="viewMode">
@@ -151,8 +147,8 @@
 
 @if (Model.UnscheduledSlots.Count > 0)
 {
-    <section class="portal-card mt-4">
-        <h2 class="h6 fw-bold mb-3">Assignments without schedule</h2>
+    <section class="portal-card mt-3">
+        <h2 class="h6 fw-bold mb-2">Assignments without schedule</h2>
         <div class="table-responsive">
             <table class="table admin-table align-middle">
                 <thead>

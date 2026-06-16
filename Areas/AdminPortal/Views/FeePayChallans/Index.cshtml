@@ -1,0 +1,138 @@
+@using VEMS.Areas.AdminPortal.Models.Fee
+@model IReadOnlyList<ChallanListItem>
+@{
+    var search = ViewData["Search"] as string;
+    var selectedProgramId = ViewData["ProgramId"] as int?;
+    var selectedBillingPeriod = ViewData["BillingPeriod"] as string;
+    var selectedPaymentStatus = ViewData["PaymentStatus"] as string;
+    var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+    var billingPeriods = ViewData["BillingPeriods"] as IReadOnlyList<ChallanBillingPeriodLookup> ?? Array.Empty<ChallanBillingPeriodLookup>();
+}
+
+<section class="portal-card page-summary-compact mb-3">
+    <div class="page-summary-head">
+        <span class="page-summary-title">Pay Challans</span>
+    </div>
+</section>
+
+<partial name="_FeeAlerts" />
+
+<section class="portal-card mt-3">
+    <h2 class="h6 fw-bold mb-3">All challans</h2>
+    <form method="get" class="row g-2 mb-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label" for="payChallanProgramFilter">Programs</label>
+            <select id="payChallanProgramFilter" name="programId" class="form-select form-select-sm">
+                <option value="">All programs</option>
+                @foreach (var program in programs)
+                {
+                    if (selectedProgramId.HasValue && selectedProgramId.Value == program.Id)
+                    {
+                        <option value="@program.Id" selected="selected">@program.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@program.Id">@program.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="payChallanMonthFilter">Months</label>
+            <select id="payChallanMonthFilter" name="billingPeriod" class="form-select form-select-sm">
+                <option value="">All months</option>
+                @foreach (var period in billingPeriods)
+                {
+                    if (string.Equals(selectedBillingPeriod, period.Key, StringComparison.Ordinal))
+                    {
+                        <option value="@period.Key" selected="selected">@period.Display</option>
+                    }
+                    else
+                    {
+                        <option value="@period.Key">@period.Display</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="payChallanStatusFilter">Payment status</label>
+            <select id="payChallanStatusFilter" name="paymentStatus" class="form-select form-select-sm">
+                <option value="">All statuses</option>
+                @if (string.Equals(selectedPaymentStatus, "Paid", StringComparison.Ordinal))
+                {
+                    <option value="Paid" selected="selected">Paid</option>
+                }
+                else
+                {
+                    <option value="Paid">Paid</option>
+                }
+                @if (string.Equals(selectedPaymentStatus, "Unpaid", StringComparison.Ordinal))
+                {
+                    <option value="Unpaid" selected="selected">Unpaid</option>
+                }
+                else
+                {
+                    <option value="Unpaid">Unpaid</option>
+                }
+                @if (string.Equals(selectedPaymentStatus, "PartiallyPaid", StringComparison.Ordinal))
+                {
+                    <option value="PartiallyPaid" selected="selected">Partially Paid</option>
+                }
+                else
+                {
+                    <option value="PartiallyPaid">Partially Paid</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="payChallanSearch">Search</label>
+            <input type="search" id="payChallanSearch" name="search" value="@search" class="form-control form-control-sm" placeholder="Challan ID, student ID, name, registration" />
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100">Filter</button>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-sm admin-table admin-table-compact align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Challan</th>
+                    <th>Student</th>
+                    <th>Billing period</th>
+                    <th>Term</th>
+                    <th>Due</th>
+                    <th>Net</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="9" class="text-center text-muted py-4">No challans found.</td></tr>
+            }
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>@row.ChallanNo<br /><small class="text-muted">#@row.Uid</small></td>
+                    <td>@row.StudentName<br /><small class="text-muted">@row.RegistrationNo</small></td>
+                    <td>@(string.IsNullOrWhiteSpace(row.BillingPeriodDisplay) ? "—" : row.BillingPeriodDisplay)</td>
+                    <td>@row.Semester @row.AcademicYear</td>
+                    <td>@row.DueDate.ToString("yyyy-MM-dd")</td>
+                    <td>@row.NetPayable.ToString("N2")</td>
+                    <td>@row.AmountPaid.ToString("N2")</td>
+                    <td><span class="badge text-bg-secondary">@row.DisplayStatus</span></td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" href="/adminportal/fee/challans/details/@row.Uid">View</a>
+                        @if (row.DisplayStatus is not ("Paid" or "Cancelled"))
+                        {
+                            <a class="btn btn-sm btn-outline-success" href="/adminportal/fee/payments/create?challanId=@row.Uid">Pay</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

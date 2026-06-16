@@ -5,11 +5,17 @@
     var activeModuleKey = SettingsNavCatalog.ResolveModuleKey(path, action);
     var isHomeActive = string.Equals(activeModuleKey, SettingsNavCatalog.HomeModule.Key, StringComparison.OrdinalIgnoreCase);
 }
-<header class="fee-erp-module-topbar settings-mgmt-module-topbar" aria-label="Settings module">
+<header class="fee-erp-module-topbar settings-mgmt-module-topbar portal-navbar-primary" aria-label="Settings module">
     <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center gap-2 gap-lg-3">
+        <button class="btn btn-outline-light btn-sm d-lg-none flex-shrink-0 settings-mgmt-menu-btn portal-menu-btn" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
+                aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+
         <a href="@SettingsNavCatalog.HomeModule.DefaultUrl"
-           class="settings-mgmt-module-topbar__brand portal-module-link @(isHomeActive ? "active" : "") text-decoration-none d-inline-flex align-items-center gap-2"
-           aria-label="Home"
+           class="settings-mgmt-module-topbar__brand portal-module-link @(isHomeActive ? "active" : "") text-decoration-none d-inline-flex align-items-center gap-2 flex-shrink-0"
+           aria-label="Settings home"
            title="@SettingsNavCatalog.HomeModule.Name">
             <span class="settings-mgmt-module-topbar__logo rounded-2 d-inline-flex align-items-center justify-content-center">
                 <i class="fa-solid @SettingsNavCatalog.HomeModule.IconClass" aria-hidden="true"></i>
@@ -17,16 +23,7 @@
             <span class="settings-mgmt-module-topbar__title fw-semibold">@SettingsNavCatalog.HomeModule.Name</span>
         </a>
 
-        <nav class="settings-mgmt-module-nav portal-module-nav flex-grow-1" aria-label="Module navigation">
-            @foreach (var module in SettingsNavCatalog.TopBarModules)
-            {
-                var isActive = string.Equals(module.Key, activeModuleKey, StringComparison.OrdinalIgnoreCase);
-                <a class="portal-module-link @(isActive ? "active" : "")" href="@module.DefaultUrl" title="@module.Name">
-                    <i class="fa-solid @module.IconClass" aria-hidden="true"></i>
-                    <span>@module.Name</span>
-                </a>
-            }
-        </nav>
+        <div class="flex-grow-1"></div>
 
         <a class="settings-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal

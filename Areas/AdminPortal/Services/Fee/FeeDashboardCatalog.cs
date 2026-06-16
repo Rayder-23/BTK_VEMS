@@ -8,6 +8,7 @@ public static class FeeDashboardCatalog
     [
         new()
         {
+            Sequence = 1,
             Title = "Fee Structures",
             Description = "Program, semester, and academic year fee packages.",
             Url = "/adminportal/fee/fee-structures",
@@ -16,15 +17,17 @@ public static class FeeDashboardCatalog
         },
         new()
         {
-            Title = "Challans Management",
-            Description = "View, search, and manage issued challans.",
+            Sequence = 2,
+            Title = "Challan Management",
+            Description = "View, search, generate, and manage issued challans.",
             Url = "/adminportal/fee/challans",
             IconClass = "bi-receipt",
             AccentClass = "accent-cyan"
         },
         new()
         {
-            Title = "Payments & Receipts",
+            Sequence = 3,
+            Title = "Payments and Receipts",
             Description = "Record payments, view the ledger, and open printable receipts.",
             Url = "/adminportal/fee/payments",
             IconClass = "bi-cash-stack",

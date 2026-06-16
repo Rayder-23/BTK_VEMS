@@ -37,6 +37,10 @@
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_HrMgmtLayout.cshtml";
     }
+    else if (TimetableNavCatalog.IsTimetableController(controller))
+    {
+        Layout = "/Areas/AdminPortal/Views/Shared/_TimetableMgmtLayout.cshtml";
+    }
     else
     {
         Layout = "/Areas/AdminPortal/Views/Shared/_AdminLayout.cshtml";

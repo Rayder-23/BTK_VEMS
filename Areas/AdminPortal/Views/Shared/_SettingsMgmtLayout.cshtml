@@ -1,14 +1,3 @@
-@{
-    var pageTitle = ViewData["PageTitle"] as string ?? ViewData["Title"] as string ?? "Settings";
-    ViewData["FeeErpShowSidebarChrome"] = true;
-    ViewData["FeeErpHideGlobalSearch"] = true;
-    ViewData["FeeErpHideNavbarBrand"] = true;
-    ViewData["FeeErpHideNavbarLeftControls"] = true;
-    ViewData["FeeErpHideNavAlerts"] = true;
-    ViewData["FeeErpHideRoleLabel"] = true;
-    ViewData["FeeErpMobileNavClass"] = "d-sm-none";
-    ViewData["SidebarToggleClass"] = "d-none d-sm-inline-flex";
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,7 +19,7 @@
 </head>
 <body class="fee-erp-shell settings-mgmt-shell">
     <partial name="_SettingsMgmtModuleTopBar" />
-    <partial name="_FeeErpNavbar" model="pageTitle" />
+    <partial name="_PortalSessionSubNavbar" />
     <div class="fee-erp-canvas">
         <aside class="fee-erp-sidebar settings-mgmt-sidebar d-none d-lg-flex flex-column" id="feeErpSidebar" aria-label="Settings navigation">
             <partial name="_SettingsMgmtMgmtSidebar" />

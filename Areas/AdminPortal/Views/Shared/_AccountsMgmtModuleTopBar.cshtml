@@ -1,12 +1,31 @@
-<header class="fee-erp-module-topbar accounts-mgmt-module-topbar" aria-label="Accounts module">
-    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center justify-content-between gap-3">
-        <a href="/adminportal/accounts" class="accounts-mgmt-module-topbar__brand text-decoration-none d-flex align-items-center gap-2">
+@using VEMS.Areas.AdminPortal.Services
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var activeKey = AccountsNavCatalog.ResolveActiveKey(path, action);
+    var isDashboardActive = string.Equals(activeKey, "dashboard", StringComparison.OrdinalIgnoreCase);
+}
+<header class="fee-erp-module-topbar accounts-mgmt-module-topbar portal-navbar-primary" aria-label="Accounts module">
+    <div class="container-fluid h-100 px-3 px-lg-4 d-flex align-items-center gap-2 gap-lg-3">
+        <button class="btn btn-outline-light btn-sm d-lg-none flex-shrink-0 accounts-mgmt-menu-btn portal-menu-btn" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#feeErpSidebarOffcanvas"
+                aria-controls="feeErpSidebarOffcanvas" aria-label="Open navigation menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+
+        <a href="/adminportal/accounts"
+           class="accounts-mgmt-module-topbar__brand portal-module-link @(isDashboardActive ? "active" : "") text-decoration-none d-inline-flex align-items-center gap-2 flex-shrink-0"
+           aria-label="Accounts home"
+           title="Dashboard">
             <span class="accounts-mgmt-module-topbar__logo rounded-2 d-inline-flex align-items-center justify-content-center">
                 <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
             </span>
             <span class="accounts-mgmt-module-topbar__title fw-semibold">Accounts</span>
         </a>
-        <a class="accounts-mgmt-module-topbar__link small text-decoration-none" href="/adminportal">
+
+        <span class="flex-grow-1"></span>
+
+        <a class="accounts-mgmt-module-topbar__link small text-decoration-none flex-shrink-0" href="/adminportal">
             <i class="fa-solid fa-house-chimney me-1" aria-hidden="true"></i>Admin portal
         </a>
     </div>

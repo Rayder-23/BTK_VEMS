@@ -1,24 +1,16 @@
 using Microsoft.Data.SqlClient;
 using VEMS.Areas.AdminPortal.Models;
-using VEMS.Services;
 
 namespace VEMS.Areas.AdminPortal.Services;
 
 public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
 {
-    public static readonly IReadOnlyList<string> AllowedEnrollmentStatuses =
-    ["Active", "Passed", "Failed", "Withdrawn", "Transferred", "Expelled"];
-
-    private const string EnrollmentStatusConfigKey = "EnrollmentStatus";
-
     private readonly string _connectionString;
-    private readonly IConfigurationValuesProvider _configurations;
 
-    public ProgramEnrollmentRepository(IConfiguration configuration, IConfigurationValuesProvider configurations)
+    public ProgramEnrollmentRepository(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("DefaultConnection is missing from configuration.");
-        _configurations = configurations;
     }
 
     public async Task<IReadOnlyList<ProgramEnrollmentListItem>> ListAsync(
@@ -27,27 +19,34 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
     {
         const string sql = """
             SELECT
-                se.Uid,
-                s.RegistrationNo,
-                s.StudentName,
+                se.UID,
+                ay.YearName,
+                st.RegistrationNo,
+                st.StudentName,
                 p.ProgramName,
-                c.ClassCode,
-                se.AcademicYear,
-                se.GradeOrSemester,
+                CASE
+                    WHEN cs.ClassSectionID IS NULL THEN NULL
+                    ELSE ay2.YearName + N' · ' + c.ClassName + N' · ' + sec.SectionName
+                END AS ClassSectionDisplay,
                 se.RollNo,
-                se.EnrollmentStatus,
-                se.IsActive
+                se.EnrollmentDate
             FROM dbo.StudentEnrollments se
-            INNER JOIN dbo.Students s ON se.StudentID = s.StudentID
+            INNER JOIN dbo.AcademicYears ay ON se.AcademicYearID = ay.AcademicYearID
+            INNER JOIN dbo.Students st ON se.StudentID = st.StudentID
             INNER JOIN dbo.Programs p ON se.ProgramID = p.ProgramID
-            INNER JOIN dbo.Classes c ON se.ClassID = c.ClassID
+            LEFT JOIN dbo.ClassSections cs ON se.ClassSectionID = cs.ClassSectionID
+            LEFT JOIN dbo.AcademicYears ay2 ON cs.AcademicYearID = ay2.AcademicYearID
+            LEFT JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            LEFT JOIN dbo.Sections sec ON cs.SectionID = sec.SectionID
             WHERE (@Search IS NULL
-                   OR s.RegistrationNo LIKE @Search
-                   OR s.StudentName LIKE @Search
-                   OR se.RollNo LIKE @Search
+                   OR ay.YearName LIKE @Search
+                   OR st.RegistrationNo LIKE @Search
+                   OR st.StudentName LIKE @Search
                    OR p.ProgramName LIKE @Search
-                   OR c.ClassCode LIKE @Search)
-            ORDER BY se.AcademicYear DESC, se.GradeOrSemester, se.RollNo;
+                   OR c.ClassName LIKE @Search
+                   OR sec.SectionName LIKE @Search
+                   OR CAST(se.RollNo AS nvarchar(20)) LIKE @Search)
+            ORDER BY ay.YearName DESC, st.StudentName, se.EnrollmentDate DESC;
             """;
 
         var list = new List<ProgramEnrollmentListItem>();
@@ -60,16 +59,14 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
         {
             list.Add(new ProgramEnrollmentListItem
             {
-                Uid = Convert.ToInt32(reader["Uid"]),
+                Uid = Convert.ToInt32(reader["UID"]),
+                YearName = reader["YearName"] as string ?? string.Empty,
                 RegistrationNo = reader["RegistrationNo"] as string ?? string.Empty,
                 StudentName = reader["StudentName"] as string ?? string.Empty,
                 ProgramName = reader["ProgramName"] as string ?? string.Empty,
-                ClassCode = reader["ClassCode"] as string ?? string.Empty,
-                AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-                GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"]),
-                RollNo = reader["RollNo"] as string ?? string.Empty,
-                EnrollmentStatus = reader["EnrollmentStatus"] as string ?? string.Empty,
-                IsActive = Convert.ToBoolean(reader["IsActive"])
+                ClassSectionDisplay = reader["ClassSectionDisplay"] as string,
+                RollNo = reader["RollNo"] is DBNull ? null : Convert.ToInt32(reader["RollNo"]),
+                EnrollmentDate = Convert.ToDateTime(reader["EnrollmentDate"])
             });
         }
 
@@ -79,19 +76,9 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
     public async Task<ProgramEnrollmentFormModel?> GetAsync(int uid, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT
-                Uid,
-                StudentID,
-                ProgramID,
-                ClassID,
-                AcademicYear,
-                GradeOrSemester,
-                RollNo,
-                EnrollmentDate,
-                EnrollmentStatus,
-                IsActive
+            SELECT UID, AcademicYearID, StudentID, ProgramID, ClassSectionID, RollNo, EnrollmentDate
             FROM dbo.StudentEnrollments
-            WHERE Uid = @Uid;
+            WHERE UID = @Uid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
@@ -107,56 +94,55 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
         return Map(reader);
     }
 
-    public async Task<ProgramEnrollmentLookups> GetLookupsAsync(
-        int? programId,
-        CancellationToken cancellationToken = default)
+    public async Task<ProgramEnrollmentLookups> GetLookupsAsync(CancellationToken cancellationToken = default)
     {
+        const string yearsSql = """
+            SELECT AcademicYearID, YearName
+            FROM dbo.AcademicYears
+            ORDER BY YearName DESC;
+            """;
+
         const string studentsSql = """
-            SELECT StudentID, RegistrationNo + ' - ' + StudentName
+            SELECT StudentID, ISNULL(RegistrationNo + N' · ', N'') + StudentName
             FROM dbo.Students
             WHERE IsActive = 1
-            ORDER BY RegistrationNo;
+            ORDER BY StudentName;
             """;
 
         const string programsSql = """
-            SELECT ProgramID, ProgramCode + ' - ' + ProgramName
+            SELECT ProgramID, ProgramName
             FROM dbo.Programs
             WHERE IsActive = 1
             ORDER BY ProgramName;
             """;
 
-        var classesSql = """
-            SELECT ClassID, ClassCode + ' · ' + ClassName
-            FROM dbo.Classes
-            WHERE IsActive = 1
-             ORDER BY SortOrder, ClassCode;
+        const string classSectionsSql = """
+            SELECT
+                cs.ClassSectionID,
+                ay.YearName + N' · ' + c.ClassName + N' · ' + s.SectionName
+            FROM dbo.ClassSections cs
+            INNER JOIN dbo.AcademicYears ay ON cs.AcademicYearID = ay.AcademicYearID
+            INNER JOIN dbo.Classes c ON cs.ClassID = c.ClassID
+            INNER JOIN dbo.Sections s ON cs.SectionID = s.SectionID
+            ORDER BY ay.YearName DESC, c.ClassName, s.SectionName;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
-        var students = await ReadLookupAsync(connection, studentsSql, null, cancellationToken);
-        var programs = await ReadLookupAsync(connection, programsSql, null, cancellationToken);
-        var classes = await ReadLookupAsync(connection, classesSql, null, cancellationToken);
-
-        var enrollmentStatuses = ResolveConfiguredValues(
-            await _configurations.GetValuesAsync(EnrollmentStatusConfigKey, cancellationToken),
-            AllowedEnrollmentStatuses);
-
         return new ProgramEnrollmentLookups
         {
-            Students = students,
-            Programs = programs,
-            Classes = classes,
-            EnrollmentStatuses = enrollmentStatuses
+            AcademicYears = await ReadLookupAsync(connection, yearsSql, cancellationToken),
+            Students = await ReadLookupAsync(connection, studentsSql, cancellationToken),
+            Programs = await ReadLookupAsync(connection, programsSql, cancellationToken),
+            ClassSections = await ReadLookupAsync(connection, classSectionsSql, cancellationToken)
         };
     }
 
-    public async Task<bool> ExistsForPeriodAsync(
+    public async Task<bool> ExistsAsync(
         int studentId,
         int programId,
-        short academicYear,
-        byte gradeOrSemester,
+        int academicYearId,
         int? excludeUid,
         CancellationToken cancellationToken = default)
     {
@@ -165,47 +151,27 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
             FROM dbo.StudentEnrollments
             WHERE StudentID = @StudentID
               AND ProgramID = @ProgramID
-              AND AcademicYear = @AcademicYear
-              AND GradeOrSemester = @GradeOrSemester
-              AND (@ExcludeUid IS NULL OR Uid <> @ExcludeUid);
+              AND AcademicYearID = @AcademicYearID
+              AND (@ExcludeUid IS NULL OR UID <> @ExcludeUid);
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@StudentID", studentId);
         command.Parameters.AddWithValue("@ProgramID", programId);
-        command.Parameters.AddWithValue("@AcademicYear", academicYear);
-        command.Parameters.AddWithValue("@GradeOrSemester", gradeOrSemester);
+        command.Parameters.AddWithValue("@AcademicYearID", academicYearId);
         command.Parameters.AddWithValue("@ExcludeUid", (object?)excludeUid ?? DBNull.Value);
         await connection.OpenAsync(cancellationToken);
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) > 0;
     }
 
-    public async Task<int> InsertAsync(ProgramEnrollmentFormModel model, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<int> InsertAsync(ProgramEnrollmentFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
-            INSERT INTO dbo.StudentEnrollments (
-                StudentID,
-                ProgramID,
-                ClassID,
-                RollNo,
-                AcademicYear,
-                GradeOrSemester,
-                EnrollmentDate,
-                EnrollmentStatus,
-                IsActive
-            )
-            VALUES (
-                @StudentID,
-                @ProgramID,
-                @ClassID,
-                @RollNo,
-                @AcademicYear,
-                @GradeOrSemester,
-                @EnrollmentDate,
-                @EnrollmentStatus,
-                @IsActive
-            );
+            INSERT INTO dbo.StudentEnrollments
+                (AcademicYearID, StudentID, ProgramID, ClassSectionID, RollNo, EnrollmentDate)
+            VALUES
+                (@AcademicYearId, @StudentId, @ProgramId, @ClassSectionId, @RollNo, @EnrollmentDate);
             SELECT CAST(SCOPE_IDENTITY() AS int);
             """;
 
@@ -216,20 +182,17 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
         return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
     }
 
-    public async Task<bool> UpdateAsync(ProgramEnrollmentFormModel model, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(ProgramEnrollmentFormModel model, CancellationToken cancellationToken = default)
     {
         const string sql = """
             UPDATE dbo.StudentEnrollments SET
-                StudentID = @StudentID,
-                ProgramID = @ProgramID,
-                ClassID = @ClassID,
+                AcademicYearID = @AcademicYearId,
+                StudentID = @StudentId,
+                ProgramID = @ProgramId,
+                ClassSectionID = @ClassSectionId,
                 RollNo = @RollNo,
-                AcademicYear = @AcademicYear,
-                GradeOrSemester = @GradeOrSemester,
-                EnrollmentDate = @EnrollmentDate,
-                EnrollmentStatus = @EnrollmentStatus,
-                IsActive = @IsActive
-            WHERE Uid = @Uid;
+                EnrollmentDate = @EnrollmentDate
+            WHERE UID = @Uid;
             """;
 
         await using var connection = new SqlConnection(_connectionString);
@@ -240,15 +203,9 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
         return await command.ExecuteNonQueryAsync(cancellationToken) > 0;
     }
 
-    public async Task<bool> WithdrawAsync(int uid, int? updatedBy, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(int uid, CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            UPDATE dbo.StudentEnrollments SET
-                EnrollmentStatus = 'Withdrawn',
-                IsActive = 0
-            WHERE Uid = @Uid
-              AND EnrollmentStatus <> 'Withdrawn';
-            """;
+        const string sql = "DELETE FROM dbo.StudentEnrollments WHERE UID = @Uid;";
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
@@ -259,58 +216,32 @@ public sealed class ProgramEnrollmentRepository : IProgramEnrollmentRepository
 
     private static ProgramEnrollmentFormModel Map(SqlDataReader reader) => new()
     {
-        Uid = Convert.ToInt32(reader["Uid"]),
+        Uid = Convert.ToInt32(reader["UID"]),
+        AcademicYearId = Convert.ToInt32(reader["AcademicYearID"]),
         StudentId = Convert.ToInt32(reader["StudentID"]),
         ProgramId = Convert.ToInt32(reader["ProgramID"]),
-        ClassId = Convert.ToInt32(reader["ClassID"]),
-        AcademicYear = Convert.ToInt16(reader["AcademicYear"]),
-        GradeOrSemester = Convert.ToByte(reader["GradeOrSemester"]),
-        RollNo = reader["RollNo"] as string ?? string.Empty,
-        EnrollmentDate = reader.GetDateTime(reader.GetOrdinal("EnrollmentDate")),
-        EnrollmentStatus = reader["EnrollmentStatus"] as string ?? "Active",
-        IsActive = Convert.ToBoolean(reader["IsActive"])
+        ClassSectionId = reader["ClassSectionID"] is DBNull ? null : Convert.ToInt32(reader["ClassSectionID"]),
+        RollNo = reader["RollNo"] is DBNull ? null : Convert.ToInt32(reader["RollNo"]),
+        EnrollmentDate = Convert.ToDateTime(reader["EnrollmentDate"])
     };
 
     private static void Bind(SqlCommand command, ProgramEnrollmentFormModel model)
     {
-        command.Parameters.AddWithValue("@StudentID", model.StudentId);
-        command.Parameters.AddWithValue("@ProgramID", model.ProgramId);
-        command.Parameters.AddWithValue("@ClassID", model.ClassId);
-        command.Parameters.AddWithValue("@RollNo", model.RollNo.Trim());
-        command.Parameters.AddWithValue("@AcademicYear", model.AcademicYear);
-        command.Parameters.AddWithValue("@GradeOrSemester", model.GradeOrSemester);
-        command.Parameters.AddWithValue("@EnrollmentDate", model.EnrollmentDate!.Value.Date);
-        command.Parameters.AddWithValue("@EnrollmentStatus", model.EnrollmentStatus.Trim());
-        command.Parameters.AddWithValue("@IsActive", model.IsActive);
-    }
-
-    private static IReadOnlyList<string> ResolveConfiguredValues(
-        IReadOnlyList<string> configured,
-        IReadOnlyList<string> allowed)
-    {
-        var resolved = configured
-            .Select(v => allowed.FirstOrDefault(a => string.Equals(a, v, StringComparison.OrdinalIgnoreCase)))
-            .Where(v => v is not null)
-            .Cast<string>()
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        return resolved.Count > 0 ? resolved : allowed.ToList();
+        command.Parameters.AddWithValue("@AcademicYearId", model.AcademicYearId);
+        command.Parameters.AddWithValue("@StudentId", model.StudentId);
+        command.Parameters.AddWithValue("@ProgramId", model.ProgramId);
+        command.Parameters.AddWithValue("@ClassSectionId", (object?)model.ClassSectionId ?? DBNull.Value);
+        command.Parameters.AddWithValue("@RollNo", (object?)model.RollNo ?? DBNull.Value);
+        command.Parameters.AddWithValue("@EnrollmentDate", model.EnrollmentDate.Date);
     }
 
     private static async Task<IReadOnlyList<StudentLookupItem>> ReadLookupAsync(
         SqlConnection connection,
         string sql,
-        SqlParameter? extraParameter,
         CancellationToken cancellationToken)
     {
         var list = new List<StudentLookupItem>();
         await using var command = new SqlCommand(sql, connection);
-        if (extraParameter is not null)
-        {
-            command.Parameters.Add(extraParameter);
-        }
-
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
         {
