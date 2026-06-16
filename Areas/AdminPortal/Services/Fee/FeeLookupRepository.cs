@@ -22,6 +22,57 @@ public sealed class FeeLookupRepository : IFeeLookupRepository
         return await ReadLookupAsync(sql, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<FeeLookupItem>> GetAcademicYearsAsync(CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT
+                COALESCE(YEAR(StartDate), YEAR(EndDate), TRY_CAST(LEFT(YearName, 4) AS int), 0) AS YearValue,
+                YearName + CASE WHEN IsCurrent = 1 THEN N' (Current)' ELSE N'' END AS DisplayName
+            FROM dbo.AcademicYears
+            WHERE IsActive = 1
+              AND COALESCE(YEAR(StartDate), YEAR(EndDate), TRY_CAST(LEFT(YearName, 4) AS int), 0) > 0
+            ORDER BY IsCurrent DESC, StartDate DESC, YearName;
+            """;
+
+        var list = new List<FeeLookupItem>();
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new FeeLookupItem
+            {
+                Id = FeeSql.ToInt32(reader, "YearValue"),
+                Name = reader["DisplayName"] as string ?? string.Empty
+            });
+        }
+
+        return list;
+    }
+
+    public async Task<short> GetDefaultAcademicYearAsync(CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT TOP (1)
+                COALESCE(YEAR(StartDate), YEAR(EndDate), TRY_CAST(LEFT(YearName, 4) AS int))
+            FROM dbo.AcademicYears
+            WHERE IsActive = 1
+            ORDER BY IsCurrent DESC, StartDate DESC, AcademicYearID DESC;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        await connection.OpenAsync(cancellationToken);
+        var result = await command.ExecuteScalarAsync(cancellationToken);
+        if (result is null or DBNull)
+        {
+            return (short)DateTime.Today.Year;
+        }
+
+        return Convert.ToInt16(result);
+    }
+
     public async Task<IReadOnlyList<FeeClassLookupItem>> GetClassesByProgramAsync(
         int programId,
         CancellationToken cancellationToken = default)

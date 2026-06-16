@@ -44,11 +44,17 @@ public sealed class ChallansController : ControllerBase
     public async Task<IActionResult> GetEligibleStudents(
         [FromQuery] int programId,
         [FromQuery] int structureId,
+        [FromQuery] DateOnly issueDate,
         CancellationToken cancellationToken)
     {
         if (programId <= 0)
         {
             return BadRequest(new { message = "Program is required." });
+        }
+
+        if (issueDate == default)
+        {
+            return BadRequest(new { message = "Issue date is required." });
         }
 
         var feeContext = structureId > 0
@@ -61,8 +67,7 @@ public sealed class ChallansController : ControllerBase
 
         var students = await _challans.GetEligibleStudentsAsync(
             programId,
-            feeContext.Semester,
-            feeContext.AcademicYear,
+            issueDate,
             cancellationToken);
 
         return Ok(new
@@ -144,6 +149,154 @@ public sealed class ChallansController : ControllerBase
         }
     }
 
+    [HttpGet("bulk-eligible-students-multimonth")]
+    public async Task<IActionResult> GetEligibleStudentsMultiMonth(
+        [FromQuery] int programId,
+        [FromQuery] int structureId,
+        [FromQuery] string fromMonth,
+        [FromQuery] string toMonth,
+        CancellationToken cancellationToken)
+    {
+        if (programId <= 0)
+        {
+            return BadRequest(new { message = "Program is required." });
+        }
+
+        if (!FeeStructureDetailBilling.TryParseMonthInput(fromMonth, out var fromPeriod)
+            || !FeeStructureDetailBilling.TryParseMonthInput(toMonth, out var toPeriod))
+        {
+            return BadRequest(new { message = "From and To months are required." });
+        }
+
+        try
+        {
+            FeeStructureDetailBilling.ValidateBillingRange(fromPeriod, toPeriod);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
+        var feeContext = structureId > 0
+            ? await _lookups.ResolveStructureBulkChallanContextAsync(programId, structureId, cancellationToken)
+            : await _lookups.ResolveProgramBulkChallanContextAsync(programId, cancellationToken);
+        if (feeContext is null)
+        {
+            return BadRequest(new { message = "No active fee structure with line items found for this program." });
+        }
+
+        var students = await _challans.GetEligibleStudentsForBillingRangeAsync(
+            programId,
+            fromPeriod,
+            toPeriod,
+            cancellationToken);
+
+        return Ok(new
+        {
+            feeContext = new
+            {
+                structureId = feeContext.StructureId,
+                structureName = feeContext.StructureName,
+                semester = feeContext.Semester,
+                academicYear = feeContext.AcademicYear
+            },
+            billingRange = FeeStructureDetailBilling.FormatBillingRange(fromPeriod, toPeriod),
+            students = students.Select(s => new
+            {
+                studentId = s.StudentId,
+                registrationNo = s.RegistrationNo,
+                rollNo = s.RollNo,
+                studentName = s.StudentName,
+                programName = s.ProgramName,
+                hasConcession = s.HasConcession,
+                alreadyHasChallan = s.AlreadyHasChallan
+            })
+        });
+    }
+
+    [HttpPost("bulk-generate-multimonth")]
+    public async Task<IActionResult> BulkGenerateMultiMonth(
+        [FromBody] BulkMultiMonthChallanApiRequest body,
+        CancellationToken cancellationToken)
+    {
+        if (body.ProgramId <= 0)
+        {
+            return BadRequest(new { message = "Program is required." });
+        }
+
+        if (!FeeStructureDetailBilling.TryParseMonthInput(body.FromMonth, out var fromPeriod)
+            || !FeeStructureDetailBilling.TryParseMonthInput(body.ToMonth, out var toPeriod))
+        {
+            return BadRequest(new { message = "From and To months are required." });
+        }
+
+        try
+        {
+            FeeStructureDetailBilling.ValidateBillingRange(fromPeriod, toPeriod);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
+        if (body.IssueDate > body.DueDate)
+        {
+            return BadRequest(new { message = "Issue date must be on or before due date." });
+        }
+
+        if (body.StudentIds is not { Count: > 0 })
+        {
+            return BadRequest(new { message = "Select at least one student." });
+        }
+
+        var feeContext = body.StructureId > 0
+            ? await _lookups.ResolveStructureBulkChallanContextAsync(body.ProgramId, body.StructureId, cancellationToken)
+            : await _lookups.ResolveProgramBulkChallanContextAsync(body.ProgramId, cancellationToken);
+        if (feeContext is null)
+        {
+            return BadRequest(new { message = "Selected fee structure is invalid for this program, or no active fee structure with line items exists." });
+        }
+
+        var request = new BulkMultiMonthChallanGenerateRequest
+        {
+            ProgramId = body.ProgramId,
+            StructureId = feeContext.StructureId,
+            Semester = feeContext.Semester,
+            AcademicYear = feeContext.AcademicYear,
+            FromPeriod = fromPeriod,
+            ToPeriod = toPeriod,
+            IssueDate = body.IssueDate,
+            DueDate = body.DueDate,
+            CreatedBy = ResolveActorId(),
+            StudentIds = body.StudentIds
+        };
+
+        try
+        {
+            var response = await _challans.BulkGenerateMultiMonthAsync(request, cancellationToken);
+            return Ok(new
+            {
+                totalProcessed = response.TotalProcessed,
+                totalGenerated = response.TotalGenerated,
+                totalSkipped = response.TotalSkipped,
+                totalErrors = response.TotalErrors,
+                results = response.Results.Select(r => new
+                {
+                    studentId = r.StudentId,
+                    registrationNo = r.RegistrationNo,
+                    studentName = r.StudentName,
+                    challanNo = r.ChallanNo,
+                    netPayable = r.NetPayable,
+                    status = r.Status
+                })
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     private int ResolveActorId()
     {
         var claim = User.FindFirst(AdminPortalAuth.EmployeeLoginUidClaim)?.Value;
@@ -154,6 +307,17 @@ public sealed class ChallansController : ControllerBase
     {
         public int ProgramId { get; set; }
         public int StructureId { get; set; }
+        public DateOnly IssueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(15));
+        public IReadOnlyList<int>? StudentIds { get; set; }
+    }
+
+    public sealed class BulkMultiMonthChallanApiRequest
+    {
+        public int ProgramId { get; set; }
+        public int StructureId { get; set; }
+        public string FromMonth { get; set; } = string.Empty;
+        public string ToMonth { get; set; } = string.Empty;
         public DateOnly IssueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(15));
         public IReadOnlyList<int>? StudentIds { get; set; }

@@ -96,7 +96,8 @@ public sealed class FeeStructureFormModel
     public string Semester { get; set; } = "Fall";
 
     [Display(Name = "Academic year")]
-    public short AcademicYear { get; set; } = (short)DateTime.Today.Year;
+    [Range(1900, 9999, ErrorMessage = "Select a valid academic year.")]
+    public short AcademicYear { get; set; }
 
     public bool IsActive { get; set; } = true;
 }
@@ -404,4 +405,18 @@ public sealed class BulkChallanGenerateResponse
     public int TotalSkipped { get; init; }
     public int TotalErrors { get; init; }
     public IReadOnlyList<BulkChallanGenerateResultItem> Results { get; init; } = [];
+}
+
+public sealed class BulkMultiMonthChallanGenerateRequest
+{
+    public int ProgramId { get; set; }
+    public int StructureId { get; set; }
+    public string Semester { get; set; } = "Fall";
+    public short AcademicYear { get; set; } = (short)DateTime.Today.Year;
+    public DateOnly FromPeriod { get; set; }
+    public DateOnly ToPeriod { get; set; }
+    public DateOnly IssueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+    public DateOnly DueDate { get; set; } = DateOnly.FromDateTime(DateTime.Today.AddDays(15));
+    public int CreatedBy { get; set; }
+    public IReadOnlyList<int>? StudentIds { get; set; }
 }

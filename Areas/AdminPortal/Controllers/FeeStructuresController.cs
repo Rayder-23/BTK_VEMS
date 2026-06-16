@@ -35,8 +35,11 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         ViewData["Title"] = "Add Fee Structure";
         ViewData["PageTitle"] = "Fee Structures · Add";
         ViewData["FeeMgmtModuleKey"] = "FeeStructures";
-        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
-        return View(new FeeStructureFormModel());
+        await PopulateStructureFormLookupsAsync(cancellationToken);
+        return View(new FeeStructureFormModel
+        {
+            AcademicYear = await _lookups.GetDefaultAcademicYearAsync(cancellationToken)
+        });
     }
 
     [HttpPost("create")]
@@ -46,7 +49,7 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         ViewData["Title"] = "Add Fee Structure";
         ViewData["PageTitle"] = "Fee Structures · Add";
         ViewData["FeeMgmtModuleKey"] = "FeeStructures";
-        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        await PopulateStructureFormLookupsAsync(cancellationToken);
 
         if (!ModelState.IsValid)
         {
@@ -75,7 +78,7 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         ViewData["Title"] = "Edit Fee Structure";
         ViewData["PageTitle"] = "Fee Structures · Edit";
         ViewData["FeeMgmtModuleKey"] = "FeeStructures";
-        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        await PopulateStructureFormLookupsAsync(cancellationToken);
         return View(row);
     }
 
@@ -86,7 +89,7 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
         ViewData["Title"] = "Edit Fee Structure";
         ViewData["PageTitle"] = "Fee Structures · Edit";
         ViewData["FeeMgmtModuleKey"] = "FeeStructures";
-        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        await PopulateStructureFormLookupsAsync(cancellationToken);
 
         if (id != model.Uid)
         {
@@ -320,6 +323,12 @@ public sealed class FeeStructuresController : FeeMgmtControllerBase
 
         model.ClassId = normalizedClassId;
         return true;
+    }
+
+    private async Task PopulateStructureFormLookupsAsync(CancellationToken cancellationToken)
+    {
+        ViewData["Programs"] = await _lookups.GetProgramsAsync(cancellationToken);
+        ViewData["AcademicYears"] = await _lookups.GetAcademicYearsAsync(cancellationToken);
     }
 
     private bool ValidateDetailLine(FeeStructureDetailFormModel model)

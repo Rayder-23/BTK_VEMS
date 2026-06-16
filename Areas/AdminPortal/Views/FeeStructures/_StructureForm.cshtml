@@ -2,6 +2,7 @@
 @using VEMS.Areas.AdminPortal.Models.Fee
 @{
     var programs = ViewData["Programs"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
+    var academicYears = ViewData["AcademicYears"] as IReadOnlyList<FeeLookupItem> ?? Array.Empty<FeeLookupItem>();
 }
 
 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -41,7 +42,13 @@
     <div class="row fee-structure-form-row align-items-center">
         <label asp-for="AcademicYear" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label"></label>
         <div class="col-12 col-sm-8 col-lg-4 fee-structure-form-field">
-            <input asp-for="AcademicYear" id="feeStructureAcademicYear" class="form-control form-control-sm" type="number" />
+            <select asp-for="AcademicYear" id="feeStructureAcademicYear" class="form-select form-select-sm"
+                    asp-items="@(new SelectList(academicYears, nameof(FeeLookupItem.Id), nameof(FeeLookupItem.Name)))">
+                @if (academicYears.Count == 0)
+                {
+                    <option value="">— No academic years configured —</option>
+                }
+            </select>
             <span asp-validation-for="AcademicYear" class="text-danger small"></span>
         </div>
         <label asp-for="IsActive" class="col-12 col-sm-4 col-lg-2 fee-structure-form-label fee-structure-form-label--pair-start"></label>

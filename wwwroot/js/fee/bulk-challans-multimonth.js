@@ -11,17 +11,19 @@
         }
     }
 
-    const programSelect = getEl('bulkProgramId');
-    const structureSelect = getEl('bulkStructureId');
-    const issueDateInput = getEl('bulkIssueDate');
-    const dueDateInput = getEl('bulkDueDate');
-    const loadStudentsBtn = getEl('bulkLoadStudentsBtn');
-    const filterError = getEl('bulkFilterError');
-    const studentTableBody = getEl('bulkStudentTableBody');
-    const selectAllCheckbox = getEl('bulkSelectAll');
-    const selectionCount = getEl('bulkSelectionCount');
-    const selectedCountLabel = getEl('bulkSelectedCount');
-    const generateSelectedBtn = getEl('bulkGenerateSelectedBtn');
+    const programSelect = getEl('mmBulkProgramId');
+    const structureSelect = getEl('mmBulkStructureId');
+    const fromMonthInput = getEl('mmBulkFromMonth');
+    const toMonthInput = getEl('mmBulkToMonth');
+    const issueDateInput = getEl('mmBulkIssueDate');
+    const dueDateInput = getEl('mmBulkDueDate');
+    const loadStudentsBtn = getEl('mmBulkLoadStudentsBtn');
+    const filterError = getEl('mmBulkFilterError');
+    const studentTableBody = getEl('mmBulkStudentTableBody');
+    const selectAllCheckbox = getEl('mmBulkSelectAll');
+    const selectionCount = getEl('mmBulkSelectionCount');
+    const selectedCountLabel = getEl('mmBulkSelectedCount');
+    const generateSelectedBtn = getEl('mmBulkGenerateSelectedBtn');
 
     if (!programSelect || !studentTableBody) {
         return;
@@ -29,6 +31,7 @@
 
     let loadedStudents = [];
     let selectedProgramId = 0;
+    let billingRangeLabel = '';
 
     function showFilterError(message) {
         if (!filterError) {
@@ -51,7 +54,7 @@
     function showPlaceholder(message) {
         loadedStudents = [];
         studentTableBody.innerHTML = `
-            <tr id="bulkStudentPlaceholder">
+            <tr id="mmBulkStudentPlaceholder">
                 <td colspan="8" class="text-center text-muted py-4">${message}</td>
             </tr>`;
         if (selectAllCheckbox) {
@@ -66,9 +69,25 @@
         return {
             programId: Number(programSelect.value || 0),
             structureId: Number(structureSelect?.value || 0),
+            fromMonth: fromMonthInput?.value ?? '',
+            toMonth: toMonthInput?.value ?? '',
             issueDate: issueDateInput?.value ?? '',
             dueDate: dueDateInput?.value ?? ''
         };
+    }
+
+    function validateMonthRange(fromMonth, toMonth) {
+        if (!fromMonth || !toMonth) {
+            showFilterError('From and To months are required.');
+            return false;
+        }
+
+        if (fromMonth > toMonth) {
+            showFilterError('To month must be on or after From month.');
+            return false;
+        }
+
+        return true;
     }
 
     async function loadStructures(programId) {
@@ -153,20 +172,20 @@
     }
 
     function getSelectedStudentIds() {
-        return Array.from(document.querySelectorAll('.bulk-student-check:checked:not(:disabled)'))
+        return Array.from(document.querySelectorAll('.mm-bulk-student-check:checked:not(:disabled)'))
             .map((cb) => Number(cb.dataset.studentId))
             .filter((id) => id > 0);
     }
 
     function updateSelectionCount() {
-        const eligibleCheckboxes = Array.from(document.querySelectorAll('.bulk-student-check:not(:disabled)'));
+        const eligibleCheckboxes = Array.from(document.querySelectorAll('.mm-bulk-student-check:not(:disabled)'));
         const selectedCount = getSelectedStudentIds().length;
 
         setText(
             selectionCount,
             loadedStudents.length === 0
-                ? 'Select a program, then search.'
-                : `${selectedCount} of ${eligibleCheckboxes.length} students selected`
+                ? 'Select a program and billing range, then search.'
+                : `${selectedCount} of ${eligibleCheckboxes.length} students selected${billingRangeLabel ? ` · ${billingRangeLabel}` : ''}`
         );
 
         setText(selectedCountLabel, String(selectedCount));
@@ -200,7 +219,7 @@
             row.innerHTML = `
                 <td>
                     <input type="checkbox"
-                           class="form-check-input bulk-student-check"
+                           class="form-check-input mm-bulk-student-check"
                            data-student-id="${student.studentId}"
                            ${student.alreadyHasChallan ? 'disabled' : ''} />
                 </td>
@@ -226,12 +245,11 @@
         }
 
         const filters = readFilters();
-        if (!validateDates(filters.issueDate, filters.dueDate)) {
+        if (!validateMonthRange(filters.fromMonth, filters.toMonth)) {
             return;
         }
 
-        if (!filters.issueDate) {
-            showFilterError('Issue date is required.');
+        if (!validateDates(filters.issueDate, filters.dueDate)) {
             return;
         }
 
@@ -242,15 +260,16 @@
         loadStudentsBtn.disabled = true;
         loadStudentsBtn.textContent = 'Searching...';
         if (!preserveResults) {
-            getEl('bulkResultSection')?.classList.add('d-none');
+            getEl('mmBulkResultSection')?.classList.add('d-none');
         }
 
         try {
             const structureId = Number(structureSelect?.value || 0);
             const payload = await fetchJson(
-                `${apiBase}/bulk-eligible-students?programId=${programId}&structureId=${structureId}&issueDate=${filters.issueDate}`
+                `${apiBase}/bulk-eligible-students-multimonth?programId=${programId}&structureId=${structureId}&fromMonth=${encodeURIComponent(filters.fromMonth)}&toMonth=${encodeURIComponent(filters.toMonth)}`
             );
             const students = Array.isArray(payload.students) ? payload.students : [];
+            billingRangeLabel = payload.billingRange ?? '';
             selectedProgramId = programId;
             renderStudents(students);
         } catch (error) {
@@ -288,19 +307,19 @@
             return;
         }
 
-        const resultSection = getEl('bulkResultSection');
-        const resultTableBody = getEl('bulkResultTableBody');
-        const resultMessage = getEl('bulkResultMessage');
+        const resultSection = getEl('mmBulkResultSection');
+        const resultTableBody = getEl('mmBulkResultTableBody');
+        const resultMessage = getEl('mmBulkResultMessage');
 
         if (!resultSection || !resultTableBody) {
             showFilterError('Challans were generated but the summary panel could not be shown. Refresh the page to see new challans.');
             return;
         }
 
-        setText(getEl('bulkTotalProcessed'), String(payload.totalProcessed ?? 0));
-        setText(getEl('bulkTotalGenerated'), String(payload.totalGenerated ?? 0));
-        setText(getEl('bulkTotalSkipped'), String(payload.totalSkipped ?? 0));
-        setText(getEl('bulkTotalErrors'), String(payload.totalErrors ?? 0));
+        setText(getEl('mmBulkTotalProcessed'), String(payload.totalProcessed ?? 0));
+        setText(getEl('mmBulkTotalGenerated'), String(payload.totalGenerated ?? 0));
+        setText(getEl('mmBulkTotalSkipped'), String(payload.totalSkipped ?? 0));
+        setText(getEl('mmBulkTotalErrors'), String(payload.totalErrors ?? 0));
 
         if (resultMessage) {
             const generated = payload.totalGenerated ?? 0;
@@ -309,8 +328,8 @@
 
             if (generated > 0) {
                 resultMessage.textContent = errors > 0
-                    ? `Successfully generated ${generated} challan(s). ${skipped} skipped, ${errors} error(s).`
-                    : `Successfully generated ${generated} challan(s).${skipped > 0 ? ` ${skipped} skipped.` : ''}`;
+                    ? `Successfully generated ${generated} multi-month challan(s). ${skipped} skipped, ${errors} error(s).`
+                    : `Successfully generated ${generated} multi-month challan(s).${skipped > 0 ? ` ${skipped} skipped.` : ''}`;
                 resultMessage.className = 'alert alert-success py-2';
             } else {
                 resultMessage.textContent = `No challans were generated.${skipped > 0 ? ` ${skipped} skipped.` : ''}`;
@@ -344,6 +363,10 @@
         }
 
         const filters = readFilters();
+        if (!validateMonthRange(filters.fromMonth, filters.toMonth)) {
+            return;
+        }
+
         if (!validateDates(filters.issueDate, filters.dueDate)) {
             return;
         }
@@ -354,7 +377,8 @@
         }
 
         const programName = programSelect.selectedOptions?.[0]?.textContent ?? 'program';
-        const message = `Create challans for ${studentIds.length} selected student(s) in ${programName}?`;
+        const rangeLabel = billingRangeLabel || `${filters.fromMonth} to ${filters.toMonth}`;
+        const message = `Create multi-month challans for ${studentIds.length} selected student(s) in ${programName} (${rangeLabel})?`;
         if (!window.confirm(message)) {
             return;
         }
@@ -365,11 +389,13 @@
         }
 
         try {
-            const response = await fetchJson(`${apiBase}/bulk-generate`, {
+            const response = await fetchJson(`${apiBase}/bulk-generate-multimonth`, {
                 method: 'POST',
                 body: JSON.stringify({
                     programId,
                     structureId: filters.structureId,
+                    fromMonth: filters.fromMonth,
+                    toMonth: filters.toMonth,
                     issueDate: filters.issueDate,
                     dueDate: filters.dueDate,
                     studentIds
@@ -377,7 +403,7 @@
             });
             renderResults(response);
             await loadStudents({ preserveResults: true });
-            getEl('bulkResultSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            getEl('mmBulkResultSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (error) {
             showFilterError(error.message || 'Failed to generate challans.');
         } finally {
@@ -387,30 +413,33 @@
 
     programSelect.addEventListener('change', () => {
         selectedProgramId = 0;
+        billingRangeLabel = '';
         showPlaceholder('Program changed. Click Search to load students.');
-        getEl('bulkResultSection')?.classList.add('d-none');
+        getEl('mmBulkResultSection')?.classList.add('d-none');
         clearFilterError();
         loadStructures(Number(programSelect.value || 0));
     });
 
     loadStudentsBtn?.addEventListener('click', loadStudents);
 
-    issueDateInput?.addEventListener('change', () => {
-        if (loadedStudents.length > 0 && selectedProgramId > 0) {
-            loadStudents();
-        }
+    [fromMonthInput, toMonthInput].forEach((input) => {
+        input?.addEventListener('change', () => {
+            if (loadedStudents.length > 0 && selectedProgramId > 0) {
+                loadStudents();
+            }
+        });
     });
 
     selectAllCheckbox?.addEventListener('change', () => {
         const checked = selectAllCheckbox.checked;
-        document.querySelectorAll('.bulk-student-check:not(:disabled)').forEach((cb) => {
+        document.querySelectorAll('.mm-bulk-student-check:not(:disabled)').forEach((cb) => {
             cb.checked = checked;
         });
         updateSelectionCount();
     });
 
     studentTableBody.addEventListener('change', (event) => {
-        if (event.target.classList.contains('bulk-student-check')) {
+        if (event.target.classList.contains('mm-bulk-student-check')) {
             updateSelectionCount();
         }
     });

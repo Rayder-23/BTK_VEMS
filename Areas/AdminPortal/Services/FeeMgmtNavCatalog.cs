@@ -16,6 +16,7 @@ public static class FeeMgmtNavCatalog
         new() { Key = "fee-heads", Name = "Fee Heads", Url = "/adminportal/fee/fee-heads", IconClass = "fa-tags" },
         new() { Key = "fee-structures", Name = "Fee Structures", Url = "/adminportal/fee/fee-structures", IconClass = "fa-layer-group" },
         new() { Key = "challans", Name = "Challans", Url = "/adminportal/fee/challans", IconClass = "fa-file-invoice-dollar" },
+        new() { Key = "challans-multimonth", Name = "Challan MultiMonth", Url = "/adminportal/fee/challans-multimonth", IconClass = "fa-calendar-days" },
         new() { Key = "payments", Name = "Payments", Url = "/adminportal/fee/payments", IconClass = "fa-wallet" },
         new() { Key = "receipts", Name = "Receipts", Url = "/adminportal/fee/payment-receipts", IconClass = "fa-receipt" },
         new() { Key = "concessions", Name = "Concessions", Url = "/adminportal/fee/concessions", IconClass = "fa-percent" }
@@ -28,6 +29,7 @@ public static class FeeMgmtNavCatalog
         "FeeStructures",
         "FeeStructureDetails",
         "FeeChallans",
+        "FeeChallanMultiMonth",
         "FeeChallanDetails",
         "FeePayments",
         "FeePaymentReceipts",
@@ -51,6 +53,11 @@ public static class FeeMgmtNavCatalog
         if (path.Contains("/fee-structures", StringComparison.Ordinal) || path.Contains("/fee-structure-details", StringComparison.Ordinal))
         {
             return "fee-structures";
+        }
+
+        if (path.Contains("/challans-multimonth", StringComparison.Ordinal))
+        {
+            return "challans-multimonth";
         }
 
         if (path.Contains("/challans", StringComparison.Ordinal) || path.Contains("/challan-details", StringComparison.Ordinal))

@@ -137,11 +137,16 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
     }
 
     [HttpGet("lookup-students")]
-    public async Task<IActionResult> LookupStudents(int programId, CancellationToken cancellationToken)
+    public async Task<IActionResult> LookupStudents(int programId, DateOnly issueDate, CancellationToken cancellationToken)
     {
         if (programId <= 0)
         {
             return BadRequest(new { message = "Program is required." });
+        }
+
+        if (issueDate == default)
+        {
+            return BadRequest(new { message = "Issue date is required." });
         }
 
         var feeContext = await _lookups.ResolveProgramBulkChallanContextAsync(programId, cancellationToken);
@@ -152,8 +157,7 @@ public sealed class FeeChallansController : FeeMgmtControllerBase
 
         var students = await _challans.GetEligibleStudentsAsync(
             programId,
-            feeContext.Semester,
-            feeContext.AcademicYear,
+            issueDate,
             cancellationToken);
 
         return Json(new

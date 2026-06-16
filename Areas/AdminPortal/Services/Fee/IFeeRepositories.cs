@@ -5,6 +5,8 @@ namespace VEMS.Areas.AdminPortal.Services.Fee;
 public interface IFeeLookupRepository
 {
     Task<IReadOnlyList<FeeLookupItem>> GetProgramsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeeLookupItem>> GetAcademicYearsAsync(CancellationToken cancellationToken = default);
+    Task<short> GetDefaultAcademicYearAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeeClassLookupItem>> GetClassesByProgramAsync(int programId, CancellationToken cancellationToken = default);
     Task<ProgramBulkChallanContext?> ResolveProgramBulkChallanContextAsync(int programId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProgramBulkChallanContext>> GetProgramStructuresAsync(int programId, CancellationToken cancellationToken = default);
@@ -63,11 +65,18 @@ public interface IFeeChallanRepository
     Task RecalculateStatusAsync(int challanId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsAsync(
         int programId,
-        string semester,
-        short academicYear,
+        DateOnly issueDate,
         CancellationToken cancellationToken = default);
     Task<BulkChallanGenerateResponse> BulkGenerateAsync(
         BulkChallanGenerateRequest request,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsForBillingRangeAsync(
+        int programId,
+        DateOnly fromPeriod,
+        DateOnly toPeriod,
+        CancellationToken cancellationToken = default);
+    Task<BulkChallanGenerateResponse> BulkGenerateMultiMonthAsync(
+        BulkMultiMonthChallanGenerateRequest request,
         CancellationToken cancellationToken = default);
 }
 

@@ -207,6 +207,13 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             throw new InvalidOperationException("Student is required.");
         }
 
+        if (!isApplicationChallan
+            && await ChallanExistsForBillingPeriodAsync(model.StudentId, model.IssueDate, cancellationToken))
+        {
+            throw new InvalidOperationException(
+                $"A challan already exists for {model.IssueDate:MMMM yyyy}. Cancel the existing challan or choose a different issue date.");
+        }
+
         var structure = await _structures.GetAsync(model.StructureId, cancellationToken)
             ?? throw new InvalidOperationException("Fee structure not found.");
 
@@ -467,8 +474,7 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
 
     public async Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsAsync(
         int programId,
-        string semester,
-        short academicYear,
+        DateOnly issueDate,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -490,9 +496,10 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                     SELECT 1
                     FROM dbo.Challans ch
                     WHERE ch.StudentID = s.StudentID
-                      AND ch.Semester = @Semester
-                      AND ch.AcademicYear = @AcademicYear
+                      AND MONTH(ch.IssueDate) = MONTH(@IssueDate)
+                      AND YEAR(ch.IssueDate) = YEAR(@IssueDate)
                       AND ch.IsActive = 1
+                      AND ch.Status <> 'Cancelled'
                 ) THEN 1 ELSE 0 END AS AlreadyHasChallan
             FROM dbo.Students s
             INNER JOIN dbo.StudentEnrollments se ON se.StudentID = s.StudentID
@@ -506,8 +513,7 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@ProgramId", programId);
-        command.Parameters.AddWithValue("@Semester", semester.Trim());
-        command.Parameters.AddWithValue("@AcademicYear", academicYear);
+        command.Parameters.AddWithValue("@IssueDate", issueDate.ToDateTime(TimeOnly.MinValue));
         await connection.OpenAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
         while (await reader.ReadAsync(cancellationToken))
@@ -589,14 +595,14 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                 continue;
             }
 
-            if (await ChallanExistsForTermAsync(studentId, request.Semester, request.AcademicYear, cancellationToken))
+            if (await ChallanExistsForBillingPeriodAsync(studentId, request.IssueDate, cancellationToken))
             {
                 results.Add(new BulkChallanGenerateResultItem
                 {
                     StudentId = studentId,
                     RegistrationNo = student.RegistrationNo,
                     StudentName = student.StudentName,
-                    Status = "Skipped - Already Exists"
+                    Status = $"Skipped - Challan exists for {request.IssueDate:MMMM yyyy}"
                 });
                 continue;
             }
@@ -661,6 +667,424 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         };
     }
 
+    public async Task<IReadOnlyList<BulkChallanEligibleStudent>> GetEligibleStudentsForBillingRangeAsync(
+        int programId,
+        DateOnly fromPeriod,
+        DateOnly toPeriod,
+        CancellationToken cancellationToken = default)
+    {
+        var from = FeeStructureDetailBilling.NormalizeBillingMonth(fromPeriod);
+        var to = FeeStructureDetailBilling.NormalizeBillingMonth(toPeriod);
+        FeeStructureDetailBilling.ValidateBillingRange(from, to);
+
+        const string sql = """
+            SELECT
+                s.StudentID,
+                s.RegistrationNo,
+                se.RollNo,
+                s.StudentName,
+                p.ProgramName,
+                CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM dbo.Concessions con
+                    WHERE con.StudentID = s.StudentID
+                      AND con.IsActive = 1
+                      AND con.ValidFrom <= CONVERT(date, SYSUTCDATETIME())
+                      AND (con.ValidTo IS NULL OR con.ValidTo >= CONVERT(date, SYSUTCDATETIME()))
+                ) THEN 1 ELSE 0 END AS HasConcession,
+                CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM dbo.Challans ch
+                    WHERE ch.StudentID = s.StudentID
+                      AND ch.IsActive = 1
+                      AND ch.Status <> 'Cancelled'
+                      AND DATEFROMPARTS(YEAR(ch.IssueDate), MONTH(ch.IssueDate), 1)
+                          BETWEEN @FromPeriod AND @ToPeriod
+                ) THEN 1 ELSE 0 END AS AlreadyHasChallan
+            FROM dbo.Students s
+            INNER JOIN dbo.StudentEnrollments se ON se.StudentID = s.StudentID
+            INNER JOIN dbo.Programs p ON se.ProgramID = p.ProgramID
+            WHERE se.ProgramID = @ProgramId
+              AND s.IsActive = 1
+            ORDER BY s.RegistrationNo;
+            """;
+
+        var list = new List<BulkChallanEligibleStudent>();
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@ProgramId", programId);
+        command.Parameters.AddWithValue("@FromPeriod", from.ToDateTime(TimeOnly.MinValue));
+        command.Parameters.AddWithValue("@ToPeriod", to.ToDateTime(TimeOnly.MinValue));
+        await connection.OpenAsync(cancellationToken);
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            list.Add(new BulkChallanEligibleStudent
+            {
+                StudentId = FeeSql.ToInt32(reader, "StudentID"),
+                RegistrationNo = reader["RegistrationNo"] as string ?? "",
+                RollNo = reader["RollNo"] as string,
+                StudentName = reader["StudentName"] as string ?? "",
+                ProgramName = reader["ProgramName"] as string ?? "",
+                HasConcession = FeeSql.ToInt32(reader, "HasConcession") == 1,
+                AlreadyHasChallan = FeeSql.ToInt32(reader, "AlreadyHasChallan") == 1
+            });
+        }
+
+        return list;
+    }
+
+    public async Task<BulkChallanGenerateResponse> BulkGenerateMultiMonthAsync(
+        BulkMultiMonthChallanGenerateRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request.ProgramId <= 0)
+        {
+            throw new InvalidOperationException("Program is required.");
+        }
+
+        if (request.StructureId <= 0)
+        {
+            throw new InvalidOperationException("Fee structure is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Semester))
+        {
+            throw new InvalidOperationException("Semester is required.");
+        }
+
+        if (request.AcademicYear is < 1900 or > 9999)
+        {
+            throw new InvalidOperationException("Academic year must be a valid 4-digit year.");
+        }
+
+        var fromPeriod = FeeStructureDetailBilling.NormalizeBillingMonth(request.FromPeriod);
+        var toPeriod = FeeStructureDetailBilling.NormalizeBillingMonth(request.ToPeriod);
+        FeeStructureDetailBilling.ValidateBillingRange(fromPeriod, toPeriod);
+
+        if (request.IssueDate > request.DueDate)
+        {
+            throw new InvalidOperationException("Issue date must be on or before due date.");
+        }
+
+        var studentIds = request.StudentIds?.Where(id => id > 0).Distinct().ToList() ?? [];
+        if (studentIds.Count == 0)
+        {
+            throw new InvalidOperationException("Select at least one student.");
+        }
+
+        var periodLabel = FeeStructureDetailBilling.FormatBillingRange(fromPeriod, toPeriod);
+        var studentsById = await LoadBulkStudentsForProgramAsync(request.ProgramId, studentIds, cancellationToken);
+        var results = new List<BulkChallanGenerateResultItem>();
+
+        foreach (var studentId in studentIds)
+        {
+            if (!studentsById.TryGetValue(studentId, out var student))
+            {
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = studentId,
+                    Status = "Skipped - Not in program"
+                });
+                continue;
+            }
+
+            if (!student.IsActive)
+            {
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = studentId,
+                    RegistrationNo = student.RegistrationNo,
+                    StudentName = student.StudentName,
+                    Status = "Skipped - Inactive"
+                });
+                continue;
+            }
+
+            if (await ChallanExistsForBillingRangeAsync(studentId, fromPeriod, toPeriod, cancellationToken))
+            {
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = studentId,
+                    RegistrationNo = student.RegistrationNo,
+                    StudentName = student.StudentName,
+                    Status = $"Skipped - Challan exists for {periodLabel}"
+                });
+                continue;
+            }
+
+            try
+            {
+                var challanId = await GenerateMultiMonthChallanAsync(
+                    studentId,
+                    request.StructureId,
+                    fromPeriod,
+                    toPeriod,
+                    request.IssueDate,
+                    request.DueDate,
+                    request.CreatedBy,
+                    cancellationToken);
+
+                var created = await ReadCreatedChallanSummaryAsync(challanId, cancellationToken);
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = studentId,
+                    RegistrationNo = student.RegistrationNo,
+                    StudentName = student.StudentName,
+                    ChallanNo = created?.ChallanNo,
+                    NetPayable = created?.NetPayable,
+                    Status = "Generated"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = studentId,
+                    RegistrationNo = student.RegistrationNo,
+                    StudentName = student.StudentName,
+                    Status = $"Error - {ex.Message}"
+                });
+            }
+            catch (Exception ex)
+            {
+                results.Add(new BulkChallanGenerateResultItem
+                {
+                    StudentId = studentId,
+                    RegistrationNo = student.RegistrationNo,
+                    StudentName = student.StudentName,
+                    Status = $"Error - {ex.Message}"
+                });
+            }
+        }
+
+        return new BulkChallanGenerateResponse
+        {
+            TotalProcessed = results.Count,
+            TotalGenerated = results.Count(r => r.Status.Equals("Generated", StringComparison.OrdinalIgnoreCase)),
+            TotalSkipped = results.Count(r => r.Status.StartsWith("Skipped", StringComparison.OrdinalIgnoreCase)),
+            TotalErrors = results.Count(r => r.Status.StartsWith("Error", StringComparison.OrdinalIgnoreCase)),
+            Results = results
+        };
+    }
+
+    private async Task<int> GenerateMultiMonthChallanAsync(
+        int studentId,
+        int structureId,
+        DateOnly fromPeriod,
+        DateOnly toPeriod,
+        DateOnly issueDate,
+        DateOnly dueDate,
+        int createdBy,
+        CancellationToken cancellationToken)
+    {
+        if (await ChallanExistsForBillingRangeAsync(studentId, fromPeriod, toPeriod, cancellationToken))
+        {
+            throw new InvalidOperationException(
+                $"A challan already exists for {FeeStructureDetailBilling.FormatBillingRange(fromPeriod, toPeriod)}.");
+        }
+
+        var structure = await _structures.GetAsync(structureId, cancellationToken)
+            ?? throw new InvalidOperationException("Fee structure not found.");
+
+        if (!structure.IsActive)
+        {
+            throw new InvalidOperationException("Fee structure is inactive.");
+        }
+
+        var details = await _structures.GetDetailsForStructureAsync(structureId, cancellationToken);
+        var linePayloads = await BuildMultiMonthLinePayloadsAsync(
+            studentId,
+            details,
+            fromPeriod,
+            toPeriod,
+            cancellationToken);
+
+        if (linePayloads.Count == 0)
+        {
+            throw new InvalidOperationException(
+                $"No fee line items apply for {FeeStructureDetailBilling.FormatBillingRange(fromPeriod, toPeriod)}. Monthly heads are included each month; one-time heads only match their configured month and year.");
+        }
+
+        decimal totalAmount = 0;
+        decimal lineDiscountTotal = 0;
+        foreach (var line in linePayloads)
+        {
+            totalAmount += line.Amount;
+            lineDiscountTotal += line.Discount;
+        }
+
+        var netPayable = Math.Max(0, totalAmount - lineDiscountTotal);
+        var remarks = $"Billing period: {FeeStructureDetailBilling.FormatBillingRange(fromPeriod, toPeriod)}";
+
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
+
+        return await InsertChallanAsync(
+            connection,
+            transaction,
+            studentId,
+            null,
+            structureId,
+            structure.Semester,
+            structure.AcademicYear,
+            issueDate,
+            dueDate,
+            totalAmount,
+            lineDiscountTotal,
+            netPayable,
+            remarks,
+            createdBy,
+            linePayloads,
+            cancellationToken);
+    }
+
+    private async Task<List<(short FeeHeadId, decimal Amount, decimal Discount, decimal LateFine, decimal Net)>> BuildMultiMonthLinePayloadsAsync(
+        int studentId,
+        IReadOnlyList<FeeStructureDetailLine> details,
+        DateOnly fromPeriod,
+        DateOnly toPeriod,
+        CancellationToken cancellationToken)
+    {
+        var totals = new Dictionary<short, (decimal Amount, decimal Discount)>();
+
+        foreach (var period in FeeStructureDetailBilling.EnumerateBillingMonths(fromPeriod, toPeriod))
+        {
+            foreach (var line in FeeStructureDetailBilling.FilterForBillingPeriod(details, period))
+            {
+                var concessionDiscount = await _concessions.GetApplicableDiscountForHeadAsync(
+                    studentId, line.FeeHeadId, line.Amount, period, cancellationToken);
+
+                if (totals.TryGetValue(line.FeeHeadId, out var existing))
+                {
+                    totals[line.FeeHeadId] = (existing.Amount + line.Amount, existing.Discount + concessionDiscount);
+                }
+                else
+                {
+                    totals[line.FeeHeadId] = (line.Amount, concessionDiscount);
+                }
+            }
+        }
+
+        return totals
+            .Select(entry =>
+            {
+                var amount = entry.Value.Amount;
+                var discount = entry.Value.Discount;
+                return (entry.Key, amount, discount, 0m, amount - discount);
+            })
+            .ToList();
+    }
+
+    private async Task<bool> ChallanExistsForBillingRangeAsync(
+        int studentId,
+        DateOnly fromPeriod,
+        DateOnly toPeriod,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT 1
+            FROM dbo.Challans
+            WHERE StudentID = @StudentId
+              AND IsActive = 1
+              AND Status <> 'Cancelled'
+              AND DATEFROMPARTS(YEAR(IssueDate), MONTH(IssueDate), 1)
+                  BETWEEN @FromPeriod AND @ToPeriod;
+            """;
+
+        await using var connection = new SqlConnection(_connectionString);
+        await using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@StudentId", studentId);
+        command.Parameters.AddWithValue("@FromPeriod", FeeStructureDetailBilling.NormalizeBillingMonth(fromPeriod).ToDateTime(TimeOnly.MinValue));
+        command.Parameters.AddWithValue("@ToPeriod", FeeStructureDetailBilling.NormalizeBillingMonth(toPeriod).ToDateTime(TimeOnly.MinValue));
+        await connection.OpenAsync(cancellationToken);
+        var result = await command.ExecuteScalarAsync(cancellationToken);
+        return result is not null and not DBNull;
+    }
+
+    private static async Task<int> InsertChallanAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        int studentId,
+        int? applicationUid,
+        int structureId,
+        string semester,
+        short academicYear,
+        DateOnly issueDate,
+        DateOnly dueDate,
+        decimal totalAmount,
+        decimal discountAmount,
+        decimal netPayable,
+        string? remarks,
+        int createdBy,
+        IReadOnlyList<(short FeeHeadId, decimal Amount, decimal Discount, decimal LateFine, decimal Net)> linePayloads,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var challanNo = await AllocateChallanNoAsync(connection, transaction, cancellationToken);
+        const string insertChallan = """
+            INSERT INTO dbo.Challans
+                (ChallanNo, StudentID, ApplicationUid, StructureID, Semester, AcademicYear, IssueDate, DueDate,
+                 TotalAmount, DiscountAmount, LateFineAmount, NetPayable, AmountPaid, Status, Remarks,
+                 IsActive, CreatedBy, CreatedAt)
+            VALUES
+                (@ChallanNo, @StudentId, @ApplicationUid, @StructureId, @Semester, @AcademicYear, @IssueDate, @DueDate,
+                 @TotalAmount, @DiscountAmount, 0, @NetPayable, 0, 'Unpaid', @Remarks,
+                 1, @CreatedBy, SYSUTCDATETIME());
+            SELECT CAST(SCOPE_IDENTITY() AS int);
+            """;
+
+        int challanId;
+        await using (var command = new SqlCommand(insertChallan, connection, transaction))
+        {
+            command.Parameters.AddWithValue("@ChallanNo", challanNo);
+            command.Parameters.AddWithValue("@StudentId", applicationUid.HasValue ? DBNull.Value : studentId);
+            command.Parameters.AddWithValue("@ApplicationUid", applicationUid.HasValue ? applicationUid.Value : DBNull.Value);
+            command.Parameters.AddWithValue("@StructureId", structureId);
+            command.Parameters.AddWithValue("@Semester", semester);
+            command.Parameters.AddWithValue("@AcademicYear", academicYear);
+            command.Parameters.AddWithValue("@IssueDate", issueDate.ToDateTime(TimeOnly.MinValue));
+            command.Parameters.AddWithValue("@DueDate", dueDate.ToDateTime(TimeOnly.MinValue));
+            command.Parameters.AddWithValue("@TotalAmount", totalAmount);
+            command.Parameters.AddWithValue("@DiscountAmount", discountAmount);
+            command.Parameters.AddWithValue("@NetPayable", netPayable);
+            command.Parameters.AddWithValue("@Remarks", (object?)remarks?.Trim() ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CreatedBy", createdBy);
+            challanId = Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
+        }
+
+        const string insertDetail = """
+            INSERT INTO dbo.ChallanDetails
+                (ChallanID, FeeHeadID, Amount, DiscountAmount, LateFine, NetAmount, CreatedBy, CreatedAt)
+            VALUES
+                (@ChallanId, @FeeHeadId, @Amount, @DiscountAmount, @LateFine, @NetAmount, @CreatedBy, SYSUTCDATETIME());
+            """;
+
+        foreach (var line in linePayloads)
+        {
+            await using var command = new SqlCommand(insertDetail, connection, transaction);
+            command.Parameters.AddWithValue("@ChallanId", challanId);
+            command.Parameters.AddWithValue("@FeeHeadId", line.FeeHeadId);
+            command.Parameters.AddWithValue("@Amount", line.Amount);
+            command.Parameters.AddWithValue("@DiscountAmount", line.Discount);
+            command.Parameters.AddWithValue("@LateFine", line.LateFine);
+            command.Parameters.AddWithValue("@NetAmount", line.Net);
+            command.Parameters.AddWithValue("@CreatedBy", createdBy);
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+        return challanId;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
     private sealed record BulkStudentRow(string RegistrationNo, string StudentName, bool IsActive);
 
     private async Task<Dictionary<int, BulkStudentRow>> LoadBulkStudentsForProgramAsync(
@@ -705,26 +1129,25 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         return map;
     }
 
-    private async Task<bool> ChallanExistsForTermAsync(
+    private async Task<bool> ChallanExistsForBillingPeriodAsync(
         int studentId,
-        string semester,
-        short academicYear,
+        DateOnly issueDate,
         CancellationToken cancellationToken)
     {
         const string sql = """
             SELECT 1
             FROM dbo.Challans
             WHERE StudentID = @StudentId
-              AND Semester = @Semester
-              AND AcademicYear = @AcademicYear
-              AND IsActive = 1;
+              AND MONTH(IssueDate) = MONTH(@IssueDate)
+              AND YEAR(IssueDate) = YEAR(@IssueDate)
+              AND IsActive = 1
+              AND Status <> 'Cancelled';
             """;
 
         await using var connection = new SqlConnection(_connectionString);
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@StudentId", studentId);
-        command.Parameters.AddWithValue("@Semester", semester.Trim());
-        command.Parameters.AddWithValue("@AcademicYear", academicYear);
+        command.Parameters.AddWithValue("@IssueDate", issueDate.ToDateTime(TimeOnly.MinValue));
         await connection.OpenAsync(cancellationToken);
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return result is not null and not DBNull;
