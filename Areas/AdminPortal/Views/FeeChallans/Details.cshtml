@@ -2,7 +2,7 @@
 @{
     var h = Model.Header;
     ViewData["Title"] = $"Challan {h.ChallanNo}";
-    var summaryTitle = $"{h.ChallanNo} - {h.StudentName} ({h.RegistrationNo}) · {h.Semester} · {h.AcademicYear} · Due {h.DueDate:yyyy-MM-dd}";
+    var summaryTitle = $"{h.ChallanNo} - {h.StudentName} ({h.RegistrationNo}) · {(string.IsNullOrWhiteSpace(h.BillingPeriodDisplay) ? $"{h.Semester} · {h.AcademicYear}" : h.BillingPeriodDisplay)} · Due {h.DueDate:yyyy-MM-dd}";
     var summaryMeta = $"Net {h.NetPayable:N2} · Paid {h.AmountPaid:N2} · Balance {(h.NetPayable - h.AmountPaid):N2} · {h.DisplayStatus}";
 }
 

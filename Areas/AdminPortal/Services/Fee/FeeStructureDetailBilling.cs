@@ -1,3 +1,4 @@
+using System.Globalization;
 using VEMS.Areas.AdminPortal.Models.Fee;
 
 namespace VEMS.Areas.AdminPortal.Services.Fee;
@@ -70,5 +71,34 @@ internal static class FeeStructureDetailBilling
         {
             throw new InvalidOperationException("To month must be on or after From month.");
         }
+    }
+
+    public static (string Month, string Year) ResolveBillingLabels(DateOnly fromPeriod, DateOnly? toPeriod = null)
+    {
+        var from = NormalizeBillingMonth(fromPeriod);
+        var to = NormalizeBillingMonth(toPeriod ?? fromPeriod);
+
+        var monthLabel = from == to
+            ? from.ToString("MMMM", CultureInfo.InvariantCulture)
+            : $"{from.ToString("MMMM", CultureInfo.InvariantCulture)} to {to.ToString("MMMM", CultureInfo.InvariantCulture)}";
+
+        var yearLabel = from.Year == to.Year
+            ? from.Year.ToString(CultureInfo.InvariantCulture)
+            : $"{from.Year}-{to.Year}";
+
+        return (monthLabel, yearLabel);
+    }
+
+    public static string FormatBillingPeriodDisplay(string? challanMonth, string? challanYear)
+    {
+        var month = challanMonth?.Trim() ?? string.Empty;
+        var year = challanYear?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(month))
+        {
+            return string.Empty;
+        }
+
+        return string.IsNullOrEmpty(year) ? month : $"{month} {year}";
     }
 }

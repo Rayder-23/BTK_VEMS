@@ -6,6 +6,14 @@ public sealed class StudentChallanSummary
     public string ChallanNo { get; init; } = string.Empty;
     public string Semester { get; init; } = string.Empty;
     public short AcademicYear { get; init; }
+    public string ChallanMonth { get; init; } = string.Empty;
+    public string ChallanYear { get; init; } = string.Empty;
+    public string BillingPeriodDisplay =>
+        string.IsNullOrWhiteSpace(ChallanMonth)
+            ? string.Empty
+            : string.IsNullOrWhiteSpace(ChallanYear)
+                ? ChallanMonth.Trim()
+                : $"{ChallanMonth.Trim()} {ChallanYear.Trim()}";
     public DateOnly IssueDate { get; init; }
     public DateOnly DueDate { get; init; }
     public decimal NetPayable { get; init; }

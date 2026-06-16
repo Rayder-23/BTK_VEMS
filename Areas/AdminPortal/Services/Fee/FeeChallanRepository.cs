@@ -27,7 +27,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                    COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
-                   c.Semester, c.AcademicYear, c.DueDate, c.NetPayable, c.AmountPaid, c.Status
+                   c.Semester, c.AcademicYear, c.ChallanMonth, c.ChallanYear,
+                   c.DueDate, c.NetPayable, c.AmountPaid, c.Status
             FROM dbo.Challans c
             LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
@@ -70,6 +71,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                 RegistrationNo = reader["RegistrationNo"] as string ?? "",
                 Semester = reader["Semester"] as string ?? "",
                 AcademicYear = FeeSql.ToInt16(reader, "AcademicYear"),
+                ChallanMonth = reader["ChallanMonth"] as string ?? "",
+                ChallanYear = reader["ChallanYear"] as string ?? "",
                 DueDate = dueDate,
                 NetPayable = net,
                 AmountPaid = paid,
@@ -88,7 +91,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                    COALESCE(NULLIF(LTRIM(RTRIM(s.StudentName)), ''),
                             NULLIF(LTRIM(RTRIM(a.FirstName + ' ' + a.LastName)), '')) AS StudentName,
                    COALESCE(s.RegistrationNo, a.ApplicationNo) AS RegistrationNo,
-                   c.Semester, c.AcademicYear, c.DueDate, c.NetPayable, c.AmountPaid, c.Status
+                   c.Semester, c.AcademicYear, c.ChallanMonth, c.ChallanYear,
+                   c.DueDate, c.NetPayable, c.AmountPaid, c.Status
             FROM dbo.Challans c
             LEFT JOIN dbo.Students s ON c.StudentID = s.StudentID
             LEFT JOIN dbo.StudentApplications a ON c.ApplicationUid = a.Uid
@@ -120,6 +124,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
                 RegistrationNo = reader["RegistrationNo"] as string ?? "",
                 Semester = reader["Semester"] as string ?? "",
                 AcademicYear = FeeSql.ToInt16(reader, "AcademicYear"),
+                ChallanMonth = reader["ChallanMonth"] as string ?? "",
+                ChallanYear = reader["ChallanYear"] as string ?? "",
                 DueDate = dueDate,
                 NetPayable = net,
                 AmountPaid = paid,
@@ -263,72 +269,31 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             netPayable = 0;
         }
 
+        var (challanMonth, challanYear) = FeeStructureDetailBilling.ResolveBillingLabels(model.IssueDate);
+
         await using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
 
-        try
-        {
-            var challanNo = await AllocateChallanNoAsync(connection, transaction, cancellationToken);
-            const string insertChallan = """
-                INSERT INTO dbo.Challans
-                    (ChallanNo, StudentID, ApplicationUid, StructureID, Semester, AcademicYear, IssueDate, DueDate,
-                     TotalAmount, DiscountAmount, LateFineAmount, NetPayable, AmountPaid, Status, Remarks,
-                     IsActive, CreatedBy, CreatedAt)
-                VALUES
-                    (@ChallanNo, @StudentId, @ApplicationUid, @StructureId, @Semester, @AcademicYear, @IssueDate, @DueDate,
-                     @TotalAmount, @DiscountAmount, 0, @NetPayable, 0, 'Unpaid', @Remarks,
-                     1, @CreatedBy, SYSUTCDATETIME());
-                SELECT CAST(SCOPE_IDENTITY() AS int);
-                """;
-
-            int challanId;
-            await using (var command = new SqlCommand(insertChallan, connection, transaction))
-            {
-                command.Parameters.AddWithValue("@ChallanNo", challanNo);
-                command.Parameters.AddWithValue("@StudentId", isApplicationChallan ? DBNull.Value : model.StudentId);
-                command.Parameters.AddWithValue("@ApplicationUid", isApplicationChallan ? model.ApplicationUid!.Value : DBNull.Value);
-                command.Parameters.AddWithValue("@StructureId", model.StructureId);
-                command.Parameters.AddWithValue("@Semester", structure.Semester);
-                command.Parameters.AddWithValue("@AcademicYear", structure.AcademicYear);
-                command.Parameters.AddWithValue("@IssueDate", model.IssueDate.ToDateTime(TimeOnly.MinValue));
-                command.Parameters.AddWithValue("@DueDate", model.DueDate.ToDateTime(TimeOnly.MinValue));
-                command.Parameters.AddWithValue("@TotalAmount", totalAmount);
-                command.Parameters.AddWithValue("@DiscountAmount", discountAmount);
-                command.Parameters.AddWithValue("@NetPayable", netPayable);
-                command.Parameters.AddWithValue("@Remarks", (object?)model.Remarks?.Trim() ?? DBNull.Value);
-                command.Parameters.AddWithValue("@CreatedBy", createdBy);
-                challanId = Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken));
-            }
-
-            const string insertDetail = """
-                INSERT INTO dbo.ChallanDetails
-                    (ChallanID, FeeHeadID, Amount, DiscountAmount, LateFine, NetAmount, CreatedBy, CreatedAt)
-                VALUES
-                    (@ChallanId, @FeeHeadId, @Amount, @DiscountAmount, @LateFine, @NetAmount, @CreatedBy, SYSUTCDATETIME());
-                """;
-
-            foreach (var line in linePayloads)
-            {
-                await using var command = new SqlCommand(insertDetail, connection, transaction);
-                command.Parameters.AddWithValue("@ChallanId", challanId);
-                command.Parameters.AddWithValue("@FeeHeadId", line.FeeHeadId);
-                command.Parameters.AddWithValue("@Amount", line.Amount);
-                command.Parameters.AddWithValue("@DiscountAmount", line.Discount);
-                command.Parameters.AddWithValue("@LateFine", line.LateFine);
-                command.Parameters.AddWithValue("@NetAmount", line.Net);
-                command.Parameters.AddWithValue("@CreatedBy", createdBy);
-                await command.ExecuteNonQueryAsync(cancellationToken);
-            }
-
-            await transaction.CommitAsync(cancellationToken);
-            return challanId;
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
+        return await InsertChallanAsync(
+            connection,
+            transaction,
+            isApplicationChallan ? 0 : model.StudentId,
+            isApplicationChallan ? model.ApplicationUid : null,
+            model.StructureId,
+            structure.Semester,
+            structure.AcademicYear,
+            model.IssueDate,
+            model.DueDate,
+            totalAmount,
+            discountAmount,
+            netPayable,
+            model.Remarks,
+            challanMonth,
+            challanYear,
+            createdBy,
+            linePayloads,
+            cancellationToken);
     }
 
     public async Task<bool> CancelAsync(int challanId, int? updatedBy, CancellationToken cancellationToken = default)
@@ -916,6 +881,7 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
 
         var netPayable = Math.Max(0, totalAmount - lineDiscountTotal);
         var remarks = $"Billing period: {FeeStructureDetailBilling.FormatBillingRange(fromPeriod, toPeriod)}";
+        var (challanMonth, challanYear) = FeeStructureDetailBilling.ResolveBillingLabels(fromPeriod, toPeriod);
 
         await using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -935,6 +901,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             lineDiscountTotal,
             netPayable,
             remarks,
+            challanMonth,
+            challanYear,
             createdBy,
             linePayloads,
             cancellationToken);
@@ -1017,6 +985,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
         decimal discountAmount,
         decimal netPayable,
         string? remarks,
+        string challanMonth,
+        string challanYear,
         int createdBy,
         IReadOnlyList<(short FeeHeadId, decimal Amount, decimal Discount, decimal LateFine, decimal Net)> linePayloads,
         CancellationToken cancellationToken)
@@ -1026,11 +996,13 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             var challanNo = await AllocateChallanNoAsync(connection, transaction, cancellationToken);
         const string insertChallan = """
             INSERT INTO dbo.Challans
-                (ChallanNo, StudentID, ApplicationUid, StructureID, Semester, AcademicYear, IssueDate, DueDate,
+                (ChallanNo, StudentID, ApplicationUid, StructureID, Semester, AcademicYear,
+                 ChallanMonth, ChallanYear, IssueDate, DueDate,
                  TotalAmount, DiscountAmount, LateFineAmount, NetPayable, AmountPaid, Status, Remarks,
                  IsActive, CreatedBy, CreatedAt)
             VALUES
-                (@ChallanNo, @StudentId, @ApplicationUid, @StructureId, @Semester, @AcademicYear, @IssueDate, @DueDate,
+                (@ChallanNo, @StudentId, @ApplicationUid, @StructureId, @Semester, @AcademicYear,
+                 @ChallanMonth, @ChallanYear, @IssueDate, @DueDate,
                  @TotalAmount, @DiscountAmount, 0, @NetPayable, 0, 'Unpaid', @Remarks,
                  1, @CreatedBy, SYSUTCDATETIME());
             SELECT CAST(SCOPE_IDENTITY() AS int);
@@ -1045,6 +1017,8 @@ public sealed class FeeChallanRepository : IFeeChallanRepository
             command.Parameters.AddWithValue("@StructureId", structureId);
             command.Parameters.AddWithValue("@Semester", semester);
             command.Parameters.AddWithValue("@AcademicYear", academicYear);
+            command.Parameters.AddWithValue("@ChallanMonth", challanMonth);
+            command.Parameters.AddWithValue("@ChallanYear", challanYear);
             command.Parameters.AddWithValue("@IssueDate", issueDate.ToDateTime(TimeOnly.MinValue));
             command.Parameters.AddWithValue("@DueDate", dueDate.ToDateTime(TimeOnly.MinValue));
             command.Parameters.AddWithValue("@TotalAmount", totalAmount);

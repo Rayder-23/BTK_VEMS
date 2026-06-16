@@ -23,8 +23,7 @@
                 <thead>
                     <tr>
                         <th>Challan no.</th>
-                        <th>Semester</th>
-                        <th>Year</th>
+                        <th>Billing period</th>
                         <th>Issued</th>
                         <th>Due</th>
                         <th class="text-end">Net payable</th>
@@ -38,8 +37,7 @@
                     {
                         <tr>
                             <td class="portal-grid-data fw-semibold">@challan.ChallanNo</td>
-                            <td class="portal-grid-data">@challan.Semester</td>
-                            <td class="portal-grid-data">@challan.AcademicYear</td>
+                            <td class="portal-grid-data">@(string.IsNullOrWhiteSpace(challan.BillingPeriodDisplay) ? $"{challan.Semester} {challan.AcademicYear}" : challan.BillingPeriodDisplay)</td>
                             <td class="portal-grid-data">@challan.IssueDate.ToString("dd MMM yyyy")</td>
                             <td class="portal-grid-data">@challan.DueDate.ToString("dd MMM yyyy")</td>
                             <td class="portal-grid-data text-end">@challan.NetPayable.ToString("N2")</td>

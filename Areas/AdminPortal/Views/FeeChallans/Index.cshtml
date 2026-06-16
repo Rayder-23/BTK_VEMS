@@ -50,6 +50,7 @@
                 <tr>
                     <th>Challan</th>
                     <th>Student</th>
+                    <th>Billing period</th>
                     <th>Term</th>
                     <th>Due</th>
                     <th>Net</th>
@@ -61,13 +62,14 @@
             <tbody>
             @if (Model.Count == 0)
             {
-                <tr><td colspan="8" class="text-center text-muted py-4">No challans found.</td></tr>
+                <tr><td colspan="9" class="text-center text-muted py-4">No challans found.</td></tr>
             }
             @foreach (var row in Model)
             {
                 <tr>
                     <td>@row.ChallanNo</td>
                     <td>@row.StudentName<br /><small class="text-muted">@row.RegistrationNo</small></td>
+                    <td>@(string.IsNullOrWhiteSpace(row.BillingPeriodDisplay) ? "—" : row.BillingPeriodDisplay)</td>
                     <td>@row.Semester @row.AcademicYear</td>
                     <td>@row.DueDate.ToString("yyyy-MM-dd")</td>
                     <td>@row.NetPayable.ToString("N2")</td>

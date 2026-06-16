@@ -31,6 +31,7 @@
     <table class="table table-borderless table-sm">
         <tr><th style="width:38%">Student</th><td>@h.StudentName</td></tr>
         <tr><th>Registration</th><td>@h.RegistrationNo</td></tr>
+        <tr><th>Billing period</th><td>@(string.IsNullOrWhiteSpace(h.BillingPeriodDisplay) ? "—" : h.BillingPeriodDisplay)</td></tr>
         <tr><th>Term</th><td>@h.Semester @h.AcademicYear</td></tr>
         <tr><th>Due date</th><td>@h.DueDate.ToString("yyyy-MM-dd")</td></tr>
         <tr><th>Status</th><td>@h.DisplayStatus</td></tr>

@@ -565,6 +565,8 @@ Parent payment voucher record for a student or admission applicant.
 | AmountPaid     | DECIMAL(10,2) | DEFAULT 0.00 — Updated by application on each payment       |
 | Status         | NVARCHAR(20)  | DEFAULT `'Unpaid'` — From Configurations                    |
 | Remarks        | NVARCHAR(300) | Nullable                                                    |
+| ChallanMonth   | NVARCHAR(50)  | Nullable — e.g. `June` or `June to August`                  |
+| ChallanYear    | NVARCHAR(9)   | Nullable — e.g. `2026` or `2025-2026` for cross-year ranges |
 | IsActive       | BIT           | DEFAULT 1                                                   |
 | CreatedBy      | INT           | NOT NULL                                                    |
 | CreatedAt      | DATETIME2(7)  | DEFAULT sysutcdatetime()                                    |

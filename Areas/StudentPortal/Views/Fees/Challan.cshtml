@@ -25,7 +25,7 @@ else
                 <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Fee challan</span>
                 <span class="challan-summary-no">@challan.ChallanNo</span>
                 <span class="challan-summary-meta">
-                    @challan.Semester · @challan.AcademicYear
+                    @(string.IsNullOrWhiteSpace(challan.BillingPeriodDisplay) ? $"{challan.Semester} · {challan.AcademicYear}" : challan.BillingPeriodDisplay)
                     · Issued @challan.IssueDate.ToString("dd MMM yyyy")
                     · Due @challan.DueDate.ToString("dd MMM yyyy")
                 </span>
