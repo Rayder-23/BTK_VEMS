@@ -4,10 +4,10 @@ Generated: 2026-06-15 (from live database using ConnectionStrings:DefaultConnect
 Version: 6.0  (Increment 'Version' by 0.1 at every change)
 UpdatedAt: 2026-06-16  (Update 'UpdatedAt' timestamp at every change)
 
-READ @Database.md, @DBworkflows.md and @database-rules.mdc for implementation details.
 IF UPDATING this file, make sure to UPDATE @Database.md aswell while following its formatting.
 
 This file lists database tables and columns only. It does not and should not include data rows or connection credentials.
+
 Table: dbo.AcademicYears
   - AcademicYearID: int NOT NULL PK
   - YearName: varchar(20) NOT NULL

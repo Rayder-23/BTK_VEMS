@@ -5,8 +5,7 @@
 
 ### Project-Wide Rules:-
 1. **Uid Mandate:** The primary key of every table is `Uid` (except `StudentContacts`, which uses `ContactID` as PK and also carries a separate `Uid` column).
-2. READ [DBworkflows](DBworkflows.md) before implementing any workflows involving Database tables.
-3. **Configurations** is the single source of truth for all status/type strings — never hardcode dropdown values in application code.
+2. **Configurations** is the single source of truth for all status/type strings — never hardcode dropdown values in application code.
 
 
 ## 1. Core Configuration Registry

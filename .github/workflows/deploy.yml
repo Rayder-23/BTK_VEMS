@@ -1,0 +1,68 @@
+name: Build and Deploy .NET App to GCP
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+      - 'docs/**'
+      - 'scripts/**'
+      - 'deploy/**'
+      - '.gitignore'
+      - 'LICENSE'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    - name: Build and Publish
+      run: |
+        dotnet publish -c Release -o ./publish
+
+    - name: Stop systemctl Service
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.GCP_VM_HOST }}
+        username: ${{ secrets.GCP_VM_USER }}
+        key: ${{ secrets.GCP_VM_SSH_KEY }}
+        script: |
+          sudo systemctl stop vems
+
+    - name: Ensure Target Directory Exists
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.GCP_VM_HOST }}
+        username: ${{ secrets.GCP_VM_USER }}
+        key: ${{ secrets.GCP_VM_SSH_KEY }}
+        script: |
+          mkdir -p ${{ secrets.GCP_APP_PATH }}
+
+    - name: Sync files to GCP VM (Preserving Production Config)
+      run: |
+        echo "${{ secrets.GCP_VM_SSH_KEY }}" > deploy_key
+        chmod 600 deploy_key
+        rsync -avz --delete --exclude='appsettings.Production.json' --exclude='appsettings.Development.json' -e "ssh -i deploy_key -o StrictHostKeyChecking=no" ./publish/ ${{ secrets.GCP_VM_USER }}@${{ secrets.GCP_VM_HOST }}:${{ secrets.GCP_APP_PATH }}
+        rm deploy_key
+
+    - name: Start systemctl Service
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.GCP_VM_HOST }}
+        username: ${{ secrets.GCP_VM_USER }}
+        key: ${{ secrets.GCP_VM_SSH_KEY }}
+        script: |
+          sudo systemctl start vems
